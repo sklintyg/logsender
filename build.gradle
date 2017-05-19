@@ -1,5 +1,9 @@
 apply plugin: 'war'
 apply plugin: 'org.akhikhl.gretty'
+apply plugin: 'inera-intyg'
+apply plugin: 'maven'
+apply plugin: 'idea'
+apply plugin: 'net.ltgt.apt'
 
 def webappOutputDir = 'build/apps/'
 
@@ -12,7 +16,9 @@ buildscript {
 
     dependencies {
         classpath 'se.inera.intyg:gradle-intyg-plugin:1.0.+'
+        classpath 'com.moowork.gradle:gradle-node-plugin:1.1.1'
         classpath 'org.akhikhl.gretty:gretty:1.4.1'
+        classpath 'net.ltgt.gradle:gradle-apt-plugin:0.10'
     }
 }
 
@@ -20,6 +26,20 @@ repositories {
     mavenLocal()
     maven { url "https://build-inera.nordicmedtest.se/nexus/repository/releases/" }
     maven { url "http://repo.maven.apache.org/maven2" }
+}
+
+group = 'se.inera.intyg.logsender'
+version = System.properties['buildVersion'] ?: '0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+task createVersionPropertyFile(type: VersionPropertyFileTask)
+
+uploadArchives.repositories.mavenDeployer {
+    repository(url: "https://build-inera.nordicmedtest.se/nexus/repository/releases/") {
+        authentication(userName: System.properties['nexusUsername'], password: System.properties['nexusPassword'])
+    }
 }
 
 ext {
@@ -109,32 +129,43 @@ task camelTest(type: Test) {
     include '**/*IT*'
 }
 
+
+
+task tagRelease(type: TagReleaseTask)
+
+task testReport(type: SharedTestReportTask)
+
 dependencies {
-  
-  compile "se.inera.intyg.infra:log-messages:${infraVersion}"
-  compile "se.inera.intyg.infra:loggtjanst-stub:${infraVersion}"
-  compile "se.inera.intyg.common:logging-util:${commonVersion}"
-  compile "se.inera.intyg.common:integration-util:${commonVersion}"
 
-  compile "org.springframework:spring-web:${springVersion}"
-  compile "org.springframework:spring-jms:${springVersion}"
-  compile "org.apache.camel:camel-spring:${camelVersion}"
-  compile "org.apache.activemq:activemq-camel:${activeMqVersion}"
-  compile "javax.ws.rs:javax.ws.rs-api:${javaxWsRsApiVersion}"
+    compile "com.google.code.findbugs:jsr305:3.0.0"
 
-  compileOnly "javax.servlet:servlet-api:${servletApiVersion}"
-  compileOnly "org.apache.geronimo.specs:geronimo-jms_1.1_spec:${geronimoJmsVersion}"
+    testCompile 'junit:junit:4.+'
+    testCompile "org.mockito:mockito-core:1.9.0"
 
-  testCompile "org.kubek2k:springockito:${springockitoVersion}"
-  testCompile "org.springframework:spring-test:${springVersion}"
-  testCompile "xmlunit:xmlunit:${xmlUnitVersion}"
-  testCompile "com.jayway.awaitility:awaitility:${awaitilityVersion}"
-  testCompile "org.apache.camel:camel-test-spring:${camelVersion}"
-  testCompile "org.apache.activemq:activemq-spring:${activeMqVersion}"
-  testCompile "org.apache.activemq:activemq-broker:${activeMqVersion}"
+    compile "se.inera.intyg.infra:log-messages:${infraVersion}"
+    compile "se.inera.intyg.infra:loggtjanst-stub:${infraVersion}"
+    compile "se.inera.intyg.common:logging-util:${commonVersion}"
+    compile "se.inera.intyg.common:integration-util:${commonVersion}"
 
-  gretty "org.apache.activemq:activemq-client:${activeMqVersion}"
-  gretty "org.apache.activemq:activemq-broker:${activeMqVersion}"
-  gretty "com.h2database:h2:${h2Version}"
-  gretty "mysql:mysql-connector-java:${mysqlVersion}"
+    compile "org.springframework:spring-web:${springVersion}"
+    compile "org.springframework:spring-jms:${springVersion}"
+    compile "org.apache.camel:camel-spring:${camelVersion}"
+    compile "org.apache.activemq:activemq-camel:${activeMqVersion}"
+    compile "javax.ws.rs:javax.ws.rs-api:${javaxWsRsApiVersion}"
+
+    compileOnly "javax.servlet:servlet-api:${servletApiVersion}"
+    compileOnly "org.apache.geronimo.specs:geronimo-jms_1.1_spec:${geronimoJmsVersion}"
+
+    testCompile "org.kubek2k:springockito:${springockitoVersion}"
+    testCompile "org.springframework:spring-test:${springVersion}"
+    testCompile "xmlunit:xmlunit:${xmlUnitVersion}"
+    testCompile "com.jayway.awaitility:awaitility:${awaitilityVersion}"
+    testCompile "org.apache.camel:camel-test-spring:${camelVersion}"
+    testCompile "org.apache.activemq:activemq-spring:${activeMqVersion}"
+    testCompile "org.apache.activemq:activemq-broker:${activeMqVersion}"
+
+    gretty "org.apache.activemq:activemq-client:${activeMqVersion}"
+    gretty "org.apache.activemq:activemq-broker:${activeMqVersion}"
+    gretty "com.h2database:h2:${h2Version}"
+    gretty "mysql:mysql-connector-java:${mysqlVersion}"
 }
