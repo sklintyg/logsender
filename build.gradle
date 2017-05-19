@@ -5,6 +5,8 @@ apply plugin: 'maven'
 apply plugin: 'idea'
 apply plugin: 'net.ltgt.apt'
 
+rootProject.name = 'logsender'
+
 def webappOutputDir = 'build/apps/'
 
 buildscript {
