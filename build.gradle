@@ -133,11 +133,7 @@ task camelTest(type: Test) {
     include '**/*IT*'
 }
 
-
-
 task tagRelease(type: TagReleaseTask)
-
-task testReport(type: SharedTestReportTask)
 
 dependencies {
 
