@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import se.inera.intyg.common.util.integration.integration.json.CustomObjectMapper;
+import se.inera.intyg.common.util.integration.json.CustomObjectMapper;
 import se.inera.intyg.infra.logmessages.PdlLogMessage;
 import se.inera.intyg.logsender.exception.TemporaryException;
 import se.inera.intyg.logsender.client.LogSenderClient;

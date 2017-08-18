@@ -19,33 +19,32 @@
 package se.inera.intyg.logsender.service;
 
 import static org.mockito.Matchers.anyList;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
-import java.util.List;
-
-import javax.xml.ws.WebServiceException;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import se.inera.intyg.common.util.integration.integration.json.CustomObjectMapper;
+import se.inera.intyg.common.util.integration.json.CustomObjectMapper;
 import se.inera.intyg.infra.logmessages.ActivityType;
-import se.inera.intyg.logsender.exception.TemporaryException;
 import se.inera.intyg.logsender.client.LogSenderClient;
 import se.inera.intyg.logsender.converter.LogTypeFactoryImpl;
 import se.inera.intyg.logsender.exception.BatchValidationException;
 import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
+import se.inera.intyg.logsender.exception.TemporaryException;
 import se.inera.intyg.logsender.helper.TestDataHelper;
 import se.riv.ehr.log.store.storelogresponder.v1.StoreLogResponseType;
 import se.riv.ehr.log.store.v1.ResultType;
 import se.riv.ehr.log.v1.ResultCodeType;
+
+import javax.xml.ws.WebServiceException;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by eriklupander on 2016-03-08.
