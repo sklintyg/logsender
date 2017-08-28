@@ -13,9 +13,9 @@ Det innebär att följande saker behöver vara uppfyllda:
 
     ./$AMQ_HOME/bin/activemq start
 
-(2) Starta log-sender från /webcert/log-sender:
+(2) Starta log-sender:
 
-    ../gradlew appRun
+    ./gradlew appRun
     
 ### Konfigurera Webcert    
 
@@ -34,10 +34,10 @@ Det innebär att följande saker behöver vara uppfyllda:
         </Arg>
       </New>
       
-(2) Bygg om och starta webcert, från /webcert
+(2) Bygg om och starta webcert:
 
 
-    mvn clean install;cd web;mvn jetty:run
+    ./gradlew build appRun
 
 ### Aggregering av loggposter
 Kom ihåg att standardinställningen för aggregering av loggmeddelanden från producenter är 5 st, dvs. om man vill testa från lokal Webcert (localhost:9088) så kan man förslagsvis logga in, gå in på 191212121212, skapa ett Utkast och sedan klicka sig in och ut på Utkastet ytterligare 4 gånger via sidan för Ej signerade utkast. Varje "titt" på utkastet skapar en loggpost och efter totalt 5 st så kommer log-sender sammanställa ett loggmeddelande utifrån samtliga aggregerade och skicka till PDL-tjänsten.
@@ -46,7 +46,7 @@ Kom ihåg att standardinställningen för aggregering av loggmeddelanden från p
 
 Lokalt är förstås tjänsten stubbad, man bör kunna kika på innehållet i stubben på:
 
-    http://localhost:9097/log-sender/loggtjanst-stub
+    http://localhost:9099/log-sender/loggtjanst-stub
     
 ### Stubbens Testbarhets-API 
     
@@ -54,16 +54,16 @@ Följande operationer kan utföras mha GET-anrop till stubben
     
 Avaktivera stubbe
 
-    http://localhost:9097/log-sender/loggtjanst-stub/offline
+    http://localhost:9099/log-sender/loggtjanst-stub/offline
     
 Återaktivera stubbe
 
-    http://localhost:9097/log-sender/loggtjanst-stub/online
+    http://localhost:9099/log-sender/loggtjanst-stub/online
     
 Fejka fel (errorType = någon av NONE,ERROR,VALIDATION)
 
-    http://localhost:9097/log-sender/loggtjanst-stub/error/{errorType}
+    http://localhost:9099/log-sender/loggtjanst-stub/error/{errorType}
     
 Fejka latency, (latencyMs = artificiell fördröjning i millisekunder)
 
-     http://localhost:9097/log-sender/loggtjanst-stub/latency/{latencyMs}
+     http://localhost:9099/log-sender/loggtjanst-stub/latency/{latencyMs}
