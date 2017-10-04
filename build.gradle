@@ -40,11 +40,13 @@ uploadArchives.repositories.mavenDeployer {
 }
 
 gretty {
-    integrationTestTask = null
     contextPath = '/logsender'
-    httpPort = 9099
-    scanInterval = 0
     contextConfigFile = file("src/main/webapp/WEB-INF/jetty-web.xml")
+    integrationTestTask = null
+    scanInterval = 0
+    httpPort = 9099
+    debugPort = 5009
+    debugSuspend = false
 
     jvmArgs = [
             "-Dcatalina.base=${buildDir}/catalina.base",
