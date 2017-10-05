@@ -16,6 +16,15 @@ Det innebär att följande saker behöver vara uppfyllda:
 (2) Starta log-sender:
 
     ./gradlew appRun
+
+### Starta log-sender i debugläge
+
+För att starta applikationen i debugläge används:
+
+    ./gradlew appRunDebug
+
+Applikationen kommer då att starta upp med debugPort = **5009**. Det är denna port du ska använda när du sätter upp din 
+debug-konfiguration i din utvecklingsmiljö.
     
 ### Konfigurera Webcert    
 
