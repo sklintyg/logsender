@@ -42,7 +42,7 @@ public class TestDataHelper {
 
     public static String buildBasePdlLogMessageAsJson(ActivityType activityType, int numberOfResources) {
         try {
-            return objectMapper.writeValueAsString(buildBasePdlLogMessage(activityType, numberOfResources));
+            return objectMapper.writeValueAsString(buildBasePdlLogMessage(activityType, numberOfResources, PatientNameInclude.INCLUDE));
         } catch (JsonProcessingException e) {
             throw new IllegalArgumentException("Could not build test data log message, JSON could not be produced: " + e.getMessage());
         }
@@ -50,19 +50,23 @@ public class TestDataHelper {
 
     public static String buildBasePdlLogMessageAsJson(ActivityType activityType) {
         try {
-            return objectMapper.writeValueAsString(buildBasePdlLogMessage(activityType, 1));
+            return objectMapper.writeValueAsString(buildBasePdlLogMessage(activityType, 1, PatientNameInclude.INCLUDE));
         } catch (JsonProcessingException e) {
             throw new IllegalArgumentException("Could not build test data log message, JSON could not be produced: " + e.getMessage());
         }
     }
 
     public static PdlLogMessage buildBasePdlLogMessage(ActivityType activityType) {
-        return buildBasePdlLogMessage(activityType, 1);
+        return buildBasePdlLogMessage(activityType, 1, PatientNameInclude.INCLUDE);
     }
 
-    public static PdlLogMessage buildBasePdlLogMessage(ActivityType activityType, int numberOfResources) {
-        PdlLogMessage pdlLogMessage = new PdlLogMessage();
+    public static PdlLogMessage buildBasePdlLogMessage(ActivityType activityType, PatientNameInclude patientNameInclude) {
+        return buildBasePdlLogMessage(activityType, 1, patientNameInclude);
+    }
 
+    public static PdlLogMessage buildBasePdlLogMessage(ActivityType activityType, int numberOfResources, PatientNameInclude patientNameInclude) {
+        PdlLogMessage pdlLogMessage = new PdlLogMessage();
+        pdlLogMessage.setUserId("user-123");
         pdlLogMessage.setSystemId("webcert");
         pdlLogMessage.setSystemName("webcert");
         pdlLogMessage.setUserCareUnit(buildEnhet());
@@ -72,7 +76,7 @@ public class TestDataHelper {
 
         for (int a = 0; a < numberOfResources; a++) {
             PdlResource pdlResource = new PdlResource();
-            pdlResource.setPatient(buildPatient());
+            pdlResource.setPatient(buildPatient(patientNameInclude));
             pdlResource.setResourceOwner(buildEnhet());
             pdlResource.setResourceType(ResourceType.RESOURCE_TYPE_INTYG.getResourceTypeName());
             pdlLogMessage.getPdlResourceList().add(pdlResource);
@@ -81,13 +85,19 @@ public class TestDataHelper {
         return pdlLogMessage;
     }
 
-    private static Patient buildPatient() {
-        Patient patient = new Patient("19121212-1212", "Tolvan Tolvansson");
-        return patient;
+    private static Patient buildPatient(PatientNameInclude patientNameInclude) {
+        String patientName = null;
+        switch (patientNameInclude) {
+            case BLANK_WITH_SPACE:
+                patientName = " ";
+                break;
+            case INCLUDE:
+                patientName = "Tolvan Tolvansson";
+        }
+        return new Patient("19121212-1212",  patientName);
     }
 
     private static Enhet buildEnhet() {
-        Enhet enhet = new Enhet("enhet-1", "Enhet nr 1", "vardgivare-1" ,"Vårdgivare 1");
-        return enhet;
+        return new Enhet("enhet-1", "Enhet nr 1", "vardgivare-1" ,"Vårdgivare 1");
     }
 }

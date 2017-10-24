@@ -106,7 +106,7 @@ public class LogTypeFactoryImpl implements LogTypeFactory {
     private PatientType patient(Patient source) {
         PatientType patient = new PatientType();
         patient.setPatientId(trim(source.getPatientId()));
-        patient.setPatientName(trim(source.getPatientNamn()));
+        patient.setPatientName(trimToNull(source.getPatientNamn()));
         return patient;
     }
 
@@ -136,5 +136,9 @@ public class LogTypeFactoryImpl implements LogTypeFactory {
 
     private String trim(String input) {
         return input != null ? input.trim() : null;
+    }
+
+    private String trimToNull(String input) {
+        return input != null && input.trim().length() > 0 ? input.trim() : null;
     }
 }

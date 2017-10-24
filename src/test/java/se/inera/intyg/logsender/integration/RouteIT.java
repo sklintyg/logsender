@@ -51,6 +51,7 @@ import se.inera.intyg.infra.logmessages.ActivityType;
 import se.inera.intyg.infra.logmessages.PdlLogMessage;
 import se.inera.intyg.common.util.integration.json.CustomObjectMapper;
 import se.inera.intyg.logsender.client.mock.MockLogSenderClientImpl;
+import se.inera.intyg.logsender.helper.PatientNameInclude;
 import se.inera.intyg.logsender.helper.TestDataHelper;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -243,7 +244,7 @@ public class RouteIT {
 
         jmsTemplate.send(sendQueue, session -> {
             try {
-                PdlLogMessage pdlLogMessage = TestDataHelper.buildBasePdlLogMessage(ActivityType.READ, 1);
+                PdlLogMessage pdlLogMessage = TestDataHelper.buildBasePdlLogMessage(ActivityType.READ, 1, PatientNameInclude.INCLUDE);
                 pdlLogMessage.setSystemId("invalid");
                 TextMessage textMessage = session.createTextMessage(new CustomObjectMapper().writeValueAsString(pdlLogMessage));
                 return textMessage;

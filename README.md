@@ -76,3 +76,12 @@ Fejka fel (errorType = någon av NONE,ERROR,VALIDATION)
 Fejka latency, (latencyMs = artificiell fördröjning i millisekunder)
 
      http://localhost:9099/log-sender/loggtjanst-stub/latency/{latencyMs}
+
+### Se utgående SOAP-meddelanden
+Ibland vill man se exakt vilken XML som skickas till loggtjänsten i form av StoreLogRequests. För att slå på loggning av dessa,
+öppna log-sender-logback.xml och kommentera in:
+
+    <!-- Uncomment to get SOAP logging
+       <logger name="org.apache.cxf" level="INFO" />
+    -->
+
