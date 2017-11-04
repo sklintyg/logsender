@@ -1,0 +1,26 @@
+spring:
+  profiles:
+    active: test, wc-loggtjanst-stub
+
+server.port: 9099
+server.contextPath: /logsender
+
+receiveLogMessageEndpointUri: jms:queue:jms/Queue
+receiveAggregatedLogMessageEndpointUri: jms:queue:jms/AggregatedLogSenderQueue
+receiveAggregatedLogMessageDLQUri: jms:queue:jms/AggregatedLogSenderDLQ
+logsender.bulkSize: 5
+logsender.bulkTimeout: 5000
+
+loggtjanst.endpoint.url: http://localhost:9099/logsender/cxf/store-log-stub
+loggtjanst.logicalAddress: SE000000000000-0000
+
+sakerhetstjanst.ws.certificate.file: ${basedir}/certifikat/verifiering.webcert.intygstjanster.sjunet.org_autentisering.p12
+sakerhetstjanst.ws.certificate.type: PKCS12
+
+sakerhetstjanst.ws.truststore.file: ${basedir}/certifikat/truststore.jks
+sakerhetstjanst.ws.truststore.type: JKS
+
+activemq.broker.url: tcp://localhost:61616
+
+aggregated.logging.queue.name: aggregated.logging.queue
+logging.queue.name: dev.logging.queue

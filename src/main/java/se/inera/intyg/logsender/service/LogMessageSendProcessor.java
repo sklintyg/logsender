@@ -18,32 +18,31 @@
  */
 package se.inera.intyg.logsender.service;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.xml.ws.WebServiceException;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import org.springframework.stereotype.Service;
 import se.inera.intyg.common.util.integration.json.CustomObjectMapper;
 import se.inera.intyg.infra.logmessages.PdlLogMessage;
-import se.inera.intyg.logsender.exception.TemporaryException;
 import se.inera.intyg.logsender.client.LogSenderClient;
 import se.inera.intyg.logsender.converter.LogTypeFactory;
 import se.inera.intyg.logsender.exception.BatchValidationException;
 import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
+import se.inera.intyg.logsender.exception.TemporaryException;
 import se.riv.ehr.log.store.storelogresponder.v1.StoreLogResponseType;
 import se.riv.ehr.log.store.v1.ResultType;
 import se.riv.ehr.log.v1.LogType;
 
+import javax.xml.ws.WebServiceException;
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Created by eriklupander on 2015-05-21.
  */
+@Service
 public class LogMessageSendProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(LogMessageSendProcessor.class);

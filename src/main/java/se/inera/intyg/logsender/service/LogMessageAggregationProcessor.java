@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import org.apache.camel.Exchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,6 +44,7 @@ import se.inera.intyg.logsender.exception.PermanentException;
  *
  * Created by eriklupander on 2016-02-29.
  */
+@Service
 public class LogMessageAggregationProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(LogMessageAggregationProcessor.class);

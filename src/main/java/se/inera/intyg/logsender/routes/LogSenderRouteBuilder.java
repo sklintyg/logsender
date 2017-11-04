@@ -19,21 +19,25 @@
 package se.inera.intyg.logsender.routes;
 
 import org.apache.camel.LoggingLevel;
+import org.apache.camel.component.jms.JmsQueueEndpoint;
 import org.apache.camel.processor.aggregate.GroupedExchangeAggregationStrategy;
 import org.apache.camel.spring.SpringRouteBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-
-import se.inera.intyg.logsender.exception.TemporaryException;
+import org.springframework.stereotype.Service;
 import se.inera.intyg.logsender.exception.BatchValidationException;
+import se.inera.intyg.logsender.exception.TemporaryException;
 
 /**
- * Defines the LogSender Camel route which accepts {@link PdlLogMessage} in JSON-
+ * Defines the LogSender Camel route which accepts {@link se.inera.intyg.infra.logmessages.PdlLogMessage} in JSON-
  * serialized TextMessages.
  *
  * @author eriklupander
  */
+@Service
 public class LogSenderRouteBuilder extends SpringRouteBuilder {
     private static final Logger LOG = LoggerFactory.getLogger(LogSenderRouteBuilder.class);
 
@@ -48,6 +52,14 @@ public class LogSenderRouteBuilder extends SpringRouteBuilder {
 
     @Value("${logsender.bulkTimeout}")
     private Long batchAggregationTimeout;
+
+    @Autowired
+    @Qualifier("receiveLogMessageEndpoint")
+    JmsQueueEndpoint receiveLogMessageEndpoint;
+
+    @Autowired
+    @Qualifier("receiveAggregatedLogMessageEndpoint")
+    JmsQueueEndpoint receiveAggregatedLogMessageEndpoint;
 
     /*
      * This route depends on the MQ provider (currently ActiveMQ) for redelivery. Any temporary exception thrown
@@ -66,7 +78,7 @@ public class LogSenderRouteBuilder extends SpringRouteBuilder {
         // Then the route Aggregates (n) messages together and passes them to a custom bean which will transform the
         // content into a single list of PdlLogMessage.
         // The bean:logMessageAggregationProcessor outputs a List of PdlLogMessage which is passed to a JMS queue.
-        from("receiveLogMessageEndpoint").routeId("aggregatorRoute")
+        from(receiveLogMessageEndpoint).routeId("aggregatorRoute")
                 .split().method("logMessageSplitProcessor")
                 .aggregate(new GroupedExchangeAggregationStrategy())
                 .constant(true)
@@ -78,7 +90,7 @@ public class LogSenderRouteBuilder extends SpringRouteBuilder {
 
         // 2. In a transaction, reads from jms/AggregatedLogSenderQueue and uses custom bean:logMessageProcessor
         // to convert into ehr:logstore format and send. Exception handling delegates resends to AMQ.
-        from("receiveAggregatedLogMessageEndpoint").routeId("aggregatedJmsToSenderRoute")
+        from(receiveAggregatedLogMessageEndpoint).routeId("aggregatedJmsToSenderRoute")
                 .onException(TemporaryException.class).to("direct:logMessageTemporaryErrorHandlerEndpoint").end()
                 .onException(BatchValidationException.class).handled(true).to("direct:logMessageBatchValidationErrorHandlerEndpoint").end()
                 .onException(Exception.class).handled(true).to("direct:logMessagePermanentErrorHandlerEndpoint").end()

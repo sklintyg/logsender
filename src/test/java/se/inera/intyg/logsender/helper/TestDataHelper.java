@@ -18,8 +18,11 @@
  */
 package se.inera.intyg.logsender.helper;
 
+import java.time.LocalDateTime;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import se.inera.intyg.common.util.integration.json.CustomObjectMapper;
 import se.inera.intyg.infra.logmessages.ActivityPurpose;
 import se.inera.intyg.infra.logmessages.ActivityType;
@@ -28,8 +31,6 @@ import se.inera.intyg.infra.logmessages.Patient;
 import se.inera.intyg.infra.logmessages.PdlLogMessage;
 import se.inera.intyg.infra.logmessages.PdlResource;
 import se.inera.intyg.infra.logmessages.ResourceType;
-
-import java.time.LocalDateTime;
 
 /**
  * Utility for creating test data for unit- and integration tests.

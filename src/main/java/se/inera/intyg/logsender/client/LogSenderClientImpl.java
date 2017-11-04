@@ -21,12 +21,14 @@ package se.inera.intyg.logsender.client;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
 import javax.xml.ws.WebServiceException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
 import se.riv.ehr.log.store.storelog.rivtabp21.v1.StoreLogResponderInterface;
@@ -43,6 +45,7 @@ import se.riv.ehr.log.v1.ResultCodeType;
  *
  * Created by eriklupander on 2016-02-29.
  */
+@Service
 public class LogSenderClientImpl implements LogSenderClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(LogSenderClientImpl.class);
@@ -52,6 +55,11 @@ public class LogSenderClientImpl implements LogSenderClient {
 
     @Autowired
     private StoreLogResponderInterface storeLogClient;
+
+    @PostConstruct
+    public void init() {
+        LOG.info("ENTER - init() method. I was scanned all by my self!!!!");
+    }
 
     @Override
     public StoreLogResponseType sendLogMessage(List<LogType> logEntries) {

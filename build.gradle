@@ -1,110 +1,90 @@
-plugins {
-    id 'maven'
-    id 'idea'
-    id 'war'
-    id "se.inera.intyg.plugin.common" version "1.0.59"
-    id "org.akhikhl.gretty" version "1.4.2"
+buildscript {
+	ext {
+		springBootVersion = '1.5.6.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
 }
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
 
 ext {
-    commonVersion = System.properties['commonVersion'] ?: '0-SNAPSHOT'
-    infraVersion = System.properties['infraVersion'] ?: '0-SNAPSHOT'
+	commonVersion = System.properties['commonVersion'] ?: '0-SNAPSHOT'
+	infraVersion = System.properties['infraVersion'] ?: '0-SNAPSHOT'
+
+    rivtaEhrLogstoreSchemasVersion = "1.2.4"
 
     activeMqVersion = "5.13.4"
-    awaitilityVersion = "1.4.0"
-    camelVersion = "2.16.0"
-    geronimoJmsVersion = "1.1.1"
-    javaxWsRsApiVersion = "2.0.1"
-    servletApiVersion = "2.5"
-    springVersion = "4.2.2.RELEASE"
-    xmlUnitVersion = "1.4"
+	awaitilityVersion = "1.4.0"
+	camelVersion = "2.16.0"
+	geronimoJmsVersion = "1.1.1"
+	javaxWsRsApiVersion = "2.0.1"
+	servletApiVersion = "2.5"
+	springVersion = "4.2.2.RELEASE"
+	xmlUnitVersion = "1.4"
+	chronicleMapVersion = "3.13.0"
+	jacksonDataformatVersion = "2.4.5"
+	jacksonVersion = "2.8.1"
 
-    mockitoVersion = "1.9.0"
-    springockitoVersion = "1.0.8"
-    mysqlVersion = "5.1.40"
-    h2Version = "1.3.176"
+	mockitoVersion = "1.9.0"
+	springockitoVersion = "1.0.8"
+	mysqlVersion = "5.1.40"
+	h2Version = "1.3.176"
 }
 
-group = 'se.inera.intyg.logsender'
-version = System.properties['buildVersion'] ?: '0-SNAPSHOT'
-
+jar {
+	baseName = 'logsender'
+	version = '0.0.1-SNAPSHOT'
+}
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-task createVersionPropertyFile(type: VersionPropertyFileTask)
-
-uploadArchives.repositories.mavenDeployer {
-    repository(url: "https://build-inera.nordicmedtest.se/nexus/repository/releases/") {
-        authentication(userName: System.properties['nexusUsername'], password: System.properties['nexusPassword'])
-    }
+repositories {
+	mavenLocal()
+	maven { url "https://build-inera.nordicmedtest.se/nexus/repository/releases/" }
+	maven { url "http://repo.maven.apache.org/maven2" }
 }
 
-gretty {
-    contextPath = '/logsender'
-    contextConfigFile = file("src/main/webapp/WEB-INF/jetty-web.xml")
-    integrationTestTask = null
-    scanInterval = 0
-    httpPort = 9099
-    debugPort = 5009
-    debugSuspend = false
-
-    jvmArgs = [
-            "-Dcatalina.base=${buildDir}/catalina.base",
-            "-Dspring.profiles.active=dev",
-            "-Dcredentials.file=${projectDir}/log-sender-dummy-credentials.properties",
-            "-Dlogsender.config.file=${projectDir}/log-sender-dev.properties",
-            "-Dlogsender.logback.file=${projectDir}/log-sender-logback.xml",
-            "-Djava.awt.headless=true"
-    ]
-
-    extraResourceBase 'build/apps/'
-}
-
-test {
-    exclude '**/*IT*'
-}
-
-task camelTest(type: Test) {
-    outputs.upToDateWhen { false }
-    include '**/*IT*'
-}
-
-task tagRelease(type: TagReleaseTask)
 
 dependencies {
-    compile "se.inera.intyg.infra:log-messages:${infraVersion}"
-    compile "se.inera.intyg.infra:loggtjanst-stub:${infraVersion}"
-    compile "se.inera.intyg.common:logging-util:${commonVersion}"
-    compile "se.inera.intyg.common:integration-util:${commonVersion}"
+	compile('org.springframework.boot:spring-boot-starter-web')
+	compile('org.springframework.boot:spring-boot-starter-actuator')
+    compile('org.springframework.boot:spring-boot-starter-activemq')
+	compile('org.apache.camel:camel-spring-boot-starter:2.20.0')
+	compile "org.apache.activemq:activemq-camel:${activeMqVersion}"
 
-    compile "com.google.code.findbugs:jsr305:3.0.0"
-    compile "org.springframework:spring-web:${springVersion}"
-    compile "org.springframework:spring-jms:${springVersion}"
-    compile "org.apache.camel:camel-spring:${camelVersion}"
-    compile "org.apache.activemq:activemq-camel:${activeMqVersion}"
-    compile "javax.ws.rs:javax.ws.rs-api:${javaxWsRsApiVersion}"
+	compile "se.inera.intyg.infra:log-messages:${infraVersion}"
+	compile "se.inera.intyg.common:logging-util:${commonVersion}"
+	compile "se.inera.intyg.common:integration-util:${commonVersion}"
 
-    compileOnly "javax.servlet:servlet-api:${servletApiVersion}"
-    compileOnly "org.apache.geronimo.specs:geronimo-jms_1.1_spec:${geronimoJmsVersion}"
+    compile "se.riv.ehr.logstore:ehr-logstore-schemas:${rivtaEhrLogstoreSchemasVersion}"
 
-    testCompile 'junit:junit:4.+'
-    testCompile "org.mockito:mockito-core:${mockitoVersion}"
-    testCompile "org.kubek2k:springockito:${springockitoVersion}"
-    testCompile "org.springframework:spring-test:${springVersion}"
-    testCompile "xmlunit:xmlunit:${xmlUnitVersion}"
-    testCompile "com.jayway.awaitility:awaitility:${awaitilityVersion}"
-    testCompile "org.apache.camel:camel-test-spring:${camelVersion}"
-    testCompile "org.apache.activemq:activemq-spring:${activeMqVersion}"
-    testCompile "org.apache.activemq:activemq-broker:${activeMqVersion}"
+    compile "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+    compile "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:${jacksonVersion}"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonVersion}"
+    compile "net.openhft:chronicle-map:${chronicleMapVersion}"
+	compile "com.google.code.findbugs:jsr305:3.0.0"
 
-    gretty "org.apache.activemq:activemq-client:${activeMqVersion}"
-    gretty "org.apache.activemq:activemq-broker:${activeMqVersion}"
-    gretty "com.h2database:h2:${h2Version}"
-    gretty "mysql:mysql-connector-java:${mysqlVersion}"
-}
+	compile "javax.ws.rs:javax.ws.rs-api:${javaxWsRsApiVersion}"
 
-repositories {
-    mavenLocal()
-    maven { url "https://build-inera.nordicmedtest.se/nexus/repository/releases/" }
-    maven { url "http://repo.maven.apache.org/maven2" }
+	compileOnly "javax.servlet:servlet-api:${servletApiVersion}"
+	compileOnly "org.apache.geronimo.specs:geronimo-jms_1.1_spec:${geronimoJmsVersion}"
+//
+//	testCompile 'junit:junit:4.+'
+//	testCompile "org.mockito:mockito-core:${mockitoVersion}"
+//	testCompile "org.kubek2k:springockito:${springockitoVersion}"
+//	testCompile "org.springframework:spring-test:${springVersion}"
+//	testCompile "xmlunit:xmlunit:${xmlUnitVersion}"
+//	testCompile "com.jayway.awaitility:awaitility:${awaitilityVersion}"
+//	testCompile "org.apache.camel:camel-test-spring:${camelVersion}"
+//	testCompile "org.apache.activemq:activemq-spring:${activeMqVersion}"
+//	testCompile "org.apache.activemq:activemq-broker:${activeMqVersion}"
+//
+//	testCompile('org.springframework.boot:spring-boot-starter-test')
 }

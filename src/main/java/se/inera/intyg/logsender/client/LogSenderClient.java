@@ -18,10 +18,10 @@
  */
 package se.inera.intyg.logsender.client;
 
+import java.util.List;
+
 import se.riv.ehr.log.store.storelogresponder.v1.StoreLogResponseType;
 import se.riv.ehr.log.v1.LogType;
-
-import java.util.List;
 
 /**
  * Created by eriklupander on 2016-02-29.
