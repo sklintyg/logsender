@@ -1,0 +1,9 @@
+---
+
+# Configuration repository
+environment_name: "openshift"
+
+# Spring profiles
+profiles: test
+
+tomcat_http_port: 8080
