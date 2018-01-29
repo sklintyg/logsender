@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Inera AB (http://www.inera.se)
+ * Copyright (C) 2018 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -20,6 +20,7 @@ package se.inera.intyg.logsender.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.camel.Body;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Message;
@@ -95,5 +96,10 @@ public class LogMessageSplitProcessor {
             message.setBody(objectMapper.writeValueAsString(copiedPdlLogMsg));
             answer.add(message);
         }
+    }
+
+    @VisibleForTesting
+    public void setCamelContext(CamelContext camelContext) {
+        this.camelContext = camelContext;
     }
 }

@@ -75,16 +75,16 @@ dependencies {
 
 	compileOnly "javax.servlet:servlet-api:${servletApiVersion}"
 	compileOnly "org.apache.geronimo.specs:geronimo-jms_1.1_spec:${geronimoJmsVersion}"
-//
-//	testCompile 'junit:junit:4.+'
-//	testCompile "org.mockito:mockito-core:${mockitoVersion}"
-//	testCompile "org.kubek2k:springockito:${springockitoVersion}"
-//	testCompile "org.springframework:spring-test:${springVersion}"
-//	testCompile "xmlunit:xmlunit:${xmlUnitVersion}"
-//	testCompile "com.jayway.awaitility:awaitility:${awaitilityVersion}"
-//	testCompile "org.apache.camel:camel-test-spring:${camelVersion}"
-//	testCompile "org.apache.activemq:activemq-spring:${activeMqVersion}"
-//	testCompile "org.apache.activemq:activemq-broker:${activeMqVersion}"
-//
-//	testCompile('org.springframework.boot:spring-boot-starter-test')
+
+	testCompile 'junit:junit:4.+'
+	testCompile "org.mockito:mockito-core:${mockitoVersion}"
+	testCompile "org.kubek2k:springockito:${springockitoVersion}"
+	testCompile "org.springframework:spring-test:${springVersion}"
+	testCompile "xmlunit:xmlunit:${xmlUnitVersion}"
+	testCompile "com.jayway.awaitility:awaitility:${awaitilityVersion}"
+	testCompile "org.apache.camel:camel-test-spring:${camelVersion}"
+	testCompile "org.apache.activemq:activemq-spring:${activeMqVersion}"
+	testCompile "org.apache.activemq:activemq-broker:${activeMqVersion}"
+
+	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
