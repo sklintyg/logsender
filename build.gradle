@@ -2,7 +2,7 @@ plugins {
     id 'maven'
     id 'idea'
     id 'war'
-    id "se.inera.intyg.plugin.common" version "1.0.61"
+    id "se.inera.intyg.plugin.common" version "1.0.62"
     id "org.akhikhl.gretty" version "1.4.2"
 }
 
@@ -23,7 +23,7 @@ ext {
     rivtaItintegrationMonitoringSchemasVersion = "1.0.0.3"
     rivtaItintegrationSchemasVersion = "1.0.0.4"
     rivtaResidentMasterSchemasVersion = "1.1.3.5"
-    
+
     activeMqVersion = "5.13.4"
     awaitilityVersion = "1.4.0"
     camelVersion = "2.16.0"
@@ -91,7 +91,6 @@ dependencies {
     compile "se.inera.intyg.common:logging-util:${commonVersion}"
     compile "se.inera.intyg.common:integration-util:${commonVersion}"
 
-    compile "com.google.code.findbugs:jsr305:3.0.0"
     compile "org.springframework:spring-web:${springVersion}"
     compile "org.springframework:spring-jms:${springVersion}"
     compile "org.apache.camel:camel-spring:${camelVersion}"
