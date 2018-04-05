@@ -18,17 +18,17 @@
  */
 package se.inera.intyg.logsender.converter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
 import org.junit.Test;
-
 import se.inera.intyg.infra.logmessages.ActivityType;
 import se.inera.intyg.infra.logmessages.Enhet;
 import se.inera.intyg.infra.logmessages.PdlLogMessage;
+import se.inera.intyg.logsender.helper.PatientNameInclude;
 import se.inera.intyg.logsender.helper.TestDataHelper;
 import se.riv.ehr.log.v1.LogType;
 import se.riv.ehr.log.v1.ResourceType;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Tests that {@link PdlLogMessage} is properly converted into a {@link LogType}.
@@ -49,7 +49,7 @@ public class LogTypeFactoryImplTest {
         assertEquals(logType.getLogId(), pdlLogMessage.getLogId());
         assertEquals(logType.getSystem().getSystemId(), pdlLogMessage.getSystemId());
         assertEquals(logType.getSystem().getSystemName(), pdlLogMessage.getSystemName());
-        assertEquals(logType.getUser().getPersonId(), pdlLogMessage.getUserId());
+        assertEquals(logType.getUser().getUserId(), pdlLogMessage.getUserId());
         assertEquals(logType.getUser().getName(), pdlLogMessage.getUserName());
 
         assertEquals(logType.getUser().getCareUnit().getCareUnitId(), pdlLogMessage.getUserCareUnit().getEnhetsId());
@@ -65,11 +65,15 @@ public class LogTypeFactoryImplTest {
         assertEquals(resourceType.getPatient().getPatientName(), pdlLogMessage.getPdlResourceList().get(0).getPatient().getPatientNamn());
         assertEquals(resourceType.getResourceType(), pdlLogMessage.getPdlResourceList().get(0).getResourceType());
 
-        assertEquals(resourceType.getCareUnit().getCareUnitId(), pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getEnhetsId());
-        assertEquals(resourceType.getCareUnit().getCareUnitName(), pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getEnhetsNamn());
+        assertEquals(resourceType.getCareUnit().getCareUnitId(),
+                pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getEnhetsId());
+        assertEquals(resourceType.getCareUnit().getCareUnitName(),
+                pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getEnhetsNamn());
 
-        assertEquals(resourceType.getCareProvider().getCareProviderId(), pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getVardgivareId());
-        assertEquals(resourceType.getCareProvider().getCareProviderName(), pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getVardgivareNamn());
+        assertEquals(resourceType.getCareProvider().getCareProviderId(),
+                pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getVardgivareId());
+        assertEquals(resourceType.getCareProvider().getCareProviderName(),
+                pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getVardgivareNamn());
     }
 
     @Test
@@ -82,7 +86,7 @@ public class LogTypeFactoryImplTest {
         assertEquals(logType.getLogId(), pdlLogMessage.getLogId());
         assertEquals(logType.getSystem().getSystemId(), pdlLogMessage.getSystemId());
         assertEquals(logType.getSystem().getSystemName(), pdlLogMessage.getSystemName());
-        assertEquals(logType.getUser().getPersonId(), pdlLogMessage.getUserId());
+        assertEquals(logType.getUser().getUserId(), pdlLogMessage.getUserId());
         assertEquals(logType.getUser().getName(), pdlLogMessage.getUserName());
 
         assertEquals(logType.getUser().getCareUnit().getCareUnitId(), pdlLogMessage.getUserCareUnit().getEnhetsId());
@@ -98,11 +102,15 @@ public class LogTypeFactoryImplTest {
         assertEquals(resourceType.getPatient().getPatientName(), pdlLogMessage.getPdlResourceList().get(0).getPatient().getPatientNamn());
         assertEquals(resourceType.getResourceType(), pdlLogMessage.getPdlResourceList().get(0).getResourceType());
 
-        assertEquals(resourceType.getCareUnit().getCareUnitId(), pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getEnhetsId());
-        assertEquals(resourceType.getCareUnit().getCareUnitName(), pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getEnhetsNamn());
+        assertEquals(resourceType.getCareUnit().getCareUnitId(),
+                pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getEnhetsId());
+        assertEquals(resourceType.getCareUnit().getCareUnitName(),
+                pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getEnhetsNamn());
 
-        assertEquals(resourceType.getCareProvider().getCareProviderId(), pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getVardgivareId());
-        assertEquals(resourceType.getCareProvider().getCareProviderName(), pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getVardgivareNamn());
+        assertEquals(resourceType.getCareProvider().getCareProviderId(),
+                pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getVardgivareId());
+        assertEquals(resourceType.getCareProvider().getCareProviderName(),
+                pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getVardgivareNamn());
     }
 
     @Test
@@ -118,4 +126,16 @@ public class LogTypeFactoryImplTest {
         assertEquals("vardgivare-1", logType.getUser().getCareProvider().getCareProviderId());
         assertEquals("Vardgivare namn", logType.getUser().getCareProvider().getCareProviderName());
     }
+
+    @Test
+    public void testBlankPatientNameIsConvertedToNull() {
+        PdlLogMessage pdlLogMessage = TestDataHelper.buildBasePdlLogMessage(ActivityType.READ, PatientNameInclude.BLANK_WITH_SPACE);
+        pdlLogMessage.setActivityArgs("activityArgs");
+        LogType logType = testee.convert(pdlLogMessage);
+        ResourceType resourceType = logType.getResources().getResource().get(0);
+
+        assertEquals(resourceType.getPatient().getPatientId(), pdlLogMessage.getPdlResourceList().get(0).getPatient().getPatientId());
+        assertNull(resourceType.getPatient().getPatientName());
+    }
+
 }

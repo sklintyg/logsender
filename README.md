@@ -16,6 +16,15 @@ Det innebär att följande saker behöver vara uppfyllda:
 (2) Starta log-sender:
 
     ./gradlew appRun
+
+### Starta log-sender i debugläge
+
+För att starta applikationen i debugläge används:
+
+    ./gradlew appRunDebug
+
+Applikationen kommer då att starta upp med debugPort = **5009**. Det är denna port du ska använda när du sätter upp din 
+debug-konfiguration i din utvecklingsmiljö.
     
 ### Konfigurera Webcert    
 
@@ -67,3 +76,12 @@ Fejka fel (errorType = någon av NONE,ERROR,VALIDATION)
 Fejka latency, (latencyMs = artificiell fördröjning i millisekunder)
 
      http://localhost:9099/log-sender/loggtjanst-stub/latency/{latencyMs}
+
+### Se utgående SOAP-meddelanden
+Ibland vill man se exakt vilken XML som skickas till loggtjänsten i form av StoreLogRequests. För att slå på loggning av dessa,
+öppna log-sender-logback.xml och kommentera in:
+
+    <!-- Uncomment to get SOAP logging
+       <logger name="org.apache.cxf" level="INFO" />
+    -->
+

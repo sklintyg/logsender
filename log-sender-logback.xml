@@ -39,15 +39,17 @@
     </layout>
   </appender>
 
-  <logger name="org.springframework" level="error" />
+  <logger name="org.springframework" level="error"/>
 
-  <logger name="org.apache.cxf.services" level="error" />
+  <!-- Uncomment to get SOAP logging
+  <logger name="org.apache.cxf" level="INFO" />
+  -->
 
-  <logger name="se.inera" level="debug" />
+  <logger name="se.inera" level="debug"/>
 
   <root>
-    <level value="error" />
-    <appender-ref ref="STDOUT" />
-    <appender-ref ref="FILE" />
+    <level value="error"/>
+    <appender-ref ref="STDOUT"/>
+    <appender-ref ref="FILE"/>
   </root>
 </configuration>
