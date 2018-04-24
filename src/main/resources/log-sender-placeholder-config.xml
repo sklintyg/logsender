@@ -28,7 +28,7 @@
 
   <!-- Config files must be present -->
   <context:property-placeholder
-    location="classpath:default.properties, file:${logsender.config.file}, file:${credentials.file}"
+    location="classpath:default.properties, file:${config.file}, file:${credentials.file}"
     order="1" ignore-resource-not-found="false" ignore-unresolvable="false" />
 
 </beans>

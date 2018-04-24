@@ -66,8 +66,8 @@ gretty {
             "-Dcatalina.base=${buildDir}/catalina.base",
             "-Dspring.profiles.active=dev",
             "-Dcredentials.file=${projectDir}/log-sender-dummy-credentials.properties",
-            "-Dlogsender.config.file=${projectDir}/log-sender-dev.properties",
-            "-Dlogsender.logback.file=${projectDir}/log-sender-logback.xml",
+            "-Dconfig.file=${projectDir}/log-sender-dev.properties",
+            "-Dlogback.file=${projectDir}/log-sender-logback.xml",
             "-Djava.awt.headless=true"
     ]
 
