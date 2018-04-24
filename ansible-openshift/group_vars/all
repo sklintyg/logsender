@@ -17,7 +17,9 @@ environment_name: openshift
 
 # ActiveMQ configuration
 activemq_version : 5.13.0
-activemq_broker_url: "tcp://activemq:61616"
+activemq_server: activemq-amq-tcp
+activemq_port: 61616
+activemq_broker_url: "tcp://{{ activemq_server }}:{{ activemq_port }}"
 activemq_username: ${activemq_username}
 activemq_password: ${activemq_password}
 async_maximumRedeliveries: 30
