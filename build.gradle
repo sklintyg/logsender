@@ -30,7 +30,7 @@ ext {
     geronimoJmsVersion = "1.1.1"
     javaxWsRsApiVersion = "2.0.1"
     servletApiVersion = "2.5"
-    springVersion = "4.2.2.RELEASE"
+    springVersion = "4.3.16.RELEASE"
     xmlUnitVersion = "1.4"
 
     mockitoVersion = "1.9.0"
