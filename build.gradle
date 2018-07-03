@@ -78,6 +78,10 @@ test {
     exclude '**/*IT*'
 }
 
+tasks.withType(War) {
+    destinationDir = file("$rootDir/web/build/libs")
+}
+
 task camelTest(type: Test) {
     outputs.upToDateWhen { false }
     include '**/*IT*'
