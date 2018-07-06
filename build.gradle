@@ -67,7 +67,6 @@ gretty {
             "-Dspring.profiles.active=dev",
             "-Dcredentials.file=${projectDir}/log-sender-dummy-credentials.properties",
             "-Dconfig.file=${projectDir}/log-sender-dev.properties",
-            "-Dlogback.file=${projectDir}/log-sender-logback.xml",
             "-Djava.awt.headless=true"
     ]
 
@@ -94,9 +93,11 @@ dependencies {
     compile "se.inera.intyg.infra:loggtjanst-stub:${infraVersion}"
     compile "se.inera.intyg.common:logging-util:${commonVersion}"
     compile "se.inera.intyg.common:integration-util:${commonVersion}"
+    compile "se.inera.intyg.infra:monitoring:${infraVersion}"
 
     compile "org.springframework:spring-web:${springVersion}"
     compile "org.springframework:spring-jms:${springVersion}"
+    compile "org.apache.activemq:activemq-spring:${activeMqVersion}"
     compile "org.apache.camel:camel-spring:${camelVersion}"
     compile "org.apache.activemq:activemq-camel:${activeMqVersion}"
     compile "javax.ws.rs:javax.ws.rs-api:${javaxWsRsApiVersion}"
@@ -111,7 +112,6 @@ dependencies {
     testCompile "xmlunit:xmlunit:${xmlUnitVersion}"
     testCompile "com.jayway.awaitility:awaitility:${awaitilityVersion}"
     testCompile "org.apache.camel:camel-test-spring:${camelVersion}"
-    testCompile "org.apache.activemq:activemq-spring:${activeMqVersion}"
     testCompile "org.apache.activemq:activemq-broker:${activeMqVersion}"
 
     gretty "org.apache.activemq:activemq-client:${activeMqVersion}"

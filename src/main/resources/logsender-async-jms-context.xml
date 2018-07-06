@@ -39,15 +39,13 @@
     <property name="destinationResolver" ref="jmsDestinationResolver" />
   </bean>
 
-  <bean id="jmsDestinationResolver" class="org.springframework.jms.support.destination.JndiDestinationResolver">
-    <property name="resourceRef" value="true"/>
-    <property name="jndiTemplate">
-      <bean class="org.springframework.jndi.JndiTemplate"/>
-    </property>
+  <bean id="jmsDestinationResolver" class="org.springframework.jms.support.destination.DynamicDestinationResolver">
   </bean>
 
-  <bean id="jmsFactory" class="org.springframework.jndi.JndiObjectFactoryBean">
-    <property name="jndiName" value="java:comp/env/jms/AsyncConnectionFactory" />
+  <bean id="jmsFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+    <property name="userName" value="${activemq.broker.username}" />
+    <property name="password" value="${activemq.broker.password}"/>
+    <property name="brokerURL" value="${activemq.broker.url}" />
   </bean>
 
   <bean id="cachingConnectionFactory"

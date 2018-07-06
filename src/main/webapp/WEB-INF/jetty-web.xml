@@ -28,49 +28,5 @@
 
 -->
 <Configure id="webAppContext" class="org.eclipse.jetty.webapp.WebAppContext">
-  <New id="connectionFactory" class="org.eclipse.jetty.plus.jndi.Resource">
-    <Arg>
-      <Ref id="webAppContext"/>
-    </Arg>
-    <Arg>jms/AsyncConnectionFactory</Arg>
-    <Arg>
-      <New class="org.apache.activemq.ActiveMQConnectionFactory">
-        <Arg>tcp://localhost:61616?jms.nonBlockingRedelivery=true&amp;jms.redeliveryPolicy.maximumRedeliveries=5&amp;jms.redeliveryPolicy.maximumRedeliveryDelay=20000&amp;jms.redeliveryPolicy.initialRedeliveryDelay=15000&amp;jms.redeliveryPolicy.useExponentialBackOff=true&amp;jms.redeliveryPolicy.backOffMultiplier=2</Arg>
-      </New>
-    </Arg>
-  </New>
-  <New id="queue" class="org.eclipse.jetty.plus.jndi.Resource">
-    <Arg>
-      <Ref id="webAppContext"/>
-    </Arg>
-    <Arg>jms/Queue</Arg>
-    <Arg>
-      <New class="org.apache.activemq.command.ActiveMQQueue">
-        <Arg>dev.logging.queue</Arg>
-      </New>
-    </Arg>
-  </New>
-  <New id="aggregatedQueue" class="org.eclipse.jetty.plus.jndi.Resource">
-    <Arg>
-      <Ref id="webAppContext"/>
-    </Arg>
-    <Arg>jms/AggregatedLogSenderQueue</Arg>
-    <Arg>
-      <New class="org.apache.activemq.command.ActiveMQQueue">
-        <Arg>aggregated.logging.queue</Arg>
-      </New>
-    </Arg>
-  </New>
-  <New id="DLQ.aggregatedQueue" class="org.eclipse.jetty.plus.jndi.Resource">
-    <Arg>
-      <Ref id="webAppContext"/>
-    </Arg>
-    <Arg>jms/AggregatedLogSenderDLQ</Arg>
-    <Arg>
-      <New class="org.apache.activemq.command.ActiveMQQueue">
-        <Arg>DLQ.aggregated.logging.queue</Arg>
-      </New>
-    </Arg>
-  </New>
 </Configure>
 

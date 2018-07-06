@@ -1,6 +1,5 @@
 #!/bin/bash
 
-export ACTIVEMQ_RECEIVER_QUEUE_NAME=test.statistik.utlatande.queue
 export ACTIVEMQ_BROKER_USERNAME=${ACTIVEMQ_BROKER_USERNAME:-admin}
 export ACTIVEMQ_BROKER_PASSWORD=${ACTIVEMQ_BROKER_PASSWORD:-admin}
 
@@ -8,7 +7,7 @@ export SPRING_PROFILES_ACTIVE="${SPRING_PROFILES_ACTIVE:-dev}"
 
 export CATALINA_OPTS_APPEND="\
 -Dconfig.file=/opt/$APP_NAME/config/logsender.properties \
--Dlogback.file=/opt/$APP_NAME/config/logback.xml \
+-Dlogback.file=classpath:logback-ocp.xml \
 -Dcertificate.folder=/opt/$APP_NAME/env \
 -Djava.awt.headless=true \
 -credentials.file=/opt/$APP_NAME/env/secret-env.properties \
