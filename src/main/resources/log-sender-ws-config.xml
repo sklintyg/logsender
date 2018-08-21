@@ -82,12 +82,24 @@
           <!-- these filters ensure that a cipher suite with export-suitable 
             or null encryption is used, but exclude anonymous Diffie-Hellman key change 
             as this is vulnerable to man-in-the-middle attacks -->
+          <!-- Old logsender chipers
           <sec:include>.*_EXPORT_.*</sec:include>
           <sec:include>.*_EXPORT1024_.*</sec:include>
           <sec:include>.*_WITH_DES_.*</sec:include>
           <sec:include>.*_WITH_AES_.*</sec:include>
           <sec:include>.*_WITH_NULL_.*</sec:include>
           <sec:exclude>.*_DH_anon_.*</sec:exclude>
+          -->
+          <!-- New logsender chipers, standard intyg -->
+            <sec:include>.*_EXPORT_.*</sec:include>
+            <sec:include>.*_EXPORT1024_.*</sec:include>
+            <sec:include>.*_WITH_AES_256_.*</sec:include>
+            <sec:include>.*_WITH_AES_128_.*</sec:include>
+            <sec:include>.*_WITH_3DES_.*</sec:include>
+            <sec:include>.*_WITH_DES_.*</sec:include>
+            <sec:include>.*_WITH_NULL_.*</sec:include>
+            <sec:exclude>.*_DH_anon_.*</sec:exclude>
+
         </sec:cipherSuitesFilter>
       </http:tlsClientParameters>
     </http:conduit>
