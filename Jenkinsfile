@@ -30,6 +30,20 @@ stage('tag and upload') {
     }
 }
 
+/*
+stage('propagate') {
+    node {
+        gitRef = "v${buildVersion}"
+        build job: "logsender-dintyg-build", wait: false, parameters: [
+                [$class: 'StringParameterValue', name: 'LOGSENDER_BUILD_VERSION', value: buildVersion],
+                [$class: 'StringParameterValue', name: 'COMMON_VERSION', value: commonVersion],
+                [$class: 'StringParameterValue', name: 'INFRA_VERSION', value: infraVersion],
+                [$class: 'StringParameterValue', name: 'GIT_REF', value: gitRef]
+        ]
+    }
+}
+*/
+
 stage('notify') {
     node {
         util.notifySuccess()
