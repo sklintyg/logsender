@@ -29,7 +29,7 @@
   </context-param>
   <context-param>
     <param-name>logbackConfigParameter</param-name>
-    <param-value>logback.file</param-value>
+    <param-value>logsender.logback.file</param-value>
   </context-param>
 
   <servlet>
