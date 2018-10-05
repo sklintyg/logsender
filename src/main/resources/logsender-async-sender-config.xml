@@ -29,8 +29,6 @@
   <import resource="logsender-async-jms-context.xml" />
   <import resource="log-sender-ws-config.xml"/>
 
-  <import resource="classpath:loggtjanst-stub-context.xml"/>
-
   <context:annotation-config />
   
 </beans>
