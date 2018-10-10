@@ -85,3 +85,10 @@ Ibland vill man se exakt vilken XML som skickas till loggtjänsten i form av Sto
        <logger name="org.apache.cxf" level="INFO" />
     -->
 
+### Titta på köer i OpenShift demo
+Den JBoss AMQ-paketering vi använder i OpenShift demomiljö har inget GUI för att titta på köer. Det går dock att gå in i activemq-amq-tcp poddens terminal och köra följande:
+
+    > cd /opt/amq/bin
+    > ./activemq-admin browse --user admin --password admin --amqurl tcp://localhost:61616 demo.logging.queue
+
+För olika köer ändra _demo.logging.queue_ i slutet.
