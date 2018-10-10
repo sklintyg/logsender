@@ -26,9 +26,19 @@
         http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schemas/configuration/http-conf.xsd
         http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schemas/configuration/http-conf.xsd">
 
-  <!-- Config files must be present -->
+  <!-- Config files must be present
   <context:property-placeholder
     location="classpath:default.properties, file:${config.file}, file:${credentials.file}"
     order="1" ignore-resource-not-found="false" ignore-unresolvable="false" />
-
+ -->
+  <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+    <property name="locations">
+      <list>
+        <!-- Order matters - last value wins -->
+        <value>classpath:default.properties</value>
+        <value>file:${config.file}</value>
+        <value>file:${credentials.file}</value>
+      </list>
+    </property>
+  </bean>
 </beans>
