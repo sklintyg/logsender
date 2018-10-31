@@ -6,7 +6,7 @@ export ACTIVEMQ_BROKER_PASSWORD=${ACTIVEMQ_BROKER_PASSWORD:-admin}
 export SPRING_PROFILES_ACTIVE="${SPRING_PROFILES_ACTIVE:-test,wc-all-stubs,wc-security-test,testability-api,caching-enabled}"
 
 export CATALINA_OPTS_APPEND="\
--Dconfig.file=/opt/$APP_NAME/config/logsender.properties \
+-Dlogsender.config.file=/opt/$APP_NAME/config/logsender.properties \
 -Dconfig.dir=/opt/$APP_NAME/config \
 -Dlogback.file=classpath:logback-ocp.xml \
 -Dcertificate.folder=/opt/$APP_NAME/certifikat \
