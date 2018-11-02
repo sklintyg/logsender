@@ -7,7 +7,7 @@ data:
   SAKERHETSTJANST_WS_CERTIFICATE_TYPE: <value>
   SAKERHETSTJANST_WS_TRUSTSTORE_FILE: ${certificate.folder}/<value>
   SAKERHETSTJANST_WS_TRUSTSTORE_TYPE: <value>
-  BROKER_AMQ_TCP_PORT: tcp://<value>:<value>
+  ACTIVEMQ_BROKER_URL: tcp://<value>:<value>
 kind: ConfigMap
 metadata:
   name: logsender-stage-configmap-envvar
