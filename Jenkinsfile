@@ -30,7 +30,6 @@ stage('tag and upload') {
     }
 }
 
-/*
 stage('propagate') {
     node {
         gitRef = "v${buildVersion}"
@@ -42,7 +41,6 @@ stage('propagate') {
         ]
     }
 }
-*/
 
 stage('notify') {
     node {
