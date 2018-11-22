@@ -26,19 +26,7 @@
 
     <include resource="logback-ocp-base.xml"/>
 
-    <logger name="org.springframework" level="ERROR"/>
-
-    <logger name="se.inera" level="DEBUG"/>
-
     <root level="INFO">
-        <appender-ref ref="CONSOLE"/>
-    </root>
-
-    <root level="WARN">
-        <appender-ref ref="CONSOLE"/>
-    </root>
-
-    <root level="ERROR">
         <appender-ref ref="CONSOLE"/>
     </root>
 
