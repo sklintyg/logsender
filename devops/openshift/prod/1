@@ -1,0 +1,125 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","metadata":{"annotations":{},"generation":1,"labels":{"app":"logsender","stage":"prod"},"name":"logsender","namespace":"pintyg"},"spec":{"replicas":1,"selector":{"app":"logsender","deploymentconfig":"logsender"},"template":{"metadata":{"labels":{"app":"logsender","deploymentconfig":"logsender","stage":"prod"}},"spec":{"containers":[{"env":[{"name":"APP_NAME","value":"logsender"},{"name":"STAGE","value":"prod"},{"name":"JAVA_OPTS","value":"-Xmx512M"},{"name":"DATABASE_NAME","value":"logsender"}],"envFrom":[{"secretRef":{"name":"logsender-secret-envvar"}},{"configMapRef":{"name":"logsender-configmap-envvar"}}],"image":"docker.drift.inera.se/intyg/logsender:6.1.0.445","imagePullPolicy":"Always","livenessProbe":{"failureThreshold":15,"httpGet":{"path":"/","port":8080,"scheme":"HTTP"},"initialDelaySeconds":60,"periodSeconds":20,"successThreshold":1,"timeoutSeconds":5},"name":"logsender","ports":[{"containerPort":8080,"protocol":"TCP"}],"readinessProbe":{"failureThreshold":3,"httpGet":{"path":"/","port":8080,"scheme":"HTTP"},"initialDelaySeconds":60,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":2},"resources":{"limits":{"cpu":1,"memory":"2Gi"},"requests":{"cpu":"200m","memory":"1Gi"}},"terminationMessagePath":"/dev/termination-log","terminationMessagePolicy":"File","volumeMounts":[{"mountPath":"/opt/logsender/config","name":"logsender-config","readOnly":true},{"mountPath":"/opt/logsender/env","name":"logsender-env","readOnly":true},{"mountPath":"/opt/logsender/certifikat","name":"logsender-certifikat","readOnly":true}]}],"dnsPolicy":"ClusterFirst","restartPolicy":"Always","schedulerName":"default-scheduler","securityContext":{},"terminationGracePeriodSeconds":30,"volumes":[{"configMap":{"defaultMode":420,"name":"logsender-config"},"name":"logsender-config"},{"name":"logsender-env","secret":{"defaultMode":420,"secretName":"logsender-env"}},{"name":"logsender-certifikat","secret":{"defaultMode":420,"secretName":"logsender-certifikat"}}]}}}}
+  creationTimestamp: null
+  generation: 1
+  labels:
+    app: logsender
+    stage: prod
+  name: logsender
+  selfLink: /apis/apps.openshift.io/v1/namespaces/pintyg/deploymentconfigs/logsender
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    app: logsender
+    deploymentconfig: logsender
+  strategy:
+    activeDeadlineSeconds: 21600
+    resources: {}
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: logsender
+        deploymentconfig: logsender
+        stage: prod
+    spec:
+      containers:
+      - env:
+        - name: APP_NAME
+          value: logsender
+        - name: STAGE
+          value: prod
+        - name: JAVA_OPTS
+          value: -Xmx512M
+        - name: DATABASE_NAME
+          value: logsender
+        envFrom:
+        - secretRef:
+            name: logsender-secret-envvar
+        - configMapRef:
+            name: logsender-configmap-envvar
+        image: docker.drift.inera.se/intyg/logsender:6.1.0.445
+        imagePullPolicy: Always
+        livenessProbe:
+          failureThreshold: 15
+          httpGet:
+            path: /
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 20
+          successThreshold: 1
+          timeoutSeconds: 5
+        name: logsender
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 2
+        resources:
+          limits:
+            cpu: "2"
+            memory: 2Gi
+          requests:
+            cpu: 400m
+            memory: 1Gi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /opt/logsender/config
+          name: logsender-config
+          readOnly: true
+        - mountPath: /opt/logsender/env
+          name: logsender-env
+          readOnly: true
+        - mountPath: /opt/logsender/certifikat
+          name: logsender-certifikat
+          readOnly: true
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: logsender-config
+        name: logsender-config
+      - name: logsender-env
+        secret:
+          defaultMode: 420
+          secretName: logsender-env
+      - name: logsender-certifikat
+        secret:
+          defaultMode: 420
+          secretName: logsender-certifikat
+  test: false
+  triggers:
+  - type: ConfigChange
+status:
+  availableReplicas: 0
+  latestVersion: 0
+  observedGeneration: 0
+  replicas: 0
+  unavailableReplicas: 0
+  updatedReplicas: 0
