@@ -1,0 +1,12 @@
+apiVersion: v1
+data:
+  SAKERHETSTJANST_WS_CERTIFICATE_FILE: ${certificate.folder}/webcert.intygstjanster.sjunet.org.p12
+  SAKERHETSTJANST_WS_CERTIFICATE_TYPE: PKCS12
+  SAKERHETSTJANST_WS_TRUSTSTORE_FILE: ${certificate.folder}/truststore.jks
+  SAKERHETSTJANST_WS_TRUSTSTORE_TYPE: JKS
+  LOGSENDER_LOGBACK_FILE: "/opt/$APP_NAME/config/logback.xml"
+  ACTIVEMQ_BROKER_URL: "failover:(tcp://ind-pint-activemq1.ind1.sth.basefarm.net:61616,tcp://ind-pint-activemq2.ind1.sth.basefarm.net:61616)?jms.nonBlockingRedelivery=true&jms.redeliveryPolicy.useExponentialBackOff=true&jms.redeliveryPolicy.backOffMultiplier=2&jms.redeliveryPolicy.maximumRedeliveries=30&jms.redeliveryPolicy.maximumRedeliveryDelay=3600000&jms.redeliveryPolicy.initialRedeliveryDelay=60000"
+kind: ConfigMap
+metadata:
+  name: logsender-configmap-envvar
+type: Opaque
