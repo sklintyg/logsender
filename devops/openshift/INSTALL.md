@@ -1,7 +1,6 @@
 # OPENSHIFT INSTALLATION GUIDE
->>>>>>> INTYG-6519: Mer generell installationsanvisning, och mindre strukturändringar
 
-Installation of web application logsender on openshift.
+Installation of Web application logsender on openshift.
 
 ## 1 Pre-Installation Requirements
 
@@ -75,7 +74,7 @@ To run database migration tool:
 
 1. All Pre-Installation Requirements are fulfilled, se above
 2. Check if a database migration is required
-3. Ensure that the env secret and secret-envvar are up to date
+3. Ensure that the secrets env, certifikat and secret-envvar are up to date
 4. Ensure that the configmap and configmap-envvar are up to date
 5. Check that deployment works as expected 
 6. Fine-tune memory settings for container and java process
@@ -125,6 +124,8 @@ Open _&lt;env>/secret-vars.yaml_ and replace `<value>` with expected values:
     SAKERHETSTJANST_WS_KEY_MANAGER_PASSWORD: <value>
     SAKERHETSTJANST_WS_CERTIFICATE_PASSWORD: <value>
     SAKERHETSTJANST_WS_TRUSTSTORE_PASSWORD: <value>
+    ACTIVEMQ_BROKER_USERNAME: <value>
+    ACTIVEMQ_BROKER_PASSWORD: <value>
 
 Open _&lt;env>/configmap-vars.yaml_ and replace `<value>` with expected values. You may also need to update name of keystore/truststore files as well as their type (JKS or PKCS12)
 
@@ -135,24 +136,25 @@ Open _&lt;env>/configmap-vars.yaml_ and replace `<value>` with expected values. 
     SAKERHETSTJANST_WS_CERTIFICATE_TYPE: <value>
     SAKERHETSTJANST_WS_TRUSTSTORE_FILE: ${certificate.folder}/<value>
     SAKERHETSTJANST_WS_TRUSTSTORE_TYPE: <value>
-    BROKER_AMQ_TCP_PORT: tcp://<value>:<value>
+    LOGSENDER_LOGBACK_FILE: <value>
+    ACTIVEMQ_BROKER_URL: tcp://<value>:<value>
    
 Note: Other properties might be used to define a `<value>`. As an example is the path to certificates indicated by the `CERTIFICATE_FOLDER` property and the truststore file might be defined like:
  
-	NTJP_WS_TRUSTSTORE_FILE: ${CERTIFICATE_FOLDER}/truststore.jks
+	NTJP_WS_TRUSTSTORE_FILE: "${certificate.folder}/truststore.jks"
         
 ##### 2.4.1 Redis Sentinel Configuration
 
-Redis sentinel needs at least three URL:s passed in order to work correctly. These are specified in the _redis.host_ and _redis.port_ properties respectively:
+Redis sentinel needs at least three URL:s passed in order to work correctly. These are specified in the `REDIS_HOST` and `REDIS_PORT` variables respectively:
 
-    redis.host=host1;host2;host3
-    redis.port=26379;26379;26379
+    REDIS_HOST: "host1;host2;host3"
+    REDIS_PORT: "26379;26379;26379"
     
 ### 2.5 Prepare Certificates
 
 The `<env>` placeholder shall be substituted with the actual name of the environment such as `stage` or `prod`.
 
-Staging and Prod certificates are **never** committed to git. However, you may temporarily copy them to _&lt;env>/certifikat_ in order to install/update them. Typically, certificates have probably been installed separately. The important thing is that the deployment template **requires** a secret named: `logsender-<env>-certifikat` to be available in the OpenShift project. It will be mounted to _/opt/logsender-<env>/certifikat_ in the container file system.
+Staging and Prod certificates are **never** committed to git. However, you may temporarily copy them to _&lt;env>/certifikat_ in order to install/update them. Typically, certificates have probably been installed separately. The important thing is that the deployment template **requires** a secret named: `logsender-<env>-certifikat` to be available in the OpenShift project. It will be mounted to _/opt/logsender[-<env>]/certifikat_ in the container file system.
 
 
 ### 2.6 Creating Config and Secrets
@@ -206,6 +208,6 @@ The pod(s) running logsender should become available within a few minutes use **
 	> oc logs dc/logsender-<env>
 
 ### 2.9 Routes
-Logsender should _only_ be accessible from inside of the OpenShift project using its _service_ name (e.g. http://logsender-&lt;env>:8080) and from Nationella tjänsteplattformen. E.g. take care when setting up an OpenShift route so the logsender service isn't publicly addressable from the Internet.
+Logsender should _only_ be accessible from inside of the OpenShift project using its _service_ name (e.g. http://logsender[-&lt;env>]:8080) and from Nationella tjänsteplattformen. E.g. take care when setting up an OpenShift route so the logsender service isn't publicly addressable from the Internet.
 
 The security measures based on mutual TLS and PKI should nevertheless stop any attempts from unsolicited callers.

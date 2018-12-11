@@ -1,14 +1,15 @@
 apiVersion: v1
 data:
-  REDIS_HOST: <value>
-  REDIS_PORT: <value>
-  REDIS_SENTINEL_MASTER_NAME: <value>
-  SAKERHETSTJANST_WS_CERTIFICATE_FILE: ${certificate.folder}/<value>
-  SAKERHETSTJANST_WS_CERTIFICATE_TYPE: <value>
-  SAKERHETSTJANST_WS_TRUSTSTORE_FILE: ${certificate.folder}/<value>
-  SAKERHETSTJANST_WS_TRUSTSTORE_TYPE: <value>
-  ACTIVEMQ_BROKER_URL: tcp://<value>:<value>
+  REDIS_HOST: "ind-sint-redis1.ind1.sth.basefarm.net;ind-sint-redis2.ind1.sth.basefarm.net;ind-sint-redis3.ind1.sth.basefarm.net"
+  REDIS_PORT: "26379;26379;26379"
+  REDIS_SENTINEL_MASTER_NAME: "ind-sint-redis"
+  SAKERHETSTJANST_WS_CERTIFICATE_FILE: ${certificate.folder}/verifiering.webcert.intygstjanster.sjunet.org_autentisering.p12
+  SAKERHETSTJANST_WS_CERTIFICATE_TYPE: PKCS12
+  SAKERHETSTJANST_WS_TRUSTSTORE_FILE: ${certificate.folder}/truststore.jks
+  SAKERHETSTJANST_WS_TRUSTSTORE_TYPE: JKS
+  LOGSENDER_LOGBACK_FILE: "/opt/$APP_NAME/config/logback.xml"
+  ACTIVEMQ_BROKER_URL: "failover:(tcp://ind-sint-activemq1.ind1.sth.basefarm.net:61616,tcp://ind-sint-activemq2.ind1.sth.basefarm.net:61616)?jms.nonBlockingRedelivery=true&jms.redeliveryPolicy.useExponentialBackOff=true&jms.redeliveryPolicy.backOffMultiplier=2&jms.redeliveryPolicy.maximumRedeliveries=30&jms.redeliveryPolicy.maximumRedeliveryDelay=3600000&jms.redeliveryPolicy.initialRedeliveryDelay=60000"
 kind: ConfigMap
 metadata:
-  name: logsender-stage-configmap-envvar
+  name: logsender-configmap-envvar
 type: Opaque

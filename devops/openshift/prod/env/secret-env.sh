@@ -3,7 +3,7 @@
 export ACTIVEMQ_BROKER_USERNAME=${ACTIVEMQ_BROKER_USERNAME:-admin}
 export ACTIVEMQ_BROKER_PASSWORD=${ACTIVEMQ_BROKER_PASSWORD:-admin}
 
-export SPRING_PROFILES_ACTIVE="${SPRING_PROFILES_ACTIVE:-qa,caching-enabled,redis-sentinel}"
+export SPRING_PROFILES_ACTIVE="${SPRING_PROFILES_ACTIVE:-prod,caching-enabled,redis-sentinel}"
 
 export CATALINA_OPTS_APPEND="\
 -Dlogsender.config.file=/opt/$APP_NAME/config/logsender.properties \
