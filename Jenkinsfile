@@ -33,10 +33,12 @@ stage('tag and upload') {
 stage('propagate') {
     node {
         gitRef = "v${buildVersion}"
+        releaseFlag = "${GIT_BRANCH.startsWith("release")}"
         build job: "logsender-dintyg-build", wait: false, parameters: [
                 [$class: 'StringParameterValue', name: 'LOGSENDER_BUILD_VERSION', value: buildVersion],
                 [$class: 'StringParameterValue', name: 'INFRA_VERSION', value: infraVersion],
-                [$class: 'StringParameterValue', name: 'GIT_REF', value: gitRef]
+                [$class: 'StringParameterValue', name: 'GIT_REF', value: gitRef],
+                [$class: 'StringParameterValue', name: 'RELEASE_FLAG', value: releaseFlag]
         ]
     }
 }
