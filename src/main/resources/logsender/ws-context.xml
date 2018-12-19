@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (C) 2016 Inera AB (http://www.inera.se)
+  ~ Copyright (C) 2018 Inera AB (http://www.inera.se)
   ~
   ~ This file is part of sklintyg (https://github.com/sklintyg).
   ~
@@ -19,11 +19,13 @@
   -->
 
 <beans xmlns="http://www.springframework.org/schema/beans"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jaxws="http://cxf.apache.org/jaxws"
-  xmlns:jaxrs="http://cxf.apache.org/jaxrs"
-  xmlns:http="http://cxf.apache.org/transports/http/configuration"
-  xmlns:sec="http://cxf.apache.org/configuration/security" xmlns:cxf="http://cxf.apache.org/core"
-  xsi:schemaLocation="
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:jaxws="http://cxf.apache.org/jaxws"
+    xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+    xmlns:http="http://cxf.apache.org/transports/http/configuration"
+    xmlns:sec="http://cxf.apache.org/configuration/security"
+    xmlns:cxf="http://cxf.apache.org/core"
+    xsi:schemaLocation="
       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
       http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd
       http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schemas/configuration/http-conf.xsd
@@ -79,8 +81,8 @@
         </sec:trustManagers>
 
         <sec:cipherSuitesFilter>
-          <!-- these filters ensure that a cipher suite with export-suitable 
-            or null encryption is used, but exclude anonymous Diffie-Hellman key change 
+          <!-- these filters ensure that a cipher suite with export-suitable
+            or null encryption is used, but exclude anonymous Diffie-Hellman key change
             as this is vulnerable to man-in-the-middle attacks -->
           <!-- Old logsender chipers
           <sec:include>.*_EXPORT_.*</sec:include>

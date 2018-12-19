@@ -48,8 +48,7 @@
     <property name="brokerURL" value="${activemq.broker.url}" />
   </bean>
 
-  <bean id="cachingConnectionFactory"
-      class="org.springframework.jms.connection.TransactionAwareConnectionFactoryProxy">
+  <bean id="cachingConnectionFactory" class="org.springframework.jms.connection.TransactionAwareConnectionFactoryProxy">
     <property name="targetConnectionFactory">
       <ref bean="jmsFactory" />
     </property>
