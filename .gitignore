@@ -26,3 +26,4 @@ out
 
 *.jks
 *.p12
+.DS_Store
