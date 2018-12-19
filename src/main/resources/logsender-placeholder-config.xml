@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (C) 2016 Inera AB (http://www.inera.se)
+  ~ Copyright (C) 2018 Inera AB (http://www.inera.se)
   ~
   ~ This file is part of sklintyg (https://github.com/sklintyg).
   ~
@@ -25,13 +25,24 @@
       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <import resource="logsender-placeholder-config.xml" />
+  <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+    <property name="locations">
+      <list>
+        <!-- Order matters - last value wins -->
+        <value>classpath:default.properties</value>
+        <value>file:${config.file}</value>
+        <value>file:${credentials.file}</value>
+      </list>
+    </property>
+  </bean>
 
-    <import resource="logsender/beans-context.xml" />
-    <import resource="logsender/camel-context.xml" />
-    <import resource="logsender/jms-context.xml" />
-    <import resource="logsender/ws-context.xml"/>
-
-    <context:annotation-config />
+  <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+    <property name="defaultEncoding" value="UTF-8" />
+    <property name="basenames">
+      <list>
+        <value>version</value>
+      </list>
+    </property>
+  </bean>
 
 </beans>
