@@ -1,8 +1,6 @@
 #!groovy
 
 def buildVersion = "6.4.0.${BUILD_NUMBER}"
-def buildRoot = JOB_BASE_NAME.replaceAll(/-.*/, "") // Keep everything up to the first dash
-
 def commonVersion = "3.10.0.+"
 def infraVersion = "3.10.0.+"
 
@@ -24,9 +22,9 @@ stage('build') {
     }
 }
 
-stage('tag and upload') {
+stage('tag') {
     node {
-        shgradle "uploadArchives tagRelease -DbuildVersion=${buildVersion} -DcommonVersion=${commonVersion} -DinfraVersion=${infraVersion}"
+        shgradle "tagRelease -DbuildVersion=${buildVersion} -DcommonVersion=${commonVersion} -DinfraVersion=${infraVersion}"
     }
 }
 
