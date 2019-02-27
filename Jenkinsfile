@@ -4,6 +4,8 @@ def buildVersion = "6.4.0.${BUILD_NUMBER}"
 def commonVersion = "3.10.0.+"
 def infraVersion = "3.10.0.+"
 
+def versionFlags = "-DbuildVersion=${buildVersion} -DcommonVersion=${commonVersion} -DinfraVersion=${infraVersion}"
+
 stage('checkout') {
     node {
         git url: "https://github.com/sklintyg/logsender.git", branch: GIT_BRANCH
@@ -14,7 +16,7 @@ stage('checkout') {
 stage('build') {
     node {
         try {
-            shgradle "--refresh-dependencies clean build testReport sonarqube -PcodeQuality -PcodeCoverage -DgruntColors=false -DbuildVersion=${buildVersion} -DcommonVersion=${commonVersion} -DinfraVersion=${infraVersion}"
+            shgradle "--refresh-dependencies clean build testReport sonarqube -PcodeQuality -PcodeCoverage -DgruntColors=false ${versionFlags}"
         } finally {
             publishHTML allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: 'build/reports/allTests', \
                 reportFiles: 'index.html', reportName: 'JUnit results'
@@ -24,7 +26,7 @@ stage('build') {
 
 stage('tag') {
     node {
-        shgradle "tagRelease -DbuildVersion=${buildVersion} -DcommonVersion=${commonVersion} -DinfraVersion=${infraVersion}"
+        shgradle "tagRelease ${versionFlags}"
     }
 }
 
