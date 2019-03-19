@@ -24,9 +24,11 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.concurrent.TimeUnit;
 
+import javax.jms.JMSException;
 import javax.jms.Queue;
 import javax.jms.TextMessage;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.camel.CamelContext;
 import org.apache.camel.test.spring.CamelSpringJUnit4ClassRunner;
 import org.apache.camel.test.spring.CamelTestContextBootstrapper;
@@ -110,7 +112,7 @@ public class RouteIT {
     }
 
     @Test
-    public void ensureStubReceivesOneMessageAfterSixHasBeenSent() throws Exception {
+    public void ensureStubReceivesOneMessageAfterSixHasBeenSent() {
 
         for (int a = 0; a < 6; a++) {
             sendMessage(ActivityType.READ);
@@ -120,7 +122,7 @@ public class RouteIT {
     }
 
     @Test
-    public void ensureStubReceivesTwoMessagesAfterTenHasBeenSent() throws Exception {
+    public void ensureStubReceivesTwoMessagesAfterTenHasBeenSent() {
 
         for (int a = 0; a < 10; a++) {
             sendMessage(ActivityType.READ);
@@ -130,7 +132,7 @@ public class RouteIT {
     }
 
     @Test
-    public void ensureStubReceivesZeroMessagesAfterThreeHasBeenSent() throws Exception {
+    public void ensureStubReceivesZeroMessagesAfterThreeHasBeenSent() {
 
         for (int a = 0; a < 3; a++) {
             sendMessage(ActivityType.READ);
@@ -140,7 +142,7 @@ public class RouteIT {
     }
 
     @Test
-    public void ensureStubReceivesOneMessagesAfterOneWithFiveResourcesHasBeenSent() throws Exception {
+    public void ensureStubReceivesOneMessagesAfterOneWithFiveResourcesHasBeenSent() {
 
         for (int a = 0; a < 1; a++) {
             sendMessage(ActivityType.READ, 5);
@@ -150,7 +152,7 @@ public class RouteIT {
     }
 
     @Test
-    public void ensureStubReceivesSixMessagesAfterThreeTimesTenHasBeenSent() throws Exception {
+    public void ensureStubReceivesSixMessagesAfterThreeTimesTenHasBeenSent() {
 
         for (int a = 0; a < 3; a++) {
             sendMessage(ActivityType.READ, 10);
@@ -160,7 +162,7 @@ public class RouteIT {
     }
 
     @Test
-    public void ensureStubReceivesZeroMessagesAfterFiveWithNoResourcesHasBeenSent() throws Exception {
+    public void ensureStubReceivesZeroMessagesAfterFiveWithNoResourcesHasBeenSent() {
 
         for (int a = 0; a < 5; a++) {
             sendMessage(ActivityType.READ, 0);
@@ -170,43 +172,22 @@ public class RouteIT {
     }
 
     @Test
-    public void ensureStubReceivesNoMessageAfterOneWithSixWhereOnIsInvalidHasBeenSent() throws Exception {
+    public void ensureStubReceivesNoMessageAfterOneWithSixWhereOnIsInvalidHasBeenSent() throws IOException {
         String body = buildPdlLogMessageWithInvalidResourceJson();
         jmsTemplate.send(sendQueue, session -> {
             try {
                 TextMessage textMessage = session.createTextMessage(body);
                 return textMessage;
-            } catch (Exception e) {
-                throw Throwables.propagate(e);
+            } catch (JMSException e) {
+                throw new RuntimeException(e);
             }
         });
 
         await().atMost(SECONDS_TO_WAIT, TimeUnit.SECONDS).until(() -> messagesReceived(0));
     }
 
-
-
-    //    @Test
-//    public void ensureStubReceivesAllMessagesAfterResend() throws Exception {
-//        sendMessage(ActivityType.EMERGENCY_ACCESS);
-//        sendMessage(ActivityType.EMERGENCY_ACCESS);
-//        sendMessage(ActivityType.EMERGENCY_ACCESS);
-//        sendMessage(ActivityType.EMERGENCY_ACCESS);
-//        sendMessage(ActivityType.EMERGENCY_ACCESS);
-//        sendMessage(ActivityType.SEND);
-//
-//        await().atMost(SECONDS_TO_WAIT, TimeUnit.SECONDS).until(new Callable<Boolean>() {
-//            @Override
-//            public Boolean call() throws Exception {
-//                int numberOfSentMessages = mockLogSenderClient.getNumberOfSentMessages();
-//                System.out.println("numberOfReceivedMessages: " + numberOfSentMessages);
-//                return (numberOfSentMessages == 2);
-//            }
-//        });
-//    }
-//
     @Test
-    public void ensureMessageEndsUpInDLQ() throws Exception {
+    public void ensureMessageEndsUpInDLQ() {
 
         sendMessage(ActivityType.EMERGENCY_ACCESS);
         sendMessage(ActivityType.EMERGENCY_ACCESS);
@@ -217,10 +198,8 @@ public class RouteIT {
         await().atMost(SECONDS_TO_WAIT, TimeUnit.SECONDS).until(() -> expectedDLQMessages(1));
     }
 
-
-
     @Test
-    public void ensureTwoMessagesEndsUpInDLQ() throws Exception {
+    public void ensureTwoMessagesEndsUpInDLQ() {
 
         sendMessage(ActivityType.EMERGENCY_ACCESS);
         sendMessage(ActivityType.EMERGENCY_ACCESS);
@@ -238,7 +217,7 @@ public class RouteIT {
     }
 
     @Test
-    public void ensureMessageEndsUpInDlqWithOneInvalidSystemInBatch() throws Exception {
+    public void ensureMessageEndsUpInDlqWithOneInvalidSystemInBatch() {
 
         sendMessage(ActivityType.READ, 2);
 
@@ -248,8 +227,8 @@ public class RouteIT {
                 pdlLogMessage.setSystemId("invalid");
                 TextMessage textMessage = session.createTextMessage(new CustomObjectMapper().writeValueAsString(pdlLogMessage));
                 return textMessage;
-            } catch (Exception e) {
-                throw Throwables.propagate(e);
+            } catch (JMSException | JsonProcessingException e) {
+                throw new RuntimeException(e);
             }
         });
 
@@ -259,7 +238,7 @@ public class RouteIT {
     }
 
     @Test
-    public void ensureStubReceivesOneMessageDueToTimeoutWhenTwoMessagesHaveBeenSent() throws Exception {
+    public void ensureStubReceivesOneMessageDueToTimeoutWhenTwoMessagesHaveBeenSent() {
 
         for (int a = 0; a < 2; a++) {
             sendMessage(ActivityType.READ);
@@ -269,7 +248,7 @@ public class RouteIT {
     }
 
     @Test
-    public void ensureStubReceivesZeroMessagesDueToTimeoutNotExpiredWhenTwoMessagesHaveBeenSent() throws Exception {
+    public void ensureStubReceivesZeroMessagesDueToTimeoutNotExpiredWhenTwoMessagesHaveBeenSent() {
 
         for (int a = 0; a < 2; a++) {
             sendMessage(ActivityType.READ);
@@ -279,22 +258,22 @@ public class RouteIT {
     }
 
 
-    private void sendMessage(final ActivityType activityType, int numberOfResources) throws Exception {
+    private void sendMessage(final ActivityType activityType, int numberOfResources) {
         jmsTemplate.send(sendQueue, session -> {
             try {
                 TextMessage textMessage = session.createTextMessage(TestDataHelper.buildBasePdlLogMessageAsJson(activityType, numberOfResources));
                 return textMessage;
-            } catch (Exception e) {
-                throw Throwables.propagate(e);
+            } catch (JMSException e) {
+                throw new RuntimeException(e);
             }
         });
     }
 
-    private void sendMessage(final ActivityType activityType) throws Exception {
+    private void sendMessage(final ActivityType activityType) {
         sendMessage(activityType, 1);
     }
 
-    private int numberOfDLQMessages() throws Exception {
+    private int numberOfDLQMessages() {
         Integer count = (Integer) jmsTemplate.browse(newAggregatedLogMessageDLQ, (BrowserCallback<Object>) (session, browser) -> {
             int counter = 0;
             Enumeration<?> msgs = browser.getEnumeration();
