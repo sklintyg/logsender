@@ -2,11 +2,17 @@
 
 Installation of Web application logsender on openshift.
 
-## 1 Pre-Installation Requirements
+## 1 Updates since 2019-1 (release notes)
+
+### 1.1 Message objects
+
+No message (ActiveMQ) objects have been changed.
+
+## 2 Pre-Installation Requirements
 
 The following prerequisites and requirements must be satisfied in order for the logsender to install successfully.
 
-### 1.1 Backing Service Dependencies
+### 2.1 Backing Service Dependencies
 
 The application has the following external services: 
 
@@ -22,15 +28,15 @@ Provided elsewhere:
 
 For all backing services their actual addresses and user accounts have to be known prior to start the installation procedure.  
 
-### 1.3 Integration / Firewall
+### 2.2 Integration / Firewall
 
 Logsender communicates in/out with the Inera Service Platform and thus needs firewall rules for that access.
 
-### 1.4 Certificates
+### 2.3 Certificates
 
 Logsender needs certificates, keystores and truststores for communicating over Tjänsteplattformen. The operations provider is responsible for installing these certificates in the appropriate OpenShift "secret", see detailed instructions in the OpenShift section.
 
-### 1.5 Message Queues
+### 2.4 Message Queues
 
 Consumes/Produces messages from/to the following queues:
 
@@ -38,22 +44,24 @@ Consumes/Produces messages from/to the following queues:
 - &lt;env>.aggregated.log.queue
 - DLQ.&lt;env>.aggregated.log.queue
 
-### 1.5 Database
+_Note: Message Queues are persistent and it's of great importance to know if any message object/format has been changed prior to an upgrade. Breaking changes shall be avoided as far as possible._ 
+
+### 2.5 Database
 
 Not applicable for Logsender
 
-### 1.6 Access to Software Artifacts
+### 2.6 Access to Software Artifacts
 
 Software artifacts are located at, and downloaded from:
 
 * From Installing Client - https://build-inera.nordicmedtest.se/nexus/repository/releases/se/inera/intyg/logsender/
 * From OpenShift Cluster - docker.drift.inera.se/intyg/
 
-### 1.7 Access to OpenShift Cluster
+### 2.7 Access to OpenShift Cluster
 
 The OpenShift user account must have the right permissions to process, create, delete and replace objects, and most certainly a VPN account and connection is required in order to access the OpenShift Cluster.
 
-### 1.8 Client Software Tools
+### 2.8 Client Software Tools
 
 The installation client must have **git** and **oc** (OpenShift Client) installed and if a database schema migration is required then **java** (Java 8) and **tar** is required in order to execute the migration tool (liquibase runner).
 
@@ -68,9 +76,9 @@ To run database migration tool:
 * java
 * tar
 
-# 2. Installation Procedure
+# 3. Installation Procedure
 
-### 2.1 Installation Checklist
+### 3.1 Installation Checklist
 
 1. All Pre-Installation Requirements are fulfilled, se above
 2. Check if a database migration is required
@@ -81,14 +89,14 @@ To run database migration tool:
 7. Setup policies for number of replicas, auto-scaling and rolling upgrade strategy
 
 
-### 2.2 Migrate Database Schema
+### 3.2 Migrate Database Schema
 
 Not applicable for Logsender
 
-### 2.3 Get Source for Configuration
+### 3.3 Get Source for Configuration
 
 
-##### 2.3.1 Clone the repository
+##### 3.3.1 Clone the repository
 
 Clone repository and switch to the release branch specified in the release notes. Substitute `<name>` below with the actual release name, such as `2018-4`.
     
@@ -98,7 +106,7 @@ Clone repository and switch to the release branch specified in the release notes
     
 Note that we strongly recommend using a git account that has read-only (e.g. public) access to the repo.
     
-##### 2.3.2 Log-in into the cluster
+##### 3.3.2 Log-in into the cluster
 
 Use oc to login and select the actual project, e.g:
 
@@ -107,7 +115,7 @@ Use oc to login and select the actual project, e.g:
     password: ******
     > oc project <name>
 
-### 2.3.3 Ensure that the latest deployment template is installed
+#### 3.3.3 Ensure that the latest deployment template is installed
 
 Download and install the latest _[deploytemplate-webapp.yaml](https://github.com/sklintyg/tools/blob/develop/devops/openshift/deploytemplate-webapp.yaml)_
 
@@ -115,7 +123,7 @@ Syntax to create or replace the template:
 
 	> oc [ create | replace ] -f deploytemplate-webapp.yaml
 
-### 2.4 Update configuration placeholders
+### 3.4 Update configuration placeholders
 
 For security reasons, no secret properties or configuration may be checked into git. Thus, a number of placeholders needs to be replaced prior to creating or updating secrets and/or config maps.
 
@@ -143,21 +151,21 @@ Note: Other properties might be used to define a `<value>`. As an example is the
  
 	NTJP_WS_TRUSTSTORE_FILE: "${certificate.folder}/truststore.jks"
         
-##### 2.4.1 Redis Sentinel Configuration
+##### 3.4.1 Redis Sentinel Configuration
 
 Redis sentinel needs at least three URL:s passed in order to work correctly. These are specified in the `REDIS_HOST` and `REDIS_PORT` properties respectively:
 
     REDIS_HOST: "host1;host2;host3"
     REDIS_PORT: "26379;26379;26379"
     
-### 2.5 Prepare Certificates
+### 3.5 Prepare Certificates
 
 The `<env>` placeholder shall be substituted with the actual name of the environment such as `stage` or `prod`.
 
 Staging and Prod certificates are **never** committed to git. However, you may temporarily copy them to _&lt;env>/certifikat_ in order to install/update them. Typically, certificates have probably been installed separately. The important thing is that the deployment template **requires** a secret named: `logsender-<env>-certifikat` to be available in the OpenShift project. It will be mounted to _/opt/logsender[-<env>]/certifikat_ in the container file system.
 
 
-### 2.6 Creating Config and Secrets
+### 3.6 Creating Config and Secrets
 If you've finished updating the files above, it's now time to use **oc** to install them into OpenShift.
 All commands must be executed from the same folder as this markdown file, i.e. _/logsender/devops/openshift_ 
 
@@ -165,24 +173,24 @@ Note: To delete an existing ConfigMap or Secret use the following syntax:
 
 	> oc delete [ configmap | secret ] <name>
 
-##### 2.6.1 Create environment variables for Secret and ConfigMap
+##### 3.6.1 Create environment variables for Secret and ConfigMap
 From YAML-files, their names are hard-coded into the respective file
 
     > oc create -f <env>/configmap-vars.yaml
     > oc create -f <env>/secret-vars.yaml
     
-##### 2.6.2 Create Secret and ConfigMap
+##### 3.6.2 Create Secret and ConfigMap
 Creates config map and secret from the contents of the _&lt;env>/env_ and _&lt;env>/config_ folders:
 
     > oc create configmap logsender-<env>-config --from-file=<env>/config/
     > oc create secret generic logsender-<env>-env --from-file=<env>/env/ --type=Opaque
     
-##### 2.6.3 Create Secret with Certificates
+##### 3.6.3 Create Secret with Certificates
 If this hasn't been done previously, you may **temporarily** copy keystores into the _&lt;env>/certifikat_ folder and then install them into OpenShift using this command:
 
     > oc create secret generic logsender-<env>-certifikat --from-file=<env>/certifikat/ --type=Opaque
 
-### 2.7 Deploy
+### 3.7 Deploy
 We're all set for deploying the application. As stated in the pre-reqs, the "deploytemplate-webapp" must be installed in the OpenShift project.
 
 **NOTE 1** You need to reference the correct docker image from the Nexus!! You must replace \<version\> with a correct path to the image to deploy!! Also note that we will change the pushed image name so it won't have the "-test" suffix.
@@ -202,12 +210,12 @@ Alternatively, it's possible to use the deploytemplate-webapp file locally:
 
     > oc process -f deploytemplate-webapp.yaml -p APP_NAME=logsender-<env> ...
 
-### 2.8 Verify
+### 3.8 Verify
 The pod(s) running logsender should become available within a few minutes use **oc** or Web Console to checkout the logs for progress:
 
 	> oc logs dc/logsender-<env>
 
-### 2.9 Routes
+### 3.9 Routes
 Logsender should _only_ be accessible from inside of the OpenShift project using its _service_ name (e.g. http://logsender[-&lt;env>]:8080) and from Nationella tjänsteplattformen. E.g. take care when setting up an OpenShift route so the logsender service isn't publicly addressable from the Internet.
 
 The security measures based on mutual TLS and PKI should nevertheless stop any attempts from unsolicited callers.
