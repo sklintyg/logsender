@@ -23,6 +23,6 @@ package se.inera.intyg.logsender.helper;
  *
  * Created by eriklupander on 2017-10-24.
  */
-public enum PatientNameInclude {
+public enum ValueInclude {
     INCLUDE, BLANK_WITH_SPACE, NULL
 }

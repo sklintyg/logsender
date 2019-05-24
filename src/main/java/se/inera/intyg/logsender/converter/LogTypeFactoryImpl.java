@@ -18,7 +18,6 @@
  */
 package se.inera.intyg.logsender.converter;
 
-import com.google.common.base.Strings;
 import org.springframework.stereotype.Service;
 import se.inera.intyg.infra.logmessages.Enhet;
 import se.inera.intyg.infra.logmessages.Patient;
@@ -68,24 +67,24 @@ public class LogTypeFactoryImpl implements LogTypeFactory {
     private void buildUserType(PdlLogMessage source, LogType logType) {
         UserType user = new UserType();
         user.setUserId(trim(source.getUserId()));
-        user.setName(trim(source.getUserName()));
         user.setCareProvider(careProvider(source.getUserCareUnit()));
         user.setCareUnit(careUnit(source.getUserCareUnit()));
 
-        // Only set assignment and title if they are non-empty.
-        if (!Strings.isNullOrEmpty(source.getUserAssignment())) {
-            user.setAssignment(source.getUserAssignment());
-        }
-        if (!Strings.isNullOrEmpty(source.getUserTitle())) {
-            user.setTitle(source.getUserTitle());
-        }
+        // optional according to XML schema
+        user.setName(trimToNull(source.getUserName()));
+        user.setAssignment(trimToNull(source.getUserAssignment()));
+        user.setTitle(trimToNull(source.getUserTitle()));
+
         logType.setUser(user);
     }
 
     private void buildSystemType(PdlLogMessage source, LogType logType) {
         SystemType system = new SystemType();
         system.setSystemId(trim(source.getSystemId()));
-        system.setSystemName(trim(source.getSystemName()));
+
+        // optional according to XML schema
+        system.setSystemName(trimToNull(source.getSystemName()));
+
         logType.setSystem(system);
     }
 
@@ -94,11 +93,10 @@ public class LogTypeFactoryImpl implements LogTypeFactory {
         activity.setActivityType(source.getActivityType().getType());
         activity.setStartDate(source.getTimestamp());
         activity.setPurpose(source.getPurpose().getType());
-        activity.setActivityLevel(source.getActivityLevel());
 
-        if (!Strings.isNullOrEmpty(source.getActivityArgs())) {
-            activity.setActivityArgs(source.getActivityArgs());
-        }
+        // optional according to XML schema
+        activity.setActivityLevel(trimToNull(source.getActivityLevel()));
+        activity.setActivityArgs(trimToNull(source.getActivityArgs()));
 
         logType.setActivity(activity);
     }
@@ -106,21 +104,30 @@ public class LogTypeFactoryImpl implements LogTypeFactory {
     private PatientType patient(Patient source) {
         PatientType patient = new PatientType();
         patient.setPatientId(trim(source.getPatientId()));
+
+        // optional according to XML schema
         patient.setPatientName(trimToNull(source.getPatientNamn()));
+
         return patient;
     }
 
     private CareUnitType careUnit(Enhet source) {
         CareUnitType careUnit = new CareUnitType();
         careUnit.setCareUnitId(trim(source.getEnhetsId()));
-        careUnit.setCareUnitName(trim(source.getEnhetsNamn()));
+
+        // optional according to XML schema
+        careUnit.setCareUnitName(trimToNull(source.getEnhetsNamn()));
+
         return careUnit;
     }
 
     private CareProviderType careProvider(Enhet source) {
         CareProviderType careProvider = new CareProviderType();
         careProvider.setCareProviderId(trim(source.getVardgivareId()));
-        careProvider.setCareProviderName(trim(source.getVardgivareNamn()));
+
+        // optional according to XML schema
+        careProvider.setCareProviderName(trimToNull(source.getVardgivareNamn()));
+
         return careProvider;
     }
 
@@ -130,7 +137,9 @@ public class LogTypeFactoryImpl implements LogTypeFactory {
         resource.setCareProvider(careProvider(source.getResourceOwner()));
         resource.setCareUnit(careUnit(source.getResourceOwner()));
 
+        // optional according to XML schema
         resource.setPatient(patient(source.getPatient()));
+
         return resource;
     }
 
@@ -138,6 +147,10 @@ public class LogTypeFactoryImpl implements LogTypeFactory {
         return input != null ? input.trim() : null;
     }
 
+    /*
+     Use this method to return null values if input is blank (empty or null).
+     This is useful to ensure that blank elements are not serialized during XML rendering.
+    */
     private String trimToNull(String input) {
         return input != null && input.trim().length() > 0 ? input.trim() : null;
     }
