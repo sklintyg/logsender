@@ -22,8 +22,8 @@ import org.junit.Test;
 import se.inera.intyg.infra.logmessages.ActivityType;
 import se.inera.intyg.infra.logmessages.Enhet;
 import se.inera.intyg.infra.logmessages.PdlLogMessage;
-import se.inera.intyg.logsender.helper.PatientNameInclude;
 import se.inera.intyg.logsender.helper.TestDataHelper;
+import se.inera.intyg.logsender.helper.ValueInclude;
 import se.riv.ehr.log.v1.LogType;
 import se.riv.ehr.log.v1.ResourceType;
 
@@ -43,18 +43,19 @@ public class LogTypeFactoryImplTest {
     public void testConvertOk() {
         PdlLogMessage pdlLogMessage = TestDataHelper.buildBasePdlLogMessage(ActivityType.READ);
         pdlLogMessage.setActivityArgs("");
+
         LogType logType = testee.convert(pdlLogMessage);
+
         assertEquals(logType.getActivity().getActivityType(), pdlLogMessage.getActivityType().getType());
         assertNull(logType.getActivity().getActivityArgs());
         assertEquals(logType.getLogId(), pdlLogMessage.getLogId());
         assertEquals(logType.getSystem().getSystemId(), pdlLogMessage.getSystemId());
         assertEquals(logType.getSystem().getSystemName(), pdlLogMessage.getSystemName());
+
         assertEquals(logType.getUser().getUserId(), pdlLogMessage.getUserId());
         assertEquals(logType.getUser().getName(), pdlLogMessage.getUserName());
-
         assertEquals(logType.getUser().getCareUnit().getCareUnitId(), pdlLogMessage.getUserCareUnit().getEnhetsId());
         assertEquals(logType.getUser().getCareUnit().getCareUnitName(), pdlLogMessage.getUserCareUnit().getEnhetsNamn());
-
         assertEquals(logType.getUser().getCareProvider().getCareProviderId(), pdlLogMessage.getUserCareUnit().getVardgivareId());
         assertEquals(logType.getUser().getCareProvider().getCareProviderName(), pdlLogMessage.getUserCareUnit().getVardgivareNamn());
 
@@ -80,18 +81,19 @@ public class LogTypeFactoryImplTest {
     public void testConvertWithActivityArgs() {
         PdlLogMessage pdlLogMessage = TestDataHelper.buildBasePdlLogMessage(ActivityType.READ);
         pdlLogMessage.setActivityArgs("activityArgs");
+
         LogType logType = testee.convert(pdlLogMessage);
+
         assertEquals(logType.getActivity().getActivityType(), pdlLogMessage.getActivityType().getType());
         assertEquals(logType.getActivity().getActivityArgs(), pdlLogMessage.getActivityArgs());
         assertEquals(logType.getLogId(), pdlLogMessage.getLogId());
         assertEquals(logType.getSystem().getSystemId(), pdlLogMessage.getSystemId());
         assertEquals(logType.getSystem().getSystemName(), pdlLogMessage.getSystemName());
+
         assertEquals(logType.getUser().getUserId(), pdlLogMessage.getUserId());
         assertEquals(logType.getUser().getName(), pdlLogMessage.getUserName());
-
         assertEquals(logType.getUser().getCareUnit().getCareUnitId(), pdlLogMessage.getUserCareUnit().getEnhetsId());
         assertEquals(logType.getUser().getCareUnit().getCareUnitName(), pdlLogMessage.getUserCareUnit().getEnhetsNamn());
-
         assertEquals(logType.getUser().getCareProvider().getCareProviderId(), pdlLogMessage.getUserCareUnit().getVardgivareId());
         assertEquals(logType.getUser().getCareProvider().getCareProviderName(), pdlLogMessage.getUserCareUnit().getVardgivareNamn());
 
@@ -115,27 +117,41 @@ public class LogTypeFactoryImplTest {
 
     @Test
     public void testLeadingAndTrailingWhitespacesAreTrimmed() {
-        PdlLogMessage pdlLogMessage = TestDataHelper.buildBasePdlLogMessage(ActivityType.READ);
+
         Enhet enhet = new Enhet(" enhet-1", " enhets namn ", "vardgivare-1 ", "Vardgivare namn ");
+
+        PdlLogMessage pdlLogMessage = TestDataHelper.buildBasePdlLogMessage(ActivityType.READ);
         pdlLogMessage.setUserCareUnit(enhet);
 
         LogType logType = testee.convert(pdlLogMessage);
+
         assertEquals("enhet-1", logType.getUser().getCareUnit().getCareUnitId());
         assertEquals("enhets namn", logType.getUser().getCareUnit().getCareUnitName());
-
         assertEquals("vardgivare-1", logType.getUser().getCareProvider().getCareProviderId());
         assertEquals("Vardgivare namn", logType.getUser().getCareProvider().getCareProviderName());
     }
 
     @Test
     public void testBlankPatientNameIsConvertedToNull() {
-        PdlLogMessage pdlLogMessage = TestDataHelper.buildBasePdlLogMessage(ActivityType.READ, PatientNameInclude.BLANK_WITH_SPACE);
+        PdlLogMessage pdlLogMessage = TestDataHelper.buildBasePdlLogMessage(ActivityType.READ, ValueInclude.BLANK_WITH_SPACE, ValueInclude.INCLUDE);
         pdlLogMessage.setActivityArgs("activityArgs");
-        LogType logType = testee.convert(pdlLogMessage);
-        ResourceType resourceType = logType.getResources().getResource().get(0);
 
+        LogType logType = testee.convert(pdlLogMessage);
+
+        ResourceType resourceType = logType.getResources().getResource().get(0);
         assertEquals(resourceType.getPatient().getPatientId(), pdlLogMessage.getPdlResourceList().get(0).getPatient().getPatientId());
         assertNull(resourceType.getPatient().getPatientName());
+    }
+
+    @Test
+    public void testBlankUserNameIsConvertedToNull() {
+        PdlLogMessage pdlLogMessage = TestDataHelper.buildBasePdlLogMessage(ActivityType.READ, ValueInclude.INCLUDE, ValueInclude.BLANK_WITH_SPACE);
+        pdlLogMessage.setActivityArgs("activityArgs");
+
+        LogType logType = testee.convert(pdlLogMessage);
+
+        assertEquals(logType.getUser().getUserId(), pdlLogMessage.getUserId());
+        assertNull(logType.getUser().getName());
     }
 
 }
