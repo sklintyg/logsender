@@ -18,32 +18,25 @@
  */
 package se.inera.intyg.logsender.service;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.xml.bind.JAXBElement;
-import javax.xml.ws.WebServiceException;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import se.inera.intyg.common.support.xml.XmlMarshallerHelper;
 import se.inera.intyg.common.util.integration.json.CustomObjectMapper;
 import se.inera.intyg.infra.logmessages.PdlLogMessage;
-import se.inera.intyg.logsender.exception.TemporaryException;
 import se.inera.intyg.logsender.client.LogSenderClient;
 import se.inera.intyg.logsender.converter.LogTypeFactory;
 import se.inera.intyg.logsender.exception.BatchValidationException;
 import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
-import se.riv.ehr.log.store.storelogresponder.v1.ObjectFactory;
-import se.riv.ehr.log.store.storelogresponder.v1.StoreLogRequestType;
+import se.inera.intyg.logsender.exception.TemporaryException;
 import se.riv.ehr.log.store.storelogresponder.v1.StoreLogResponseType;
 import se.riv.ehr.log.store.v1.ResultType;
 import se.riv.ehr.log.v1.LogType;
+
+import javax.xml.ws.WebServiceException;
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by eriklupander on 2015-05-21.
@@ -123,17 +116,4 @@ public class LogMessageSendProcessor {
         }
     }
 
-    /*
-     * This is a utility method suitable to use when you need to print
-     * log messages as XML during development.
-     *
-     * Usage: LOG.debug(toXml(logMessages))
-     */
-    private String toXml(List<LogType> logTypeList) {
-        StoreLogRequestType request = new StoreLogRequestType();
-        request.getLog().addAll(logTypeList);
-
-        return XmlMarshallerHelper.marshal(
-                new ObjectFactory().createStoreLogRequest(request));
-    }
 }
