@@ -1,8 +1,8 @@
 #!groovy
 
-def buildVersion = "6.4.0.${BUILD_NUMBER}"
-def commonVersion = "3.10.0.+"
-def infraVersion = "3.10.0.+"
+def buildVersion = "6.5.0.${BUILD_NUMBER}"
+def commonVersion = "3.11.0.+"
+def infraVersion = "3.11.0.+"
 
 def versionFlags = "-DbuildVersion=${buildVersion} -DcommonVersion=${commonVersion} -DinfraVersion=${infraVersion}"
 
