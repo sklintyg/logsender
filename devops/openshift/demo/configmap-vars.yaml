@@ -4,7 +4,6 @@ data:
   SAKERHETSTJANST_WS_CERTIFICATE_TYPE: JKS
   SAKERHETSTJANST_WS_TRUSTSTORE_FILE: ${certificate.folder}/truststore.jks
   SAKERHETSTJANST_WS_TRUSTSTORE_TYPE: JKS
-  BROKER_AMQ_TCP_PORT: tcp://activemq-amq-tcp:61616
 kind: ConfigMap
 metadata:
   name: logsender-demo-configmap-envvar
