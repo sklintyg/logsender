@@ -29,9 +29,9 @@ import se.inera.intyg.logsender.converter.LogTypeFactory;
 import se.inera.intyg.logsender.exception.BatchValidationException;
 import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
 import se.inera.intyg.logsender.exception.TemporaryException;
-import se.riv.ehr.log.store.storelogresponder.v1.StoreLogResponseType;
-import se.riv.ehr.log.store.v1.ResultType;
-import se.riv.ehr.log.v1.LogType;
+import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
+import se.riv.informationsecurity.auditing.log.v2.ResultType;
+import se.riv.informationsecurity.auditing.log.v2.LogType;
 
 import javax.xml.ws.WebServiceException;
 import java.io.IOException;
@@ -77,7 +77,7 @@ public class LogMessageSendProcessor {
 
             StoreLogResponseType response = logSenderClient.sendLogMessage(logMessages);
 
-            final ResultType result = response.getResultType();
+            final ResultType result = response.getResult();
             final String resultText = result.getResultText();
 
             switch (result.getResultCode()) {

@@ -23,26 +23,30 @@ import se.inera.intyg.infra.logmessages.Enhet;
 import se.inera.intyg.infra.logmessages.Patient;
 import se.inera.intyg.infra.logmessages.PdlLogMessage;
 import se.inera.intyg.infra.logmessages.PdlResource;
-import se.riv.ehr.log.v1.ActivityType;
-import se.riv.ehr.log.v1.CareProviderType;
-import se.riv.ehr.log.v1.CareUnitType;
-import se.riv.ehr.log.v1.LogType;
-import se.riv.ehr.log.v1.PatientType;
-import se.riv.ehr.log.v1.ResourceType;
-import se.riv.ehr.log.v1.ResourcesType;
-import se.riv.ehr.log.v1.SystemType;
-import se.riv.ehr.log.v1.UserType;
+import se.inera.intyg.schemas.contract.Personnummer;
+import se.riv.informationsecurity.auditing.log.v2.ActivityType;
+import se.riv.informationsecurity.auditing.log.v2.CareProviderType;
+import se.riv.informationsecurity.auditing.log.v2.CareUnitType;
+import se.riv.informationsecurity.auditing.log.v2.IIType;
+import se.riv.informationsecurity.auditing.log.v2.LogType;
+import se.riv.informationsecurity.auditing.log.v2.PatientType;
+import se.riv.informationsecurity.auditing.log.v2.ResourceType;
+import se.riv.informationsecurity.auditing.log.v2.ResourcesType;
+import se.riv.informationsecurity.auditing.log.v2.SystemType;
+import se.riv.informationsecurity.auditing.log.v2.UserType;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Encapsulates PdlLogMessage (internal format) -> LogType (ehr format) conversion.
+ * Encapsulates PdlLogMessage (internal format) -> LogType conversion.
  *
  * Created by eriklupander on 2016-02-29.
  */
 @Service
 public class LogTypeFactoryImpl implements LogTypeFactory {
+
+    private static LogTypeFactoryUtil util = LogTypeFactoryUtil.getInstance();
 
     @Override
     public LogType convert(PdlLogMessage source) {
@@ -66,24 +70,24 @@ public class LogTypeFactoryImpl implements LogTypeFactory {
 
     private void buildUserType(PdlLogMessage source, LogType logType) {
         UserType user = new UserType();
-        user.setUserId(trim(source.getUserId()));
+        user.setUserId(util.trim(source.getUserId()));
         user.setCareProvider(careProvider(source.getUserCareUnit()));
         user.setCareUnit(careUnit(source.getUserCareUnit()));
 
         // optional according to XML schema
-        user.setName(trimToNull(source.getUserName()));
-        user.setAssignment(trimToNull(source.getUserAssignment()));
-        user.setTitle(trimToNull(source.getUserTitle()));
+        user.setName(util.trimToNull(source.getUserName()));
+        user.setAssignment(util.trimToNull(source.getUserAssignment()));
+        user.setTitle(util.trimToNull(source.getUserTitle()));
 
         logType.setUser(user);
     }
 
     private void buildSystemType(PdlLogMessage source, LogType logType) {
         SystemType system = new SystemType();
-        system.setSystemId(trim(source.getSystemId()));
+        system.setSystemId(util.trim(source.getSystemId()));
 
         // optional according to XML schema
-        system.setSystemName(trimToNull(source.getSystemName()));
+        system.setSystemName(util.trimToNull(source.getSystemName()));
 
         logType.setSystem(system);
     }
@@ -95,38 +99,47 @@ public class LogTypeFactoryImpl implements LogTypeFactory {
         activity.setPurpose(source.getPurpose().getType());
 
         // optional according to XML schema
-        activity.setActivityLevel(trimToNull(source.getActivityLevel()));
-        activity.setActivityArgs(trimToNull(source.getActivityArgs()));
+        activity.setActivityLevel(util.trimToNull(source.getActivityLevel()));
+        activity.setActivityArgs(util.trimToNull(source.getActivityArgs()));
 
         logType.setActivity(activity);
     }
 
     private PatientType patient(Patient source) {
+        String id = util.trim(source.getPatientId());
+
+        final Personnummer personnummer = Personnummer.createPersonnummer(id)
+            .orElseThrow(() -> new IllegalArgumentException("PatientId must be a valid personnummer or samordningsnummer"));
+
+        IIType patientId = new IIType();
+        patientId.setRoot(util.isSamordningsNummer(personnummer) ? util.getSamordningsNummerRoot() : util.getPersonnummerRoot());
+        patientId.setExtension(util.trim(source.getPatientId()));
+
         PatientType patient = new PatientType();
-        patient.setPatientId(trim(source.getPatientId()));
+        patient.setPatientId(patientId);
 
         // optional according to XML schema
-        patient.setPatientName(trimToNull(source.getPatientNamn()));
+        patient.setPatientName(util.trimToNull(source.getPatientNamn()));
 
         return patient;
     }
 
     private CareUnitType careUnit(Enhet source) {
         CareUnitType careUnit = new CareUnitType();
-        careUnit.setCareUnitId(trim(source.getEnhetsId()));
+        careUnit.setCareUnitId(util.trim(source.getEnhetsId()));
 
         // optional according to XML schema
-        careUnit.setCareUnitName(trimToNull(source.getEnhetsNamn()));
+        careUnit.setCareUnitName(util.trimToNull(source.getEnhetsNamn()));
 
         return careUnit;
     }
 
     private CareProviderType careProvider(Enhet source) {
         CareProviderType careProvider = new CareProviderType();
-        careProvider.setCareProviderId(trim(source.getVardgivareId()));
+        careProvider.setCareProviderId(util.trim(source.getVardgivareId()));
 
         // optional according to XML schema
-        careProvider.setCareProviderName(trimToNull(source.getVardgivareNamn()));
+        careProvider.setCareProviderName(util.trimToNull(source.getVardgivareNamn()));
 
         return careProvider;
     }
@@ -143,15 +156,4 @@ public class LogTypeFactoryImpl implements LogTypeFactory {
         return resource;
     }
 
-    private String trim(String input) {
-        return input != null ? input.trim() : null;
-    }
-
-    /*
-     Use this method to return null values if input is blank (empty or null).
-     This is useful to ensure that blank elements are not serialized during XML rendering.
-    */
-    private String trimToNull(String input) {
-        return input != null && input.trim().length() > 0 ? input.trim() : null;
-    }
 }

@@ -38,12 +38,12 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
-import se.riv.ehr.log.store.storelog.rivtabp21.v1.StoreLogResponderInterface;
-import se.riv.ehr.log.store.storelogresponder.v1.StoreLogRequestType;
-import se.riv.ehr.log.store.storelogresponder.v1.StoreLogResponseType;
-import se.riv.ehr.log.store.v1.ResultType;
-import se.riv.ehr.log.v1.LogType;
-import se.riv.ehr.log.v1.ResultCodeType;
+import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
+import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogType;
+import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
+import se.riv.informationsecurity.auditing.log.v2.ResultType;
+import se.riv.informationsecurity.auditing.log.v2.LogType;
+import se.riv.informationsecurity.auditing.log.v2.ResultCodeType;
 
 /**
  * Created by eriklupander on 2016-03-08.
@@ -59,41 +59,41 @@ public class LogSenderClientImplTest {
 
     @Test
     public void testSendOk() {
-        when(storeLogResponderInterface.storeLog(anyString(), any(StoreLogRequestType.class))).thenReturn(buildOkResponse());
+        when(storeLogResponderInterface.storeLog(anyString(), any(StoreLogType.class))).thenReturn(buildOkResponse());
         StoreLogResponseType response = testee.sendLogMessage(buildLogEntries());
         assertNotNull(response);
-        assertEquals(ResultCodeType.OK, response.getResultType().getResultCode());
+        assertEquals(ResultCodeType.OK, response.getResult().getResultCode());
     }
 
     @Test
     public void testSendError() {
-        when(storeLogResponderInterface.storeLog(anyString(), any(StoreLogRequestType.class))).thenReturn(buildErrorResponse());
+        when(storeLogResponderInterface.storeLog(anyString(), any(StoreLogType.class))).thenReturn(buildErrorResponse());
         StoreLogResponseType response = testee.sendLogMessage(buildLogEntries());
         assertNotNull(response);
-        assertEquals(ResultCodeType.ERROR, response.getResultType().getResultCode());
+        assertEquals(ResultCodeType.ERROR, response.getResult().getResultCode());
     }
 
     @Test
     public void testSendWithNullListCausesNoSend() {
         StoreLogResponseType response = testee.sendLogMessage(null);
         assertNotNull(response);
-        assertEquals(ResultCodeType.INFO, response.getResultType().getResultCode());
-        assertNotNull(response.getResultType().getResultText());
-        verify(storeLogResponderInterface, times(0)).storeLog(anyString(), any(StoreLogRequestType.class));
+        assertEquals(ResultCodeType.INFO, response.getResult().getResultCode());
+        assertNotNull(response.getResult().getResultText());
+        verify(storeLogResponderInterface, times(0)).storeLog(anyString(), any(StoreLogType.class));
     }
 
     @Test
     public void testSendWithEmptyLogEntriesListCausesNoSend() {
         StoreLogResponseType response = testee.sendLogMessage(new ArrayList<>());
         assertNotNull(response);
-        assertEquals(ResultCodeType.INFO, response.getResultType().getResultCode());
-        assertNotNull(response.getResultType().getResultText());
-        verify(storeLogResponderInterface, times(0)).storeLog(anyString(), any(StoreLogRequestType.class));
+        assertEquals(ResultCodeType.INFO, response.getResult().getResultCode());
+        assertNotNull(response.getResult().getResultText());
+        verify(storeLogResponderInterface, times(0)).storeLog(anyString(), any(StoreLogType.class));
     }
 
     @Test(expected = LoggtjanstExecutionException.class)
     public void testWebServiceExceptionCausesLoggtjanstExecutionException() {
-        when(storeLogResponderInterface.storeLog(anyString(), any(StoreLogRequestType.class))).thenThrow(new WebServiceException("error"));
+        when(storeLogResponderInterface.storeLog(anyString(), any(StoreLogType.class))).thenThrow(new WebServiceException("error"));
         testee.sendLogMessage(buildLogEntries());
     }
 
@@ -101,7 +101,7 @@ public class LogSenderClientImplTest {
         StoreLogResponseType resp = new StoreLogResponseType();
         ResultType resultType = new ResultType();
         resultType.setResultCode(ResultCodeType.OK);
-        resp.setResultType(resultType);
+        resp.setResult(resultType);
         return resp;
     }
 
@@ -109,7 +109,7 @@ public class LogSenderClientImplTest {
         StoreLogResponseType resp = new StoreLogResponseType();
         ResultType resultType = new ResultType();
         resultType.setResultCode(ResultCodeType.ERROR);
-        resp.setResultType(resultType);
+        resp.setResult(resultType);
         return resp;
     }
 
