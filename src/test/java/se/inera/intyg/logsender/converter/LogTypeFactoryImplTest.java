@@ -18,17 +18,17 @@
  */
 package se.inera.intyg.logsender.converter;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 import org.junit.Test;
 import se.inera.intyg.infra.logmessages.ActivityType;
 import se.inera.intyg.infra.logmessages.Enhet;
 import se.inera.intyg.infra.logmessages.PdlLogMessage;
 import se.inera.intyg.logsender.helper.TestDataHelper;
 import se.inera.intyg.logsender.helper.ValueInclude;
-import se.riv.ehr.log.v1.LogType;
-import se.riv.ehr.log.v1.ResourceType;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import se.riv.informationsecurity.auditing.log.v2.LogType;
+import se.riv.informationsecurity.auditing.log.v2.ResourceType;
 
 /**
  * Tests that {@link PdlLogMessage} is properly converted into a {@link LogType}.
@@ -62,7 +62,7 @@ public class LogTypeFactoryImplTest {
         assertEquals(1, logType.getResources().getResource().size());
         ResourceType resourceType = logType.getResources().getResource().get(0);
 
-        assertEquals(resourceType.getPatient().getPatientId(), pdlLogMessage.getPdlResourceList().get(0).getPatient().getPatientId());
+        assertEquals(resourceType.getPatient().getPatientId().getExtension(), pdlLogMessage.getPdlResourceList().get(0).getPatient().getPatientId());
         assertEquals(resourceType.getPatient().getPatientName(), pdlLogMessage.getPdlResourceList().get(0).getPatient().getPatientNamn());
         assertEquals(resourceType.getResourceType(), pdlLogMessage.getPdlResourceList().get(0).getResourceType());
 
@@ -100,7 +100,7 @@ public class LogTypeFactoryImplTest {
         assertEquals(1, logType.getResources().getResource().size());
         ResourceType resourceType = logType.getResources().getResource().get(0);
 
-        assertEquals(resourceType.getPatient().getPatientId(), pdlLogMessage.getPdlResourceList().get(0).getPatient().getPatientId());
+        assertEquals(resourceType.getPatient().getPatientId().getExtension(), pdlLogMessage.getPdlResourceList().get(0).getPatient().getPatientId());
         assertEquals(resourceType.getPatient().getPatientName(), pdlLogMessage.getPdlResourceList().get(0).getPatient().getPatientNamn());
         assertEquals(resourceType.getResourceType(), pdlLogMessage.getPdlResourceList().get(0).getResourceType());
 
@@ -139,7 +139,7 @@ public class LogTypeFactoryImplTest {
         LogType logType = testee.convert(pdlLogMessage);
 
         ResourceType resourceType = logType.getResources().getResource().get(0);
-        assertEquals(resourceType.getPatient().getPatientId(), pdlLogMessage.getPdlResourceList().get(0).getPatient().getPatientId());
+        assertEquals(resourceType.getPatient().getPatientId().getExtension(), pdlLogMessage.getPdlResourceList().get(0).getPatient().getPatientId());
         assertNull(resourceType.getPatient().getPatientName());
     }
 

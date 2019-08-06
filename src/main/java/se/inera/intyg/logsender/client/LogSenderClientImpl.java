@@ -29,12 +29,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
-import se.riv.ehr.log.store.storelog.rivtabp21.v1.StoreLogResponderInterface;
-import se.riv.ehr.log.store.storelogresponder.v1.StoreLogRequestType;
-import se.riv.ehr.log.store.storelogresponder.v1.StoreLogResponseType;
-import se.riv.ehr.log.store.v1.ResultType;
-import se.riv.ehr.log.v1.LogType;
-import se.riv.ehr.log.v1.ResultCodeType;
+import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
+import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogType;
+import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
+import se.riv.informationsecurity.auditing.log.v2.ResultType;
+import se.riv.informationsecurity.auditing.log.v2.LogType;
+import se.riv.informationsecurity.auditing.log.v2.ResultCodeType;
 
 /**
  * Responsible for sending a list of {@link LogType} over the {@link StoreLogResponderInterface}.
@@ -61,17 +61,17 @@ public class LogSenderClientImpl implements LogSenderClient {
             ResultType resultType = new ResultType();
             resultType.setResultCode(ResultCodeType.INFO);
             resultType.setResultText("No log entries supplied, not invoking storeLog");
-            response.setResultType(resultType);
+            response.setResult(resultType);
             return response;
         }
 
-        StoreLogRequestType request = new StoreLogRequestType();
+        StoreLogType request = new StoreLogType();
         request.getLog().addAll(logEntries);
 
         try {
             StoreLogResponseType response = storeLogClient.storeLog(logicalAddress, request);
 
-            if (response.getResultType().getResultCode() == ResultCodeType.OK) {
+            if (response.getResult().getResultCode() == ResultCodeType.OK) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Successfully sent {} PDL log entries for ID's: {}", logEntries.size(), logEntries.stream()
                             .map(LogType::getLogId)

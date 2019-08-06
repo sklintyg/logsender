@@ -19,12 +19,12 @@
 package se.inera.intyg.logsender.client.mock;
 
 import se.inera.intyg.infra.logmessages.ActivityType;
-import se.riv.ehr.log.store.storelog.rivtabp21.v1.StoreLogResponderInterface;
-import se.riv.ehr.log.store.storelogresponder.v1.StoreLogRequestType;
-import se.riv.ehr.log.store.storelogresponder.v1.StoreLogResponseType;
-import se.riv.ehr.log.store.v1.ResultType;
-import se.riv.ehr.log.v1.LogType;
-import se.riv.ehr.log.v1.ResultCodeType;
+import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
+import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogType;
+import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
+import se.riv.informationsecurity.auditing.log.v2.ResultType;
+import se.riv.informationsecurity.auditing.log.v2.LogType;
+import se.riv.informationsecurity.auditing.log.v2.ResultCodeType;
 
 import javax.xml.ws.WebServiceException;
 import java.util.List;
@@ -43,7 +43,7 @@ public class MockLogSenderClientImpl implements StoreLogResponderInterface {
     private List<String> store = new CopyOnWriteArrayList<>();
 
     @Override
-    public StoreLogResponseType storeLog(String logicalAddress, StoreLogRequestType storeLogRequestType) {
+    public StoreLogResponseType storeLog(String logicalAddress, StoreLogType storeLogRequestType) {
         count.incrementAndGet();
 
         StoreLogResponseType resp = new StoreLogResponseType();
@@ -51,7 +51,7 @@ public class MockLogSenderClientImpl implements StoreLogResponderInterface {
         if (storeLogRequestType.getLog().size() == 0) {
             resultType.setResultCode(ResultCodeType.INFO);
             resultType.setResultText("No log messages to store, doing nothing...");
-            resp.setResultType(resultType);
+            resp.setResult(resultType);
             return resp;
         }
 
@@ -66,20 +66,20 @@ public class MockLogSenderClientImpl implements StoreLogResponderInterface {
         for (LogType logType : storeLogRequestType.getLog()) {
             if (logType.getSystem().getSystemId().equals("invalid")) {
                 resultType.setResultCode(ResultCodeType.VALIDATION_ERROR);
-                resp.setResultType(resultType);
+                resp.setResult(resultType);
                 return resp;
             }
         }
 
         resultType.setResultCode(ResultCodeType.OK);
-        resp.setResultType(resultType);
+        resp.setResult(resultType);
 
         store.add(storeLogRequestType.getLog().get(0).getLogId());
 
         return resp;
     }
 
-    private void increaseAttemptsPerMessage(StoreLogRequestType storeLogRequestType) {
+    private void increaseAttemptsPerMessage(StoreLogType storeLogRequestType) {
         String key = storeLogRequestType.getLog().get(0).getLogId();
         if (!attemptsPerMessage.containsKey(key)) {
               attemptsPerMessage.put(key, new AtomicInteger(1));

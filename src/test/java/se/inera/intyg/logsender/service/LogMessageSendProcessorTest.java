@@ -38,9 +38,9 @@ import se.inera.intyg.logsender.exception.BatchValidationException;
 import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
 import se.inera.intyg.logsender.exception.TemporaryException;
 import se.inera.intyg.logsender.helper.TestDataHelper;
-import se.riv.ehr.log.store.storelogresponder.v1.StoreLogResponseType;
-import se.riv.ehr.log.store.v1.ResultType;
-import se.riv.ehr.log.v1.ResultCodeType;
+import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
+import se.riv.informationsecurity.auditing.log.v2.ResultType;
+import se.riv.informationsecurity.auditing.log.v2.ResultCodeType;
 
 import javax.xml.ws.WebServiceException;
 import java.util.Arrays;
@@ -125,7 +125,7 @@ public class LogMessageSendProcessorTest {
         StoreLogResponseType responseType = new StoreLogResponseType();
         ResultType resultType = new ResultType();
         resultType.setResultCode(resultCodeType);
-        responseType.setResultType(resultType);
+        responseType.setResult(resultType);
         return responseType;
     }
 

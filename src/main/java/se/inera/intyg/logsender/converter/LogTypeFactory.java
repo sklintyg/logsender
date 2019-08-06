@@ -19,7 +19,7 @@
 package se.inera.intyg.logsender.converter;
 
 import se.inera.intyg.infra.logmessages.PdlLogMessage;
-import se.riv.ehr.log.v1.LogType;
+import se.riv.informationsecurity.auditing.log.v2.LogType;
 
 /**
  * Created by eriklupander on 2016-02-29.

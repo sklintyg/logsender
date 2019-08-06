@@ -10,23 +10,12 @@ ext {
     commonVersion = System.properties['commonVersion'] ?: '0-SNAPSHOT'
     infraVersion = System.properties['infraVersion'] ?: '0-SNAPSHOT'
 
-    commonsIoVersion = "2.4"
-    funktionstjansterGrpSchemasVersion = "1.0.3"
-    insurancemedicinedecisionsupportSchemasVersion = "1.0.1"
-    intygClinicalprocessSchemasVersion = "1.0.21"
-    intygInsuranceprocessSchemasVersion = "1.0.4"
-    intygTransportstyrelsenSchemasVersion = "1.0.4"
-    ppSchemasVersion = "1.0.4"
-    ppTermsSchemasVersion = "1.0.4"
-    rivtaClinicalprocessSchemasVersion = "4.0"
-    rivtaInsuranceprocessSchemasVersion = "3.1.0.4"
-    rivtaItintegrationMonitoringSchemasVersion = "1.0.0.3"
-    rivtaItintegrationSchemasVersion = "1.0.0.4"
-    rivtaResidentMasterSchemasVersion = "1.1.3.5"
+    rivtaStoreLogSchemasVersion = "2.0"
 
     activeMqVersion = "5.13.4"
     awaitilityVersion = "1.4.0"
     camelVersion = "2.16.0"
+    commonsIoVersion = "2.4"
     geronimoJmsVersion = "1.1.1"
     javaxWsRsApiVersion = "2.0.1"
     servletApiVersion = "2.5"
@@ -93,6 +82,8 @@ task tagRelease(type: TagReleaseTask)
 war.dependsOn createVersionPropertyFile
 
 dependencies {
+    compile "se.riv.informationsecurity.auditing.log:informationsecurity-auditing-log-schemas:${rivtaStoreLogSchemasVersion}"
+
     compile "se.inera.intyg.infra:log-messages:${infraVersion}"
     compile "se.inera.intyg.infra:loggtjanst-stub:${infraVersion}"
     compile "se.inera.intyg.infra:monitoring:${infraVersion}"
