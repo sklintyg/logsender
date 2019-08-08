@@ -46,25 +46,9 @@
     </jaxws:properties>
   </jaxws:client>
 
-  <!--
-  <beans profile="dev,testability-api">
-    <jaxrs:server address="/logMessages">
-      <jaxrs:serviceBeans>
-        <bean class="se.inera.intyg.logsender.integration.test.LogResource" />
-      </jaxrs:serviceBeans>
-      <jaxrs:providers>
-        <ref bean="jacksonJsonProvider" />
-      </jaxrs:providers>
-      <jaxrs:extensionMappings>
-        <entry key="json" value="application/json" />
-      </jaxrs:extensionMappings>
-    </jaxrs:server>
-  </beans>
-  -->
-
   <beans profile="!dev">
     <http:conduit
-      name="{urn:riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21}StoreLogResponderInterfacePort.http-conduit">
+      name="{urn:riv:informationsecurity:auditing:log:StoreLog:2:rivtabp21}StoreLogResponderInterfacePort.http-conduit">
       <http:client AllowChunking="false" AutoRedirect="true"
         Connection="Keep-Alive" />
       <http:tlsClientParameters disableCNCheck="true">
@@ -82,24 +66,14 @@
           <!-- these filters ensure that a cipher suite with export-suitable
             or null encryption is used, but exclude anonymous Diffie-Hellman key change
             as this is vulnerable to man-in-the-middle attacks -->
-          <!-- Old logsender chipers
           <sec:include>.*_EXPORT_.*</sec:include>
           <sec:include>.*_EXPORT1024_.*</sec:include>
+          <sec:include>.*_WITH_AES_256_.*</sec:include>
+          <sec:include>.*_WITH_AES_128_.*</sec:include>
+          <sec:include>.*_WITH_3DES_.*</sec:include>
           <sec:include>.*_WITH_DES_.*</sec:include>
-          <sec:include>.*_WITH_AES_.*</sec:include>
           <sec:include>.*_WITH_NULL_.*</sec:include>
           <sec:exclude>.*_DH_anon_.*</sec:exclude>
-          -->
-          <!-- New logsender chipers, standard intyg -->
-            <sec:include>.*_EXPORT_.*</sec:include>
-            <sec:include>.*_EXPORT1024_.*</sec:include>
-            <sec:include>.*_WITH_AES_256_.*</sec:include>
-            <sec:include>.*_WITH_AES_128_.*</sec:include>
-            <sec:include>.*_WITH_3DES_.*</sec:include>
-            <sec:include>.*_WITH_DES_.*</sec:include>
-            <sec:include>.*_WITH_NULL_.*</sec:include>
-            <sec:exclude>.*_DH_anon_.*</sec:exclude>
-
         </sec:cipherSuitesFilter>
       </http:tlsClientParameters>
     </http:conduit>

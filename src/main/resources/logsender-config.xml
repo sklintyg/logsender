@@ -25,13 +25,15 @@
       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
+    <context:annotation-config />
+
+    <import resource="classpath:/loggtjanst-stub-context.xml" />
+
     <import resource="logsender-placeholder-config.xml" />
 
     <import resource="logsender/beans-context.xml" />
     <import resource="logsender/camel-context.xml" />
     <import resource="logsender/jms-context.xml" />
     <import resource="logsender/ws-context.xml"/>
-
-    <context:annotation-config />
 
 </beans>
