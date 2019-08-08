@@ -51,7 +51,7 @@ Kom ihåg att standardinställningen för aggregering av loggmeddelanden från p
 
 Lokalt är förstås tjänsten stubbad, man bör kunna kika på innehållet i stubben på:
 
-    http://localhost:9099/logsender/loggtjanst-stub
+    http://localhost:9099/logsender/api/loggtjanst-api
     
 ### Stubbens Testbarhets-API 
     
@@ -59,19 +59,19 @@ Följande operationer kan utföras mha GET-anrop till stubben
     
 Avaktivera stubbe
 
-    http://localhost:9099/logsender/loggtjanst-stub/offline
+    http://localhost:9099/logsender/api/loggtjanst-api/offline
     
 Återaktivera stubbe
 
-    http://localhost:9099/logsender/loggtjanst-stub/online
+    http://localhost:9099/logsender/api/loggtjanst-api/online
     
 Fejka fel (errorType = någon av NONE,ERROR,VALIDATION)
 
-    http://localhost:9099/logsender/loggtjanst-stub/error/{errorType}
+    http://localhost:9099/logsender/api/loggtjanst-api/error/{errorType}
     
 Fejka latency, (latencyMs = artificiell fördröjning i millisekunder)
 
-     http://localhost:9099/logsender/loggtjanst-stub/latency/{latencyMs}
+     http://localhost:9099/logsender/api/loggtjanst-api/latency/{latencyMs}
 
 ### Se utgående SOAP-meddelanden
 Ibland vill man se exakt vilken XML som skickas till loggtjänsten i form av StoreLogRequests. För att slå på loggning av dessa,
@@ -81,7 +81,7 @@ Ibland vill man se exakt vilken XML som skickas till loggtjänsten i form av Sto
        <logger name="org.apache.cxf" level="INFO" />
     -->
 
-### Titta på köer i OpenShift demo
+### Titta på köer i OpenShift
 Den JBoss AMQ-paketering vi använder i OpenShift demomiljö har inget GUI för att titta på köer. Det går dock att gå in i activemq-amq-tcp poddens terminal och köra följande:
 
     > cd /opt/amq/bin
