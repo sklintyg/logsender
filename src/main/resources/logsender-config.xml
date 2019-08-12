@@ -27,6 +27,8 @@
 
     <context:annotation-config />
 
+    <import resource="classpath:/basic-cache-config.xml" />
+
     <import resource="classpath:/loggtjanst-stub-context.xml" />
 
     <import resource="logsender-placeholder-config.xml" />

@@ -58,6 +58,7 @@ gretty {
             "-Dspring.profiles.active=dev,wc-loggtjanst-stub,testability-api,caching-enabled",
             "-Dcredentials.file=${projectDir}/log-sender-dummy-credentials.properties",
             "-Dconfig.file=${projectDir}/log-sender-dev.properties",
+            "-Dlogback.file=classpath:logback-ocp.xml",
             "-Djava.awt.headless=true"
     ]
 
