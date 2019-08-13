@@ -10,7 +10,7 @@ ext {
     commonVersion = System.properties['commonVersion'] ?: '0-SNAPSHOT'
     infraVersion = System.properties['infraVersion'] ?: '0-SNAPSHOT'
 
-    rivtaStoreLogSchemasVersion = "2.0"
+    rivtaStoreLogSchemasVersion = "2.0.1"
 
     activeMqVersion = "5.13.4"
     awaitilityVersion = "1.4.0"
