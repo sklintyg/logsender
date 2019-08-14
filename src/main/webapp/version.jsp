@@ -11,12 +11,6 @@
 
 <title>LogSender Version</title>
 
-<!-- build:css({build/.tmp,src/main/webapp}) app/app.css -->
-<!-- injector:css -->
-<link rel="stylesheet" href="app/app.css">
-<!-- endinjector -->
-<!-- endbuild -->
-
 </head>
 <body style="padding: 10px;">
   <div class="page-header" style="margin-top: 0;">
