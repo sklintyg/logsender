@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" session="false" pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <!DOCTYPE html>
 <html lang="sv">
@@ -9,13 +9,7 @@
 <meta name="ROBOTS" content="nofollow, noindex" />
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Rehabstöd Version</title>
-
-<!-- build:css({build/.tmp,src/main/webapp}) app/app.css -->
-<!-- injector:css -->
-<link rel="stylesheet" href="app/app.css">
-<!-- endinjector -->
-<!-- endbuild -->
+<title>LogSender Version</title>
 
 </head>
 <body style="padding: 10px;">
