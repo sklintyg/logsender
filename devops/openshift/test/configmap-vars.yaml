@@ -6,6 +6,7 @@ data:
   SAKERHETSTJANST_WS_CERTIFICATE_TYPE: "JKS"
   SAKERHETSTJANST_WS_TRUSTSTORE_FILE: "${certificate.folder}/truststore.jks"
   SAKERHETSTJANST_WS_TRUSTSTORE_TYPE: "JKS"
+  SPRING_PROFILES_ACTIVE: "test,wc-loggtjanst-stub,testability-api,caching-enabled"
 kind: ConfigMap
 metadata:
   name: logsender-test-configmap-envvar
