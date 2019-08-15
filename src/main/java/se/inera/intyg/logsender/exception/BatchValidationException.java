@@ -22,6 +22,7 @@ package se.inera.intyg.logsender.exception;
  * Created by eriklupander on 2016-03-24.
  */
 public class BatchValidationException extends Exception {
+
     private static final long serialVersionUID = -3184379031315261252L;
 
     public BatchValidationException(String message) {

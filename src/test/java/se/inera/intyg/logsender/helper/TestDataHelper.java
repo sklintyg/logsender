@@ -20,6 +20,7 @@ package se.inera.intyg.logsender.helper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.LocalDateTime;
 import se.inera.intyg.common.util.integration.json.CustomObjectMapper;
 import se.inera.intyg.infra.logmessages.ActivityPurpose;
 import se.inera.intyg.infra.logmessages.ActivityType;
@@ -28,8 +29,6 @@ import se.inera.intyg.infra.logmessages.Patient;
 import se.inera.intyg.infra.logmessages.PdlLogMessage;
 import se.inera.intyg.infra.logmessages.PdlResource;
 import se.inera.intyg.infra.logmessages.ResourceType;
-
-import java.time.LocalDateTime;
 
 /**
  * Utility for creating test data for unit- and integration tests.
@@ -44,7 +43,8 @@ public class TestDataHelper {
         return buildBasePdlLogMessage(activityType, 1, ValueInclude.INCLUDE, ValueInclude.INCLUDE);
     }
 
-    public static PdlLogMessage buildBasePdlLogMessage(ActivityType activityType, ValueInclude patientNameInclude, ValueInclude userNameInclude) {
+    public static PdlLogMessage buildBasePdlLogMessage(ActivityType activityType, ValueInclude patientNameInclude,
+        ValueInclude userNameInclude) {
         return buildBasePdlLogMessage(activityType, 1, patientNameInclude, userNameInclude);
     }
 
@@ -58,16 +58,17 @@ public class TestDataHelper {
 
     public static String buildBasePdlLogMessageAsJson(ActivityType activityType, int numberOfResources) {
         try {
-            return objectMapper.writeValueAsString(buildBasePdlLogMessage(activityType, numberOfResources, ValueInclude.INCLUDE, ValueInclude.INCLUDE));
+            return objectMapper
+                .writeValueAsString(buildBasePdlLogMessage(activityType, numberOfResources, ValueInclude.INCLUDE, ValueInclude.INCLUDE));
         } catch (JsonProcessingException e) {
             throw new IllegalArgumentException("Could not build test data log message, JSON could not be produced: " + e.getMessage());
         }
     }
 
     public static PdlLogMessage buildBasePdlLogMessage(ActivityType activityType,
-                                                       int numberOfResources,
-                                                       ValueInclude patientNameInclude,
-                                                       ValueInclude userNameInclude) {
+        int numberOfResources,
+        ValueInclude patientNameInclude,
+        ValueInclude userNameInclude) {
 
         PdlLogMessage pdlLogMessage = new PdlLogMessage();
         pdlLogMessage.setUserId("user-123");
@@ -91,7 +92,7 @@ public class TestDataHelper {
     }
 
     private static Enhet buildEnhet() {
-        return new Enhet("enhet-1", "Enhet nr 1", "vardgivare-1" ,"Vårdgivare 1");
+        return new Enhet("enhet-1", "Enhet nr 1", "vardgivare-1", "Vårdgivare 1");
     }
 
     private static Patient buildPatient(ValueInclude patientNameInclude) {
@@ -103,7 +104,7 @@ public class TestDataHelper {
             case INCLUDE:
                 patientName = "Tolvan Tolvansson";
         }
-        return new Patient("19121212-1212",  patientName);
+        return new Patient("19121212-1212", patientName);
     }
 
     private static String getUserName(ValueInclude userNameInclude) {

@@ -20,21 +20,18 @@ package se.inera.intyg.logsender.client;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
 import javax.xml.ws.WebServiceException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-
 import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
 import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
-import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogType;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
-import se.riv.informationsecurity.auditing.log.v2.ResultType;
+import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogType;
 import se.riv.informationsecurity.auditing.log.v2.LogType;
 import se.riv.informationsecurity.auditing.log.v2.ResultCodeType;
+import se.riv.informationsecurity.auditing.log.v2.ResultType;
 
 /**
  * Responsible for sending a list of {@link LogType} over the {@link StoreLogResponderInterface}.
@@ -74,8 +71,8 @@ public class LogSenderClientImpl implements LogSenderClient {
             if (response.getResult().getResultCode() == ResultCodeType.OK) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Successfully sent {} PDL log entries for ID's: {}", logEntries.size(), logEntries.stream()
-                            .map(LogType::getLogId)
-                            .collect(Collectors.joining(", ")));
+                        .map(LogType::getLogId)
+                        .collect(Collectors.joining(", ")));
                 }
             }
 

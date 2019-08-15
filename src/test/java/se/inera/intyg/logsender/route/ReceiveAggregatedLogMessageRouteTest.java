@@ -20,10 +20,9 @@ package se.inera.intyg.logsender.route;
 
 import static org.apache.camel.component.mock.MockEndpoint.assertIsSatisfied;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
-
 import javax.xml.ws.WebServiceException;
-
 import org.apache.camel.CamelContext;
 import org.apache.camel.CamelExecutionException;
 import org.apache.camel.EndpointInject;
@@ -46,18 +45,16 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
-
 import se.inera.intyg.infra.logmessages.ActivityType;
 import se.inera.intyg.logsender.exception.PermanentException;
 import se.inera.intyg.logsender.exception.TemporaryException;
 import se.inera.intyg.logsender.helper.TestDataHelper;
 
-import com.google.common.collect.ImmutableMap;
-
 @RunWith(CamelSpringJUnit4ClassRunner.class)
 @ContextConfiguration("/logsender/unit-test-certificate-sender-config.xml")
 @BootstrapWith(CamelTestContextBootstrapper.class)
-@TestExecutionListeners(listeners = {DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class, TransactionalTestExecutionListener.class}) // Suppresses warning
+@TestExecutionListeners(listeners = {DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
+    TransactionalTestExecutionListener.class}) // Suppresses warning
 @MockEndpointsAndSkip("bean:logMessageSendProcessor|direct:logMessagePermanentErrorHandlerEndpoint|direct:logMessageTemporaryErrorHandlerEndpoint")
 public class ReceiveAggregatedLogMessageRouteTest {
 
@@ -91,7 +88,8 @@ public class ReceiveAggregatedLogMessageRouteTest {
 
         // When
         for (int a = 0; a < 1; a++) {
-            producerTemplate.sendBodyAndHeaders(Arrays.asList(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ)), ImmutableMap.<String, Object> of());
+            producerTemplate.sendBodyAndHeaders(Arrays.asList(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ)),
+                ImmutableMap.<String, Object>of());
         }
 
         // Then
@@ -117,7 +115,8 @@ public class ReceiveAggregatedLogMessageRouteTest {
 
         // When
         for (int a = 0; a < 1; a++) {
-            producerTemplate.sendBodyAndHeaders(Arrays.asList(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ)), ImmutableMap.<String, Object> of());
+            producerTemplate.sendBodyAndHeaders(Arrays.asList(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ)),
+                ImmutableMap.<String, Object>of());
         }
 
         // Then
@@ -143,7 +142,8 @@ public class ReceiveAggregatedLogMessageRouteTest {
 
         // When
         for (int a = 0; a < 1; a++) {
-            producerTemplate.sendBodyAndHeaders(Arrays.asList(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ)), ImmutableMap.<String, Object> of());
+            producerTemplate.sendBodyAndHeaders(Arrays.asList(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ)),
+                ImmutableMap.<String, Object>of());
         }
 
         // Then
@@ -169,7 +169,8 @@ public class ReceiveAggregatedLogMessageRouteTest {
 
         // When
         for (int a = 0; a < 1; a++) {
-            producerTemplate.sendBodyAndHeaders(Arrays.asList(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ)), ImmutableMap.<String, Object> of());
+            producerTemplate.sendBodyAndHeaders(Arrays.asList(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ)),
+                ImmutableMap.<String, Object>of());
         }
 
         // Then

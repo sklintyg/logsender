@@ -62,19 +62,20 @@ public class LogTypeFactoryImplTest {
         assertEquals(1, logType.getResources().getResource().size());
         ResourceType resourceType = logType.getResources().getResource().get(0);
 
-        assertEquals(resourceType.getPatient().getPatientId().getExtension(), pdlLogMessage.getPdlResourceList().get(0).getPatient().getPatientId());
+        assertEquals(resourceType.getPatient().getPatientId().getExtension(),
+            pdlLogMessage.getPdlResourceList().get(0).getPatient().getPatientId());
         assertEquals(resourceType.getPatient().getPatientName(), pdlLogMessage.getPdlResourceList().get(0).getPatient().getPatientNamn());
         assertEquals(resourceType.getResourceType(), pdlLogMessage.getPdlResourceList().get(0).getResourceType());
 
         assertEquals(resourceType.getCareUnit().getCareUnitId(),
-                pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getEnhetsId());
+            pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getEnhetsId());
         assertEquals(resourceType.getCareUnit().getCareUnitName(),
-                pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getEnhetsNamn());
+            pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getEnhetsNamn());
 
         assertEquals(resourceType.getCareProvider().getCareProviderId(),
-                pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getVardgivareId());
+            pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getVardgivareId());
         assertEquals(resourceType.getCareProvider().getCareProviderName(),
-                pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getVardgivareNamn());
+            pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getVardgivareNamn());
     }
 
     @Test
@@ -100,19 +101,20 @@ public class LogTypeFactoryImplTest {
         assertEquals(1, logType.getResources().getResource().size());
         ResourceType resourceType = logType.getResources().getResource().get(0);
 
-        assertEquals(resourceType.getPatient().getPatientId().getExtension(), pdlLogMessage.getPdlResourceList().get(0).getPatient().getPatientId());
+        assertEquals(resourceType.getPatient().getPatientId().getExtension(),
+            pdlLogMessage.getPdlResourceList().get(0).getPatient().getPatientId());
         assertEquals(resourceType.getPatient().getPatientName(), pdlLogMessage.getPdlResourceList().get(0).getPatient().getPatientNamn());
         assertEquals(resourceType.getResourceType(), pdlLogMessage.getPdlResourceList().get(0).getResourceType());
 
         assertEquals(resourceType.getCareUnit().getCareUnitId(),
-                pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getEnhetsId());
+            pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getEnhetsId());
         assertEquals(resourceType.getCareUnit().getCareUnitName(),
-                pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getEnhetsNamn());
+            pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getEnhetsNamn());
 
         assertEquals(resourceType.getCareProvider().getCareProviderId(),
-                pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getVardgivareId());
+            pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getVardgivareId());
         assertEquals(resourceType.getCareProvider().getCareProviderName(),
-                pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getVardgivareNamn());
+            pdlLogMessage.getPdlResourceList().get(0).getResourceOwner().getVardgivareNamn());
     }
 
     @Test
@@ -133,19 +135,22 @@ public class LogTypeFactoryImplTest {
 
     @Test
     public void testBlankPatientNameIsConvertedToNull() {
-        PdlLogMessage pdlLogMessage = TestDataHelper.buildBasePdlLogMessage(ActivityType.READ, ValueInclude.BLANK_WITH_SPACE, ValueInclude.INCLUDE);
+        PdlLogMessage pdlLogMessage = TestDataHelper
+            .buildBasePdlLogMessage(ActivityType.READ, ValueInclude.BLANK_WITH_SPACE, ValueInclude.INCLUDE);
         pdlLogMessage.setActivityArgs("activityArgs");
 
         LogType logType = testee.convert(pdlLogMessage);
 
         ResourceType resourceType = logType.getResources().getResource().get(0);
-        assertEquals(resourceType.getPatient().getPatientId().getExtension(), pdlLogMessage.getPdlResourceList().get(0).getPatient().getPatientId());
+        assertEquals(resourceType.getPatient().getPatientId().getExtension(),
+            pdlLogMessage.getPdlResourceList().get(0).getPatient().getPatientId());
         assertNull(resourceType.getPatient().getPatientName());
     }
 
     @Test
     public void testBlankUserNameIsConvertedToNull() {
-        PdlLogMessage pdlLogMessage = TestDataHelper.buildBasePdlLogMessage(ActivityType.READ, ValueInclude.INCLUDE, ValueInclude.BLANK_WITH_SPACE);
+        PdlLogMessage pdlLogMessage = TestDataHelper
+            .buildBasePdlLogMessage(ActivityType.READ, ValueInclude.INCLUDE, ValueInclude.BLANK_WITH_SPACE);
         pdlLogMessage.setActivityArgs("activityArgs");
 
         LogType logType = testee.convert(pdlLogMessage);

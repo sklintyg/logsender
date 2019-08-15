@@ -18,6 +18,8 @@
  */
 package se.inera.intyg.logsender.converter;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import se.inera.intyg.infra.logmessages.Enhet;
 import se.inera.intyg.infra.logmessages.Patient;
@@ -34,9 +36,6 @@ import se.riv.informationsecurity.auditing.log.v2.ResourceType;
 import se.riv.informationsecurity.auditing.log.v2.ResourcesType;
 import se.riv.informationsecurity.auditing.log.v2.SystemType;
 import se.riv.informationsecurity.auditing.log.v2.UserType;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Encapsulates PdlLogMessage (internal format) -> LogType conversion.
@@ -60,9 +59,9 @@ public class LogTypeFactoryImpl implements LogTypeFactory {
         logType.setResources(new ResourcesType());
 
         List<ResourceType> resources = source.getPdlResourceList()
-                .stream()
-                .map(this::buildResource)
-                .collect(Collectors.toList());
+            .stream()
+            .map(this::buildResource)
+            .collect(Collectors.toList());
         logType.getResources().getResource().addAll(resources);
 
         return logType;

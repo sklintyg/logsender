@@ -18,11 +18,19 @@
  */
 package se.inera.intyg.logsender.integration;
 
+import static com.jayway.awaitility.Awaitility.await;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.concurrent.TimeUnit;
+import javax.jms.JMSException;
+import javax.jms.Queue;
+import javax.jms.TextMessage;
 import org.apache.camel.CamelContext;
 import org.apache.camel.test.spring.CamelSpringJUnit4ClassRunner;
 import org.apache.camel.test.spring.CamelTestContextBootstrapper;
@@ -49,21 +57,11 @@ import se.inera.intyg.logsender.client.mock.MockLogSenderClientImpl;
 import se.inera.intyg.logsender.helper.TestDataHelper;
 import se.inera.intyg.logsender.helper.ValueInclude;
 
-import javax.jms.JMSException;
-import javax.jms.Queue;
-import javax.jms.TextMessage;
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.concurrent.TimeUnit;
-
-import static com.jayway.awaitility.Awaitility.await;
-
 /**
- * Tests the full LogMessage route {@link se.inera.intyg.logsender.routes.LogSenderRouteBuilder} using Camel
- * and Spring contexts.
+ * Tests the full LogMessage route {@link se.inera.intyg.logsender.routes.LogSenderRouteBuilder} using Camel and Spring contexts.
  *
- * This test is quite slow due to {@link DirtiesContext.ClassMode#AFTER_EACH_TEST_METHOD} causing the context to be reset
- * fully after each test. Otherwise, artifacts produced be previous tests could affect subsequent tests. (E.g. messages left on DLQ etc.)
+ * This test is quite slow due to {@link DirtiesContext.ClassMode#AFTER_EACH_TEST_METHOD} causing the context to be reset fully after each
+ * test. Otherwise, artifacts produced be previous tests could affect subsequent tests. (E.g. messages left on DLQ etc.)
  *
  * <strong>Note that all tests use 5 as batch size.</strong>
  *
@@ -72,7 +70,8 @@ import static com.jayway.awaitility.Awaitility.await;
 @RunWith(CamelSpringJUnit4ClassRunner.class)
 @ContextConfiguration("/logsender/integration-test-certificate-sender-config.xml")
 @BootstrapWith(CamelTestContextBootstrapper.class)
-@TestExecutionListeners(listeners = {DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class, TransactionalTestExecutionListener.class}) // Suppresses warning
+@TestExecutionListeners(listeners = {DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
+    TransactionalTestExecutionListener.class}) // Suppresses warning
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class RouteIT {
 
@@ -220,7 +219,7 @@ public class RouteIT {
         jmsTemplate.send(sendQueue, session -> {
             try {
                 PdlLogMessage pdlLogMessage
-                        = TestDataHelper.buildBasePdlLogMessage(ActivityType.READ, 1, ValueInclude.INCLUDE, ValueInclude.INCLUDE);
+                    = TestDataHelper.buildBasePdlLogMessage(ActivityType.READ, 1, ValueInclude.INCLUDE, ValueInclude.INCLUDE);
                 pdlLogMessage.setSystemId("invalid");
                 TextMessage textMessage = session.createTextMessage(new CustomObjectMapper().writeValueAsString(pdlLogMessage));
                 return textMessage;
@@ -258,7 +257,8 @@ public class RouteIT {
     private void sendMessage(final ActivityType activityType, int numberOfResources) {
         jmsTemplate.send(sendQueue, session -> {
             try {
-                TextMessage textMessage = session.createTextMessage(TestDataHelper.buildBasePdlLogMessageAsJson(activityType, numberOfResources));
+                TextMessage textMessage = session
+                    .createTextMessage(TestDataHelper.buildBasePdlLogMessageAsJson(activityType, numberOfResources));
                 return textMessage;
             } catch (JMSException e) {
                 throw new RuntimeException(e);

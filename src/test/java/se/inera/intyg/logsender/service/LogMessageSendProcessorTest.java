@@ -24,6 +24,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Arrays;
+import java.util.List;
+import javax.xml.ws.WebServiceException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -39,12 +42,8 @@ import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
 import se.inera.intyg.logsender.exception.TemporaryException;
 import se.inera.intyg.logsender.helper.TestDataHelper;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
-import se.riv.informationsecurity.auditing.log.v2.ResultType;
 import se.riv.informationsecurity.auditing.log.v2.ResultCodeType;
-
-import javax.xml.ws.WebServiceException;
-import java.util.Arrays;
-import java.util.List;
+import se.riv.informationsecurity.auditing.log.v2.ResultType;
 
 /**
  * Created by eriklupander on 2016-03-08.

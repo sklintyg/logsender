@@ -18,16 +18,15 @@
  */
 package se.inera.intyg.logsender.service;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.List;
 import org.apache.camel.Message;
 import org.apache.camel.impl.DefaultMessage;
 import org.junit.Test;
 import se.inera.intyg.infra.logmessages.ActivityType;
 import se.inera.intyg.logsender.exception.PermanentException;
 import se.inera.intyg.logsender.helper.TestDataHelper;
-
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Created by eriklupander on 2016-03-16.

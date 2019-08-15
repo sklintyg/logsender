@@ -27,59 +27,58 @@ import se.inera.intyg.schemas.contract.Personnummer;
  */
 final class LogTypeFactoryUtil {
 
-  private static final String KODVERK_SAMORDNINGSNUMMER = "1.2.752.129.2.1.3.3";
-  private static final String KODVERK_PERSONNUMMER = "1.2.752.129.2.1.3.1";
+    private static final String KODVERK_SAMORDNINGSNUMMER = "1.2.752.129.2.1.3.3";
+    private static final String KODVERK_PERSONNUMMER = "1.2.752.129.2.1.3.1";
 
-  private static final int SAMORDNING_MONTH_INDEX = 6;
-  private static final int SAMORDNING_MONTH_VALUE_MIN = 6;
+    private static final int SAMORDNING_MONTH_INDEX = 6;
+    private static final int SAMORDNING_MONTH_VALUE_MIN = 6;
 
-  private static LogTypeFactoryUtil instance = new LogTypeFactoryUtil();
+    private static LogTypeFactoryUtil instance = new LogTypeFactoryUtil();
 
-  static LogTypeFactoryUtil getInstance() {
-    return instance;
-  }
-
-  private LogTypeFactoryUtil() {
-  }
-
-  /**
-   * Controls if a civic registration number is a 'samordningsnummer' or not.
-   *
-   * @param personNummer
-   *            the civic registration number
-   * @return true if the civic registration number is a 'samordningsnummer', otherwise false
-   */
-  public boolean isSamordningsNummer(Personnummer personNummer) {
-    // In order to determine if a personnummer is a samordningsnummer, we need to have a normalized yyyyMMddNNNN
-    // number. If we cannot parse the encapsulated string, it certainly isn't a personnummer.
-    if (Optional.ofNullable(personNummer).isPresent()) {
-      String normalizedPersonnummer = personNummer.getPersonnummer();
-      char dateDigit = normalizedPersonnummer.charAt(SAMORDNING_MONTH_INDEX);
-      return Character.getNumericValue(dateDigit) >= SAMORDNING_MONTH_VALUE_MIN;
+    static LogTypeFactoryUtil getInstance() {
+        return instance;
     }
 
-    // An invalid personnummer cannot be a samordningsnummer.
-    return false;
-  }
+    private LogTypeFactoryUtil() {
+    }
 
-  public String getSamordningsNummerRoot() {
-    return KODVERK_SAMORDNINGSNUMMER;
-  }
+    /**
+     * Controls if a civic registration number is a 'samordningsnummer' or not.
+     *
+     * @param personNummer the civic registration number
+     * @return true if the civic registration number is a 'samordningsnummer', otherwise false
+     */
+    public boolean isSamordningsNummer(Personnummer personNummer) {
+        // In order to determine if a personnummer is a samordningsnummer, we need to have a normalized yyyyMMddNNNN
+        // number. If we cannot parse the encapsulated string, it certainly isn't a personnummer.
+        if (Optional.ofNullable(personNummer).isPresent()) {
+            String normalizedPersonnummer = personNummer.getPersonnummer();
+            char dateDigit = normalizedPersonnummer.charAt(SAMORDNING_MONTH_INDEX);
+            return Character.getNumericValue(dateDigit) >= SAMORDNING_MONTH_VALUE_MIN;
+        }
 
-  public String getPersonnummerRoot() {
-    return KODVERK_PERSONNUMMER;
-  }
+        // An invalid personnummer cannot be a samordningsnummer.
+        return false;
+    }
 
-  public String trim(String input) {
-      return input != null ? input.trim() : null;
-  }
+    public String getSamordningsNummerRoot() {
+        return KODVERK_SAMORDNINGSNUMMER;
+    }
 
-  /*
-     Use this method to return null values if input is blank (empty or null).
-     This is useful to ensure that blank elements are not serialized during XML rendering.
-    */
-  public String trimToNull(String input) {
-      return input != null && input.trim().length() > 0 ? input.trim() : null;
-  }
+    public String getPersonnummerRoot() {
+        return KODVERK_PERSONNUMMER;
+    }
+
+    public String trim(String input) {
+        return input != null ? input.trim() : null;
+    }
+
+    /*
+       Use this method to return null values if input is blank (empty or null).
+       This is useful to ensure that blank elements are not serialized during XML rendering.
+      */
+    public String trimToNull(String input) {
+        return input != null && input.trim().length() > 0 ? input.trim() : null;
+    }
 
 }

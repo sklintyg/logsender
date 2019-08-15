@@ -36,65 +36,65 @@ objects:
             stage: ${STAGE}
         spec:
           containers:
-          - env:
-            - name: APP_NAME
-              value: ${APP_NAME}
-            - name: STAGE
-              value: ${STAGE}
-            - name: JAVA_OPTS
-              value: "-Xmx512M"
-            - name: DATABASE_NAME
-              value: ${DATABASE_NAME}
-            envFrom:
-              - secretRef:
-                  name: ${APP_NAME}-secret-envvar
-              - configMapRef:
-                  name: ${APP_NAME}-configmap-envvar
-            image: ${IMAGE}
-            imagePullPolicy: Always
-            name: ${APP_NAME}
-            resources:
-              limits:
-                cpu: 1
-                memory: 2Gi
-              requests:
-                cpu: 200m
-                memory: 1Gi
-            ports:
-              - containerPort: 8080
-                protocol: TCP
-            readinessProbe:
-              failureThreshold: 3
-              httpGet:
-                path: ${HEALTH_URI}
-                port: 8080
-                scheme: HTTP
-              initialDelaySeconds: 60
-              periodSeconds: 10
-              successThreshold: 1
-              timeoutSeconds: 2
-            livenessProbe:
-              failureThreshold: 15
-              httpGet:
-                path: ${HEALTH_URI}
-                port: 8080
-                scheme: HTTP
-              initialDelaySeconds: 60
-              periodSeconds: 20
-              successThreshold: 1
-              timeoutSeconds: 5
-            terminationMessagePath: /dev/termination-log
-            terminationMessagePolicy: File
-            volumeMounts:
-              - mountPath: /opt/${APP_NAME}/config
-                name: ${APP_NAME}-config
-                readOnly: true
-              - mountPath: /opt/${APP_NAME}/env
-                name: ${APP_NAME}-env
-                readOnly: true
-              - mountPath: /opt/${APP_NAME}/certifikat
-                name: ${APP_NAME}-certifikat
-                readOnly: true
+            - env:
+                - name: APP_NAME
+                  value: ${APP_NAME}
+                - name: STAGE
+                  value: ${STAGE}
+                - name: JAVA_OPTS
+                  value: "-Xmx512M"
+                - name: DATABASE_NAME
+                  value: ${DATABASE_NAME}
+              envFrom:
+                - secretRef:
+                    name: ${APP_NAME}-secret-envvar
+                - configMapRef:
+                    name: ${APP_NAME}-configmap-envvar
+              image: ${IMAGE}
+              imagePullPolicy: Always
+              name: ${APP_NAME}
+              resources:
+                limits:
+                  cpu: 1
+                  memory: 2Gi
+                requests:
+                  cpu: 200m
+                  memory: 1Gi
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+              readinessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: ${HEALTH_URI}
+                  port: 8080
+                  scheme: HTTP
+                initialDelaySeconds: 60
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 2
+              livenessProbe:
+                failureThreshold: 15
+                httpGet:
+                  path: ${HEALTH_URI}
+                  port: 8080
+                  scheme: HTTP
+                initialDelaySeconds: 60
+                periodSeconds: 20
+                successThreshold: 1
+                timeoutSeconds: 5
+              terminationMessagePath: /dev/termination-log
+              terminationMessagePolicy: File
+              volumeMounts:
+                - mountPath: /opt/${APP_NAME}/config
+                  name: ${APP_NAME}-config
+                  readOnly: true
+                - mountPath: /opt/${APP_NAME}/env
+                  name: ${APP_NAME}-env
+                  readOnly: true
+                - mountPath: /opt/${APP_NAME}/certifikat
+                  name: ${APP_NAME}-certifikat
+                  readOnly: true
           dnsPolicy: ClusterFirst
           restartPolicy: Always
           schedulerName: default-scheduler
@@ -121,10 +121,10 @@ objects:
       name: ${APP_NAME}
     spec:
       ports:
-      - name: 8080-tcp
-        port: 8080
-        protocol: TCP
-        targetPort: 8080
+        - name: 8080-tcp
+          port: 8080
+          protocol: TCP
+          targetPort: 8080
       selector:
         deploymentconfig: ${APP_NAME}
       sessionAffinity: None

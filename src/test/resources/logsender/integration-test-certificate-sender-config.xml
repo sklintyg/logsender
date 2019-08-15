@@ -29,7 +29,7 @@
   <import resource="../integration-test-broker-context.xml"/>
 
   <context:property-placeholder
-      location="classpath:default.properties, classpath:logsender/integration-test.properties" order="1" ignore-resource-not-found="false" />
+      location="classpath:default.properties, classpath:logsender/integration-test.properties" order="1" ignore-resource-not-found="false"/>
 
   <context:annotation-config/>
 

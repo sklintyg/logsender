@@ -28,22 +28,19 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.ws.WebServiceException;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
 import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
 import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
-import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogType;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
-import se.riv.informationsecurity.auditing.log.v2.ResultType;
+import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogType;
 import se.riv.informationsecurity.auditing.log.v2.LogType;
 import se.riv.informationsecurity.auditing.log.v2.ResultCodeType;
+import se.riv.informationsecurity.auditing.log.v2.ResultType;
 
 /**
  * Created by eriklupander on 2016-03-08.
