@@ -20,6 +20,7 @@ package se.inera.intyg.logsender.route;
 
 import static org.apache.camel.component.mock.MockEndpoint.assertIsSatisfied;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.camel.CamelContext;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Produce;
@@ -39,16 +40,14 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
-
 import se.inera.intyg.infra.logmessages.ActivityType;
 import se.inera.intyg.logsender.helper.TestDataHelper;
-
-import com.google.common.collect.ImmutableMap;
 
 @RunWith(CamelSpringJUnit4ClassRunner.class)
 @ContextConfiguration("/logsender/unit-test-certificate-sender-config.xml")
 @BootstrapWith(CamelTestContextBootstrapper.class)
-@TestExecutionListeners(listeners = {DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class, TransactionalTestExecutionListener.class}) // Suppresses warning
+@TestExecutionListeners(listeners = {DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
+    TransactionalTestExecutionListener.class}) // Suppresses warning
 @MockEndpointsAndSkip("bean:logMessageAggregationProcessor|direct:logMessagePermanentErrorHandlerEndpoint|direct:logMessageTemporaryErrorHandlerEndpoint|direct:receiveAggregatedLogMessageEndpoint")
 public class AggregatorRouteTest {
 
@@ -86,7 +85,8 @@ public class AggregatorRouteTest {
 
         // When
         for (int a = 0; a < 5; a++) {
-            producerTemplate.sendBodyAndHeaders(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ), ImmutableMap.<String, Object> of());
+            producerTemplate
+                .sendBodyAndHeaders(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ), ImmutableMap.<String, Object>of());
         }
 
         // Then
@@ -107,7 +107,8 @@ public class AggregatorRouteTest {
 
         // When
         for (int a = 0; a < 4; a++) {
-            producerTemplate.sendBodyAndHeaders(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ), ImmutableMap.<String, Object> of());
+            producerTemplate
+                .sendBodyAndHeaders(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ), ImmutableMap.<String, Object>of());
         }
 
         // Then

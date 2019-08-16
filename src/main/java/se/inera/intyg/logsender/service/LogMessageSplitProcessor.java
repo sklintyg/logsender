@@ -18,30 +18,27 @@
  */
 package se.inera.intyg.logsender.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.camel.Body;
 import org.apache.camel.Message;
 import org.apache.camel.impl.DefaultMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import se.inera.intyg.common.util.integration.json.CustomObjectMapper;
 import se.inera.intyg.infra.logmessages.PdlLogMessage;
 import se.inera.intyg.infra.logmessages.PdlResource;
 import se.inera.intyg.logsender.exception.PermanentException;
 
 /**
- * This camel processor implements the split pattern. It will create a new Message for each
- * {@link PdlResource} within the deserialized {@link PdlLogMessage}.
+ * This camel processor implements the split pattern. It will create a new Message for each {@link PdlResource} within the deserialized
+ * {@link PdlLogMessage}.
  *
- * The reason for this is that the PDL-service does not accept multiple PdlResources for different patients bound to the
- * same PdlLogMessage.
+ * The reason for this is that the PDL-service does not accept multiple PdlResources for different patients bound to the same
+ * PdlLogMessage.
  *
  * Created by eriklupander on 2016-03-16.
  */
@@ -52,16 +49,12 @@ public class LogMessageSplitProcessor {
     private ObjectMapper objectMapper = new CustomObjectMapper();
 
     /**
-     * If a PdlLogMessage contains more than one resource, it is split into (n resources) number of new PdlLogMessages
-     * with one Resource each.
+     * If a PdlLogMessage contains more than one resource, it is split into (n resources) number of new PdlLogMessages with one Resource
+     * each.
      *
-     * @param body
-     *      The inbound message, typically containing a JSON-serialized {@link PdlLogMessage} as body.
-     * @return
-     *      A list of {@link DefaultMessage} where each message contains a body of one {@link PdlLogMessage} having
-     *      exactly one {@link PdlResource}.
-     * @throws IOException
-     * @throws PermanentException
+     * @param body The inbound message, typically containing a JSON-serialized {@link PdlLogMessage} as body.
+     * @return A list of {@link DefaultMessage} where each message contains a body of one {@link PdlLogMessage} having exactly one {@link
+     * PdlResource}.
      */
     public List<Message> process(@Body Message body) throws IOException, PermanentException {
 

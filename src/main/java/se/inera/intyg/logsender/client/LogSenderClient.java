@@ -18,10 +18,9 @@
  */
 package se.inera.intyg.logsender.client;
 
+import java.util.List;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
 import se.riv.informationsecurity.auditing.log.v2.LogType;
-
-import java.util.List;
 
 /**
  * Created by eriklupander on 2016-02-29.

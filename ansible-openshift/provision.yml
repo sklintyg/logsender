@@ -1,8 +1,0 @@
----
-
-- hosts: all
-  serial: 1
-  become: no
-  roles:
-    - logsender-resurser
-    - logsender-jarfiler

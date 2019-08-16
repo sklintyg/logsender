@@ -19,6 +19,10 @@
 package se.inera.intyg.logsender.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.xml.ws.WebServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,13 +34,8 @@ import se.inera.intyg.logsender.exception.BatchValidationException;
 import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
 import se.inera.intyg.logsender.exception.TemporaryException;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
-import se.riv.informationsecurity.auditing.log.v2.ResultType;
 import se.riv.informationsecurity.auditing.log.v2.LogType;
-
-import javax.xml.ws.WebServiceException;
-import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
+import se.riv.informationsecurity.auditing.log.v2.ResultType;
 
 /**
  * Created by eriklupander on 2015-05-21.
@@ -58,11 +57,7 @@ public class LogMessageSendProcessor {
      *
      * The body must be a String with a JSON encoded array of {@link PdlLogMessage}(s)
      *
-     * @param groupedLogEntries
-     *            A String containing a JSON encoded array of {@link PdlLogMessage}(s)
-     * @throws IOException
-     * @throws BatchValidationException
-     * @throws TemporaryException
+     * @param groupedLogEntries A String containing a JSON encoded array of {@link PdlLogMessage}(s)
      */
     public void process(String groupedLogEntries) throws IOException, BatchValidationException, TemporaryException {
 
@@ -71,9 +66,9 @@ public class LogMessageSendProcessor {
             List<String> groupedList = objectMapper.readValue(groupedLogEntries, List.class);
 
             List<LogType> logMessages = groupedList.stream()
-                    .map(this::jsonToPdlLogMessage)
-                    .map(alm -> logTypeFactory.convert(alm))
-                    .collect(Collectors.toList());
+                .map(this::jsonToPdlLogMessage)
+                .map(alm -> logTypeFactory.convert(alm))
+                .collect(Collectors.toList());
 
             StoreLogResponseType response = logSenderClient.sendLogMessage(logMessages);
 
@@ -81,19 +76,19 @@ public class LogMessageSendProcessor {
             final String resultText = result.getResultText();
 
             switch (result.getResultCode()) {
-            case OK:
-                break;
-            case ERROR:
-            case VALIDATION_ERROR:
-                LOG.error("Loggtjänsten rejected PDL message batch with {}, batch will be moved to DLQ. Result text: '{}'",
+                case OK:
+                    break;
+                case ERROR:
+                case VALIDATION_ERROR:
+                    LOG.error("Loggtjänsten rejected PDL message batch with {}, batch will be moved to DLQ. Result text: '{}'",
                         result.getResultCode().value(), resultText);
-                throw new BatchValidationException(
+                    throw new BatchValidationException(
                         "Loggtjänsten rejected PDL message batch with error: " + resultText + ". Batch will be moved directly to DLQ.");
-            case INFO:
-                LOG.warn("Warning of type INFO occured when sending PDL log message batch: '{}'. Will not requeue.", resultText);
-                break;
-            default:
-                throw new TemporaryException(resultText);
+                case INFO:
+                    LOG.warn("Warning of type INFO occured when sending PDL log message batch: '{}'. Will not requeue.", resultText);
+                    break;
+                default:
+                    throw new TemporaryException(resultText);
             }
 
         } catch (IllegalArgumentException e) {

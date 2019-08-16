@@ -20,12 +20,12 @@
 
 -->
 <configuration>
-    <!-- logback config for the Openshift Container Platform (OCP). Stream to stdout, use layout and appenders from infra. -->
+  <!-- logback config for the Openshift Container Platform (OCP). Stream to stdout, use layout and appenders from infra. -->
 
-    <property name="APP_NAME" value="${APP_NAME:-logsender}"/>
+  <property name="APP_NAME" value="${APP_NAME:-logsender}"/>
 
-    <include resource="logback-ocp-base.xml"/>
+  <include resource="logback-ocp-base.xml"/>
 
-    <logger name="se.inera" level="DEBUG"/>
+  <logger name="se.inera" level="DEBUG"/>
 
 </configuration>

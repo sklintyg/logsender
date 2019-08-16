@@ -25,5 +25,6 @@ import se.riv.informationsecurity.auditing.log.v2.LogType;
  * Created by eriklupander on 2016-02-29.
  */
 public interface LogTypeFactory {
+
     LogType convert(PdlLogMessage source);
 }

@@ -38,7 +38,7 @@
   </bean>
 
   <bean id="cachingConnectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
-    <constructor-arg ref="jmsConnectionFactory" />
+    <constructor-arg ref="jmsConnectionFactory"/>
   </bean>
 
   <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">

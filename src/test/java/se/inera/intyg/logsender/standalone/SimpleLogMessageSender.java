@@ -19,14 +19,6 @@
 package se.inera.intyg.logsender.standalone;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.activemq.ActiveMQConnection;
-import org.apache.activemq.ActiveMQConnectionFactory;
-import se.inera.intyg.common.util.integration.json.CustomObjectMapper;
-import se.inera.intyg.infra.logmessages.ActivityType;
-import se.inera.intyg.infra.logmessages.PdlLogMessage;
-import se.inera.intyg.logsender.helper.ValueInclude;
-import se.inera.intyg.logsender.helper.TestDataHelper;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -34,11 +26,17 @@ import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import org.apache.activemq.ActiveMQConnection;
+import org.apache.activemq.ActiveMQConnectionFactory;
+import se.inera.intyg.common.util.integration.json.CustomObjectMapper;
+import se.inera.intyg.infra.logmessages.ActivityType;
+import se.inera.intyg.infra.logmessages.PdlLogMessage;
+import se.inera.intyg.logsender.helper.TestDataHelper;
+import se.inera.intyg.logsender.helper.ValueInclude;
 
 /**
- * Stand-alone "application" that can connect to a local running ActiveMQ and send
- * a PdlLogMessage (as json) to localhost:61616. Useful for debugging / troubleshooting
- * purposes when you don't want to start a Webcert or Rehabstod instance.
+ * Stand-alone "application" that can connect to a local running ActiveMQ and send a PdlLogMessage (as json) to localhost:61616. Useful for
+ * debugging / troubleshooting purposes when you don't want to start a Webcert or Rehabstod instance.
  *
  * The message is created using the {@link TestDataHelper#buildBasePdlLogMessage(ActivityType, ValueInclude, ValueInclude)}
  *
@@ -56,15 +54,15 @@ public class SimpleLogMessageSender {
         connection.start();
 
         Session session = connection.createSession(false,
-                Session.AUTO_ACKNOWLEDGE);
+            Session.AUTO_ACKNOWLEDGE);
 
         Destination destination = session.createQueue(subject);
         MessageProducer producer = session.createProducer(destination);
 
         PdlLogMessage pdlLogMessage =
-                TestDataHelper.buildBasePdlLogMessage(ActivityType.CREATE, ValueInclude.INCLUDE, ValueInclude.INCLUDE);
+            TestDataHelper.buildBasePdlLogMessage(ActivityType.CREATE, ValueInclude.INCLUDE, ValueInclude.INCLUDE);
         TextMessage message =
-                session.createTextMessage(new CustomObjectMapper().writeValueAsString(pdlLogMessage));
+            session.createTextMessage(new CustomObjectMapper().writeValueAsString(pdlLogMessage));
         // Here we are sending the message!
         producer.send(message);
         System.out.println("Sent message: '" + message.getText() + "'");

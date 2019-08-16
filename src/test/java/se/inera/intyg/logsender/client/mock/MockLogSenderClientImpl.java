@@ -18,19 +18,18 @@
  */
 package se.inera.intyg.logsender.client.mock;
 
-import se.inera.intyg.infra.logmessages.ActivityType;
-import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
-import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogType;
-import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
-import se.riv.informationsecurity.auditing.log.v2.ResultType;
-import se.riv.informationsecurity.auditing.log.v2.LogType;
-import se.riv.informationsecurity.auditing.log.v2.ResultCodeType;
-
-import javax.xml.ws.WebServiceException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.xml.ws.WebServiceException;
+import se.inera.intyg.infra.logmessages.ActivityType;
+import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
+import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
+import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogType;
+import se.riv.informationsecurity.auditing.log.v2.LogType;
+import se.riv.informationsecurity.auditing.log.v2.ResultCodeType;
+import se.riv.informationsecurity.auditing.log.v2.ResultType;
 
 /**
  * Created by eriklupander on 2016-02-29.
@@ -82,7 +81,7 @@ public class MockLogSenderClientImpl implements StoreLogResponderInterface {
     private void increaseAttemptsPerMessage(StoreLogType storeLogRequestType) {
         String key = storeLogRequestType.getLog().get(0).getLogId();
         if (!attemptsPerMessage.containsKey(key)) {
-              attemptsPerMessage.put(key, new AtomicInteger(1));
+            attemptsPerMessage.put(key, new AtomicInteger(1));
         } else {
             attemptsPerMessage.get(key).incrementAndGet();
         }

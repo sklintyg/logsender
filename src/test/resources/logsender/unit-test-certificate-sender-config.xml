@@ -28,7 +28,7 @@
   <import resource="mock-service-context.xml"/>
 
   <context:property-placeholder
-      location="classpath:logsender/unit-test.properties" order="1" ignore-resource-not-found="false" />
+      location="classpath:logsender/unit-test.properties" order="1" ignore-resource-not-found="false"/>
 
   <bean id="transactionManager" class="se.inera.intyg.logsender.mocks.MockTransactionManager"/>
 

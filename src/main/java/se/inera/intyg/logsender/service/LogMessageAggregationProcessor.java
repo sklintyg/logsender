@@ -18,28 +18,24 @@
  */
 package se.inera.intyg.logsender.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.apache.camel.Exchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import se.inera.intyg.common.util.integration.json.CustomObjectMapper;
 import se.inera.intyg.logsender.exception.PermanentException;
 
 /**
- * Accepts a Camel Exchange that must contain a {@link Exchange#GROUPED_EXCHANGE} of (n)
- * log messages that should be sent in a batch to the PDL-log service.
+ * Accepts a Camel Exchange that must contain a {@link Exchange#GROUPED_EXCHANGE} of (n) log messages that should be sent in a batch to the
+ * PDL-log service.
  *
- * The resulting list of {@link PdlLogMessage} is serialized into a JSON string and
- * passed on so Camel can supply it to the next consumer.
+ * The resulting list of {@link PdlLogMessage} is serialized into a JSON string and passed on so Camel can supply it to the next consumer.
  *
- * The next consumer is typically the aggreagated.jms.queue. Since we want TextMessages for readability, the conversion
- * to a JSON string is performed.
+ * The next consumer is typically the aggreagated.jms.queue. Since we want TextMessages for readability, the conversion to a JSON string is
+ * performed.
  *
  * Created by eriklupander on 2016-02-29.
  */
@@ -52,13 +48,9 @@ public class LogMessageAggregationProcessor {
     /**
      * Transforms the contents of the grouped exchange into a list of {@link PdlLogMessage}.
      *
-     * @param exchange
-     *      An exchange typically containing (n) number of exchanges that has been aggregated into a grouped exchange.
-     * @return
-     *      An List<String>. Note that the payload is JSON, simplifies readability if message ever ends up on a DLQ.
-     * @throws PermanentException
-     *      If the exchange could not be read or did not contain any grouped exchanges, just ignore.
-     * @throws JsonProcessingException
+     * @param exchange An exchange typically containing (n) number of exchanges that has been aggregated into a grouped exchange.
+     * @return An List<String>. Note that the payload is JSON, simplifies readability if message ever ends up on a DLQ.
+     * @throws PermanentException If the exchange could not be read or did not contain any grouped exchanges, just ignore.
      */
     public String process(Exchange exchange) throws PermanentException, JsonProcessingException {
 
@@ -70,8 +62,8 @@ public class LogMessageAggregationProcessor {
         }
 
         List<String> aggregatedList = grouped.stream()
-                .map(oneExchange -> (String) oneExchange.getIn().getBody())
-                .collect(Collectors.toList());
+            .map(oneExchange -> (String) oneExchange.getIn().getBody())
+            .collect(Collectors.toList());
 
         return objectMapper.writeValueAsString(aggregatedList);
     }

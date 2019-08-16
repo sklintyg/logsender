@@ -23,6 +23,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.junit.Test;
@@ -32,9 +34,6 @@ import se.inera.intyg.common.util.integration.json.CustomObjectMapper;
 import se.inera.intyg.infra.logmessages.ActivityType;
 import se.inera.intyg.logsender.exception.PermanentException;
 import se.inera.intyg.logsender.helper.TestDataHelper;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by eriklupander on 2016-03-08.
@@ -54,8 +53,8 @@ public class LogMessageAggregationProcessorTest {
     }
 
     /**
-     * Even though we have a splitter before this step, this step will forward with multiple
-     * resources - if they are for the same patient, it is valid.
+     * Even though we have a splitter before this step, this step will forward with multiple resources - if they are for the same patient,
+     * it is valid.
      */
     @Test
     public void testGroupedExchangeWithMultipleResources() throws Exception {
