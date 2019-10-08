@@ -2,7 +2,7 @@ plugins {
     id 'maven'
     id 'idea'
     id 'war'
-    id "se.inera.intyg.plugin.common" version "2.0.9"
+    id "se.inera.intyg.plugin.common" version "2.0.10"
     id "org.gretty" version "2.3.1"
 }
 
