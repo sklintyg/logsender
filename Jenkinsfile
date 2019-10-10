@@ -32,7 +32,7 @@ node {
         try {
             shgradle "build -P codeQuality jacocoTestReport sonarqube ${versionFlags}"
         } finally {
-            publishHTML allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: 'web/build/reports/jacoco/test/html', \
+            publishHTML allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: 'build/reports/jacoco/test/html', \
             reportFiles: 'index.html', reportName: 'Code coverage'
         }
     }
