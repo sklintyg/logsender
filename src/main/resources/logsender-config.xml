@@ -33,9 +33,9 @@
 
   <import resource="logsender-placeholder-config.xml"/>
 
-  <import resource="logsender/beans-context.xml"/>
-  <import resource="logsender/camel-context.xml"/>
-  <import resource="logsender/jms-context.xml"/>
-  <import resource="logsender/ws-context.xml"/>
+  <!--<import resource="logsender/beans-context.xml"/>-->
+  <!--<import resource="logsender/camel-context.xml"/>-->
+  <!--<import resource="logsender/jms-context.xml"/>-->
+  <!--<import resource="logsender/ws-context.xml"/>-->
 
 </beans>

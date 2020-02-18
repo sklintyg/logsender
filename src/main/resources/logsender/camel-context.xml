@@ -19,21 +19,21 @@
   -->
 
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:camel="http://camel.apache.org/schema/spring"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+   xmlns:camel="http://camel.apache.org/schema/spring"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+  <!--
+    <bean id="logMessageRouteBuilder" class="se.inera.intyg.logsender.routes.LogSenderRouteBuilder"/>
 
-  <bean id="logMessageRouteBuilder" class="se.inera.intyg.logsender.routes.LogSenderRouteBuilder"/>
+    <camel:camelContext id="webcertLogMessageSender">-->
+  <!--   <camel:camelContext id="camelContext">
 
-  <camel:camelContext id="webcertLogMessageSender">
-
-    <camel:routeBuilder ref="logMessageRouteBuilder"/>
+       <camel:routeBuilder ref="logMessageRouteBuilder"/>-->
 
     <!-- Endpoint connected to AMQ to receive messages on -->
-    <camel:endpoint id="receiveLogMessageEndpoint" uri="${receiveLogMessageEndpointUri}"/>
-    <camel:endpoint id="receiveAggregatedLogMessageEndpoint" uri="${receiveAggregatedLogMessageEndpointUri}"/>
+   <!--<camel:endpoint id="receiveLogMessageEndpoint" uri="${receiveLogMessageEndpointUri}"/>
+      <camel:endpoint id="receiveAggregatedLogMessageEndpoint" uri="${receiveAggregatedLogMessageEndpointUri}"/>
 
-  </camel:camelContext>
-
+   </camel:camelContext>-->
 </beans>

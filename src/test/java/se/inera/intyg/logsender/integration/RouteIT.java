@@ -18,7 +18,8 @@
  */
 package se.inera.intyg.logsender.integration;
 
-import static com.jayway.awaitility.Awaitility.await;
+//import static com.jayway.awaitility.Awaitility.await;
+import static org.awaitility.Awaitility.await;
 
 import java.io.IOException;
 import java.util.Enumeration;
@@ -29,7 +30,7 @@ import javax.jms.Queue;
 import javax.jms.TextMessage;
 
 import org.apache.camel.CamelContext;
-import org.apache.camel.test.spring.CamelSpringJUnit4ClassRunner;
+import org.apache.camel.test.spring.CamelSpringRunner;
 import org.apache.camel.test.spring.CamelTestContextBootstrapper;
 import org.junit.Before;
 import org.junit.Test;
@@ -71,7 +72,8 @@ import se.inera.intyg.logsender.helper.ValueInclude;
  *
  * @author eriklupander
  */
-@RunWith(CamelSpringJUnit4ClassRunner.class)
+//@RunWith(CamelSpringJUnit4ClassRunner.class)
+@RunWith(CamelSpringRunner.class)
 @ContextConfiguration("/logsender/integration-test-certificate-sender-config.xml")
 @BootstrapWith(CamelTestContextBootstrapper.class)
 @TestExecutionListeners(listeners = {DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
@@ -102,7 +104,8 @@ public class RouteIT {
     private MockLogSenderClientImpl mockLogSenderClient;
 
     @Autowired
-    @Qualifier("webcertLogMessageSender")
+    //@Qualifier("webcertLogMessageSender")
+    @Qualifier("camelContext")
     CamelContext camelContext;
 
     @Before

@@ -32,7 +32,7 @@ import org.apache.camel.Processor;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.test.spring.CamelSpringJUnit4ClassRunner;
+import org.apache.camel.test.spring.CamelSpringRunner;
 import org.apache.camel.test.spring.CamelTestContextBootstrapper;
 import org.apache.camel.test.spring.MockEndpointsAndSkip;
 import org.junit.Before;
@@ -43,6 +43,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.BootstrapWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
@@ -54,12 +55,14 @@ import se.inera.intyg.logsender.exception.PermanentException;
 import se.inera.intyg.logsender.exception.TemporaryException;
 import se.inera.intyg.logsender.helper.TestDataHelper;
 
-@RunWith(CamelSpringJUnit4ClassRunner.class)
+//@RunWith(CamelSpringJUnit4ClassRunner.class)
+@RunWith(CamelSpringRunner.class)
 @ContextConfiguration("/logsender/unit-test-certificate-sender-config.xml")
 @BootstrapWith(CamelTestContextBootstrapper.class)
 @TestExecutionListeners(listeners = {DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
     TransactionalTestExecutionListener.class}) // Suppresses warning
 @MockEndpointsAndSkip("bean:logMessageSendProcessor|direct:logMessagePermanentErrorHandlerEndpoint|direct:logMessageTemporaryErrorHandlerEndpoint")
+@TestPropertySource("/logsender/unit-test.properties")
 public class ReceiveAggregatedLogMessageRouteTest {
 
     @Autowired

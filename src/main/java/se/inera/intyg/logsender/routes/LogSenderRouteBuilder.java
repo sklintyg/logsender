@@ -23,8 +23,11 @@ import org.apache.camel.processor.aggregate.GroupedExchangeAggregationStrategy;
 import org.apache.camel.spring.SpringRouteBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import org.springframework.jms.connection.JmsTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 import se.inera.intyg.logsender.exception.BatchValidationException;
 import se.inera.intyg.logsender.exception.TemporaryException;
 
@@ -48,6 +51,7 @@ public class LogSenderRouteBuilder extends SpringRouteBuilder {
 
     @Value("${logsender.bulkTimeout}")
     private Long batchAggregationTimeout;
+
 
     /*
      * This route depends on the MQ provider (currently ActiveMQ) for redelivery. Any temporary exception thrown

@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.camel.Body;
+import org.apache.camel.CamelContext;
 import org.apache.camel.Message;
 import org.apache.camel.impl.DefaultMessage;
 import org.slf4j.Logger;
@@ -31,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import se.inera.intyg.common.util.integration.json.CustomObjectMapper;
 import se.inera.intyg.infra.logmessages.PdlLogMessage;
 import se.inera.intyg.infra.logmessages.PdlResource;
@@ -50,6 +52,9 @@ public class LogMessageSplitProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(LogMessageSplitProcessor.class);
 
     private ObjectMapper objectMapper = new CustomObjectMapper();
+
+    @Autowired
+    CamelContext camelContext;
 
     /**
      * If a PdlLogMessage contains more than one resource, it is split into (n resources) number of new PdlLogMessages with one Resource
@@ -82,7 +87,7 @@ public class LogMessageSplitProcessor {
             PdlLogMessage copiedPdlLogMsg = pdlLogMessage.copy(false);
             copiedPdlLogMsg.getPdlResourceList().add(resource);
 
-            DefaultMessage message = new DefaultMessage();
+            DefaultMessage message = new DefaultMessage(camelContext);
             message.setBody(objectMapper.writeValueAsString(copiedPdlLogMsg));
             answer.add(message);
         }
