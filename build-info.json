@@ -1,6 +1,6 @@
 {
-  "appVersion": "6.6.0",
-  "commonVersion": "3.12.0.+",
-  "infraVersion": "3.12.0.+",
+  "appVersion": "6.7.0",
+  "commonVersion": "3.13.0.+",
+  "infraVersion": "3.13.0.+",
   "buildArgs": "--refresh-dependencies clean build testReport -PcodeQuality -DgruntColors=false"
 }
