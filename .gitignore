@@ -24,8 +24,6 @@ hs_err_pid*
 .gradle
 out
 
-*.jks
-*.p12
 .DS_Store
 
 ### IntelliJ IDEA ###
