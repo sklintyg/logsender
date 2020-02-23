@@ -20,7 +20,8 @@ ext {
     activeMqVersion = "5.13.4"
     apacheCXFVersion = "3.3.5"
     awaitilityVersion = "1.4.0"
-    camelVersion = "2.24.1"
+    camelVersion = "3.0.1"
+    //camelVersion = "2.24.1"
     //camelVersion = "2.16.0"
     commonsIoVersion = "2.4"
     geronimoJmsVersion = "1.1.1"
@@ -77,11 +78,12 @@ gretty {
 }
 
 test {
+    useJUnitPlatform()
     exclude '**/*IT*'
 
     jvmArgs = [
             "-Dcatalina.base=${buildDir}/catalina.base",
-            "-Dspring.profiles.active=dev,wc-loggtjanst-stub,testability-api,caching-enabled",
+            "-Dspring.profiles.active=dev,wc-loggtjanst-stub,testability-api",
             "-Dcredentials.file=${projectDir}/log-sender-dummy-credentials.properties",
             "-Dconfig.file=${projectDir}/log-sender-dev.properties",
             "-Dlogback.file=classpath:logback-ocp.xml",
@@ -129,10 +131,14 @@ dependencies {
     compile "org.springframework:spring-webmvc"
 
     compile "org.apache.activemq:activemq-spring"
-    compile "org.apache.camel:camel-spring"
+
+    compile "org.apache.camel:camel-spring:${camelVersion}"
     compile "org.apache.camel:camel-spring-javaconfig:${camelVersion}"
 
+
+
     compile "org.apache.cxf:cxf-rt-wsdl"
+    //compile "org.apache.cxf:cxf-rt-transports-http"
     compile "org.apache.cxf:cxf-rt-features-logging:${apacheCXFVersion}"
     compile "org.apache.activemq:activemq-camel"
 
@@ -142,8 +148,10 @@ dependencies {
     //compileOnly "javax.servlet:javax.servlet-api"
     //compileOnly "org.apache.geronimo.specs:geronimo-jms_1.1_spec"
 
-    testCompile 'junit:junit:4.+'
-    testCompile "org.mockito:mockito-core:${mockitoVersion}"
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+    //testCompile 'org.junit.jupiter:junit-jupiter-params'
+    testCompile "org.mockito:mockito-junit-jupiter"
     //testCompile "org.mockito:mockito-junit-jupiter"
     //testCompile "org.kubek2k:springockito:${springockitoVersion}"
     testCompile "org.springframework:spring-test"
@@ -151,8 +159,11 @@ dependencies {
     testCompile "org.xmlunit:xmlunit-core" // Appears not tobe needed in logsender
     //testCompile "com.jayway.awaitility:awaitility:${awaitilityVersion}"
     testCompile "org.awaitility:awaitility"
-    testCompile "org.apache.camel:camel-test-spring:${camelVersion}"
+    //testCompile "org.apache.camel:camel-test-spring:${camelVersion}"
+    testCompile "org.apache.camel:camel-test-spring-junit5:${camelVersion}"
     testCompile "org.apache.activemq:activemq-broker"
+    //testCompile "org.apache.commons:commons-lang3"
+
 
     gretty "org.apache.activemq:activemq-client"
     gretty "org.apache.activemq:activemq-broker"

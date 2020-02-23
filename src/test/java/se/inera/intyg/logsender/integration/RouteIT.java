@@ -18,7 +18,6 @@
  */
 package se.inera.intyg.logsender.integration;
 
-//import static com.jayway.awaitility.Awaitility.await;
 import static org.awaitility.Awaitility.await;
 
 import java.io.IOException;
@@ -32,8 +31,8 @@ import javax.jms.TextMessage;
 import org.apache.camel.CamelContext;
 import org.apache.camel.test.spring.CamelSpringRunner;
 import org.apache.camel.test.spring.CamelTestContextBootstrapper;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +59,8 @@ import se.inera.intyg.infra.logmessages.ActivityType;
 import se.inera.intyg.infra.logmessages.PdlLogMessage;
 import se.inera.intyg.logsender.client.mock.MockLogSenderClientImpl;
 import se.inera.intyg.logsender.helper.TestDataHelper;
+import se.inera.intyg.logsender.testconfig.IntegrationTestConfig;
+import se.inera.intyg.logsender.testconfig.UnitTestConfig;
 import se.inera.intyg.logsender.helper.ValueInclude;
 
 /**
@@ -72,9 +73,9 @@ import se.inera.intyg.logsender.helper.ValueInclude;
  *
  * @author eriklupander
  */
-//@RunWith(CamelSpringJUnit4ClassRunner.class)
+
 @RunWith(CamelSpringRunner.class)
-@ContextConfiguration("/logsender/integration-test-certificate-sender-config.xml")
+@ContextConfiguration(classes = IntegrationTestConfig.class)
 @BootstrapWith(CamelTestContextBootstrapper.class)
 @TestExecutionListeners(listeners = {DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
     TransactionalTestExecutionListener.class}) // Suppresses warning
@@ -104,11 +105,10 @@ public class RouteIT {
     private MockLogSenderClientImpl mockLogSenderClient;
 
     @Autowired
-    //@Qualifier("webcertLogMessageSender")
     @Qualifier("camelContext")
     CamelContext camelContext;
 
-    @Before
+    @BeforeEach
     public void resetStub() throws Exception {
         mockLogSenderClient.reset();
     }

@@ -29,7 +29,6 @@ import org.apache.camel.spring.spi.SpringTransactionPolicy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.jms.connection.JmsTransactionManager;
 import org.springframework.jms.connection.TransactionAwareConnectionFactoryProxy;
 import org.springframework.jms.support.destination.DynamicDestinationResolver;
@@ -37,8 +36,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @EnableTransactionManagement
-@PropertySource("classpath:/default.properties")
-public class JmsConfig {
+public class LogSenderJmsConfig {
 
     @Value("${activemq.broker.username}")
     private String activemqBrokerUsername;

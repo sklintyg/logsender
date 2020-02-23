@@ -22,10 +22,13 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
+import org.apache.camel.CamelContext;
 import org.apache.camel.Message;
 import org.apache.camel.impl.DefaultMessage;
 import org.junit.Test;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import se.inera.intyg.infra.logmessages.ActivityType;
 import se.inera.intyg.logsender.exception.PermanentException;
 import se.inera.intyg.logsender.helper.TestDataHelper;
@@ -33,7 +36,11 @@ import se.inera.intyg.logsender.helper.TestDataHelper;
 /**
  * Created by eriklupander on 2016-03-16.
  */
+@Service
 public class LogMessageSplitProcessorTest {
+
+    @Autowired
+    CamelContext camelContext;
 
     private LogMessageSplitProcessor testee = new LogMessageSplitProcessor();
 
@@ -55,7 +62,7 @@ public class LogMessageSplitProcessorTest {
     }
 
     private Message buildMessage(int numberOfResources) {
-        DefaultMessage msg = new DefaultMessage();
+        DefaultMessage msg = new DefaultMessage(camelContext);
         msg.setBody(buildBody(numberOfResources));
         return msg;
     }

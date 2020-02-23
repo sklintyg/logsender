@@ -28,8 +28,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
 import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
@@ -46,7 +44,6 @@ import se.riv.informationsecurity.auditing.log.v2.ResultType;
  * Created by eriklupander on 2016-02-29.
  */
 public class LogSenderClientImpl implements LogSenderClient {
-
     private static final Logger LOG = LoggerFactory.getLogger(LogSenderClientImpl.class);
 
     @Value("${loggtjanst.logicalAddress}")
@@ -55,10 +52,8 @@ public class LogSenderClientImpl implements LogSenderClient {
     @Autowired
     private StoreLogResponderInterface storeLogClient;
 
-
     @Override
     public StoreLogResponseType sendLogMessage(List<LogType> logEntries) {
-
         if (logEntries == null || logEntries.isEmpty()) {
             StoreLogResponseType response = new StoreLogResponseType();
             ResultType resultType = new ResultType();
@@ -73,7 +68,6 @@ public class LogSenderClientImpl implements LogSenderClient {
 
         try {
             StoreLogResponseType response = storeLogClient.storeLog(logicalAddress, request);
-
             if (response.getResult().getResultCode() == ResultCodeType.OK) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Successfully sent {} PDL log entries for ID's: {}", logEntries.size(), logEntries.stream()
@@ -81,7 +75,6 @@ public class LogSenderClientImpl implements LogSenderClient {
                         .collect(Collectors.joining(", ")));
                 }
             }
-
             return response;
         } catch (WebServiceException e) {
             throw new LoggtjanstExecutionException(e);

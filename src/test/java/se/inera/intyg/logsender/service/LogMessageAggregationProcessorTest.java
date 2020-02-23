@@ -29,10 +29,10 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.mockito.junit.MockitoJUnitRunner;
 import se.inera.intyg.common.util.integration.json.CustomObjectMapper;
 import se.inera.intyg.infra.logmessages.ActivityType;
 import se.inera.intyg.logsender.exception.PermanentException;

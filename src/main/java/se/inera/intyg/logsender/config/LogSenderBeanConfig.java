@@ -30,11 +30,11 @@ import se.inera.intyg.logsender.service.LogMessageSendProcessor;
 import se.inera.intyg.logsender.service.LogMessageSplitProcessor;
 
 @Configuration
-public class BeanConfig {
+public class LogSenderBeanConfig {
 
     @Bean
     public LogSenderClient logSenderClient() {
-        return new LogSenderClientImpl();
+       return new LogSenderClientImpl();
     }
 
     @Bean

@@ -20,12 +20,14 @@ package se.inera.intyg.logsender.client;
 
 import java.util.List;
 
+
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
 import se.riv.informationsecurity.auditing.log.v2.LogType;
 
 /**
  * Created by eriklupander on 2016-02-29.
  */
+
 public interface LogSenderClient {
 
     StoreLogResponseType sendLogMessage(List<LogType> logEntries);
