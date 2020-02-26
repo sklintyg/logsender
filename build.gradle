@@ -32,6 +32,8 @@ ext {
     springVersion = "4.3.16.RELEASE"
     xmlUnitVersion = "1.4"
 
+    jaxWsVersion = "2.3.2"
+
     mockitoVersion = "1.9.0"
     springockitoVersion = "1.0.8"
     mysqlVersion = "5.1.40"
@@ -42,8 +44,8 @@ ext {
 group = 'se.inera.intyg.logsender'
 version = System.properties['buildVersion'] ?: '0-SNAPSHOT'
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 11
+targetCompatibility = 11
 
 task createVersionPropertyFile(type: VersionPropertyFileTask)
 
@@ -109,10 +111,12 @@ apply plugin: "io.spring.dependency-management"
 dependencyManagement {
     imports {
         mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+        mavenBom 'org.apache.camel:camel-bom:+'
     }
 }
 
 dependencies {
+    //implementation platform 'org.springframework.boot:spring-boot-dependencies:2.2.4.RELEASE'
     //compile 'org.springframework:spring-framework-bom:5.2.3.RELEASE'
     //compile 'org.springframework.boot:spring-boot-dependencies:2.2.4.RELEASE'
     //implementation platform('org.springframework.boot:spring-boot-dependencies:2.2.4.RELEASE')
@@ -131,19 +135,19 @@ dependencies {
     compile "org.springframework:spring-webmvc"
 
     compile "org.apache.activemq:activemq-spring"
-
-    compile "org.apache.camel:camel-spring:${camelVersion}"
-    compile "org.apache.camel:camel-spring-javaconfig:${camelVersion}"
-
-
+    compile "org.apache.camel:camel-activemq"
+    compile "org.apache.camel:camel-spring"
+    compile "org.apache.camel:camel-spring-javaconfig"
 
     compile "org.apache.cxf:cxf-rt-wsdl"
-    //compile "org.apache.cxf:cxf-rt-transports-http"
     compile "org.apache.cxf:cxf-rt-features-logging:${apacheCXFVersion}"
-    compile "org.apache.activemq:activemq-camel"
-
+    //compile "org.apache.cxf:cxf-rt-transports-http"
+    //compile "org.apache.activemq:activemq-camel"
     compile "javax.ws.rs:javax.ws.rs-api"
     compile "javax.jms:javax.jms-api"
+
+    compile "com.sun.xml.ws:jaxws-ri:${jaxWsVersion}"
+    compile "com.sun.activation:javax.activation:1.2.0"
 
     //compileOnly "javax.servlet:javax.servlet-api"
     //compileOnly "org.apache.geronimo.specs:geronimo-jms_1.1_spec"
@@ -160,7 +164,8 @@ dependencies {
     //testCompile "com.jayway.awaitility:awaitility:${awaitilityVersion}"
     testCompile "org.awaitility:awaitility"
     //testCompile "org.apache.camel:camel-test-spring:${camelVersion}"
-    testCompile "org.apache.camel:camel-test-spring-junit5:${camelVersion}"
+    //testCompile "org.apache.camel:camel-mock:${camelVersion}"
+    testCompile "org.apache.camel:camel-test-spring-junit5"
     testCompile "org.apache.activemq:activemq-broker"
     //testCompile "org.apache.commons:commons-lang3"
 

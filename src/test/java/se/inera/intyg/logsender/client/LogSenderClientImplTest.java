@@ -18,8 +18,9 @@
  */
 package se.inera.intyg.logsender.client;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
@@ -32,7 +33,7 @@ import java.util.List;
 import javax.xml.ws.WebServiceException;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Assertions;
+
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -58,7 +59,7 @@ import se.riv.informationsecurity.auditing.log.v2.ResultType;
 @ExtendWith(MockitoExtension.class)
 @TestPropertySource("classpath:logsender/unit-test.properties")
 @ContextConfiguration(classes = {LogSenderAppConfig.class}) //loader = AnnotationConfigContextLoader.class
-public class LogSenderClientImplTest {
+class LogSenderClientImplTest {
 
     @Mock
     StoreLogResponderInterface storeLogResponderInterface;
@@ -103,7 +104,7 @@ public class LogSenderClientImplTest {
 
     @Test
     public void testWebServiceExceptionCausesLoggtjanstExecutionException() {
-        Assertions.assertThrows(LoggtjanstExecutionException.class, () -> {
+        assertThrows(LoggtjanstExecutionException.class, () -> {
             when(storeLogResponderInterface.storeLog(anyString(), any(StoreLogType.class))).thenThrow(new WebServiceException("error"));
             testee.sendLogMessage(buildLogEntries());
         });

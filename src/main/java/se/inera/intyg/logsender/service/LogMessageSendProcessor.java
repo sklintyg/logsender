@@ -19,7 +19,9 @@
 package se.inera.intyg.logsender.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.xml.ws.WebServiceException;
@@ -30,7 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.springframework.stereotype.Component;
 import se.inera.intyg.common.util.integration.json.CustomObjectMapper;
 import se.inera.intyg.infra.logmessages.PdlLogMessage;
 import se.inera.intyg.logsender.client.LogSenderClient;
@@ -68,9 +69,18 @@ public class LogMessageSendProcessor {
 
         try {
 
-            List<String> groupedList = objectMapper.readValue(groupedLogEntries, List.class);
+            List<?> groupedList = objectMapper.readValue(groupedLogEntries, List.class);
 
-            List<LogType> logMessages = groupedList.stream()
+            List<String> groupedEntriesJson = new ArrayList<>();
+            for (Object item : groupedList) {
+                if (!(item instanceof String)) {
+                    groupedEntriesJson.add(objectMapper.writeValueAsString(item));
+                } else {
+                    groupedEntriesJson.add((String) item);
+                }
+            }
+
+            List<LogType> logMessages = groupedEntriesJson.stream()
                 .map(this::jsonToPdlLogMessage)
                 .map(alm -> logTypeFactory.convert(alm))
                 .collect(Collectors.toList());
@@ -115,5 +125,4 @@ public class LogMessageSendProcessor {
             throw new IllegalArgumentException("Could not parse PdlLogMessage from log message JSON: " + e.getMessage());
         }
     }
-
 }

@@ -25,7 +25,8 @@ import java.util.List;
 import org.apache.camel.Body;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Message;
-import org.apache.camel.impl.DefaultMessage;
+//import org.apache.camel.impl.DefaultMessage;
+import org.apache.camel.support.DefaultMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

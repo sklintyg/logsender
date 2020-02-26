@@ -36,16 +36,17 @@ import se.inera.intyg.logsender.mocks.MockTransactionManager;
 
 @Configuration
 @TestPropertySource("classpath:logsender/unit-test.properties")
-//@ComponentScan(basePackages = "se.inera.intyg.logsender")
 @ContextConfiguration(classes = LogSenderAppConfig.class)
 @Import(value = {LogSenderAppConfig.class})
 public class UnitTestConfig {
-
+/*
     @Autowired
     LogSenderAppConfig logSenderAppConfig;
-
+*/
     @Bean
     public MockTransactionManager transactionManager() {
         return new MockTransactionManager();
     }
+
+
 }

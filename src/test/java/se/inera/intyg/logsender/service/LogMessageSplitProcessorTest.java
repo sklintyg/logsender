@@ -18,18 +18,24 @@
  */
 package se.inera.intyg.logsender.service;
 
-import static org.junit.Assert.assertEquals;
+//import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+//import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import org.apache.camel.support.DefaultMessage;
+import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Message;
-import org.apache.camel.impl.DefaultMessage;
-import org.junit.Test;
+//import org.apache.camel.impl.DefaultMessage;
+//import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import se.inera.intyg.infra.logmessages.ActivityType;
+import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
 import se.inera.intyg.logsender.exception.PermanentException;
 import se.inera.intyg.logsender.helper.TestDataHelper;
 
@@ -56,9 +62,10 @@ public class LogMessageSplitProcessorTest {
         assertEquals(3, messages.size());
     }
 
-    @Test(expected = PermanentException.class)
-    public void testNoResource() throws Exception {
-        testee.process(buildMessage(0));
+    @Test//(expected = PermanentException.class)
+    public void testNoResource() {
+        assertThrows(PermanentException.class, () ->
+            testee.process(buildMessage(0)));
     }
 
     private Message buildMessage(int numberOfResources) {

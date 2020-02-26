@@ -19,25 +19,35 @@
 package se.inera.intyg.logsender.service;
 
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.util.JSONPObject;
+import java.io.ByteArrayOutputStream;
+import java.io.StringWriter;
+import java.util.Map;
+import javax.xml.ws.WebServiceException;
+import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.xml.ws.WebServiceException;
 
-import org.junit.Test;
-import org.junit.jupiter.api.Assertions;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import se.inera.intyg.common.util.integration.json.CustomObjectMapper;
 import se.inera.intyg.infra.logmessages.ActivityType;
 import se.inera.intyg.logsender.client.LogSenderClient;
@@ -53,7 +63,7 @@ import se.riv.informationsecurity.auditing.log.v2.ResultType;
 /**
  * Created by eriklupander on 2016-03-08.
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class LogMessageSendProcessorTest {
 
     @Mock
@@ -70,33 +80,36 @@ public class LogMessageSendProcessorTest {
     @Test
     public void testSendLogMessagesWhenAllOk() throws Exception {
         when(logSenderClient.sendLogMessage(anyList())).thenReturn(buildResponse(ResultCodeType.OK));
+        //testee.process(stringifyGroupedMessage(buildGroupedMessages()));
         testee.process(objectMapper.writeValueAsString(buildGroupedMessages()));
         verify(logSenderClient, times(1)).sendLogMessage(anyList());
     }
 
-    @Test//(expected = BatchValidationException.class)
+    @Test
     public void testSendLogMessagesThrowsPermanentExceptionWhenInvalidJsonIsSupplied() {
-        Assertions.assertThrows(BatchValidationException.class, () -> {
-            //when(logSenderClient.sendLogMessage(anyList())).thenReturn(buildResponse(ResultCodeType.ERROR));
+        assertThrows(BatchValidationException.class, () -> {
+            //lenient();when(logSenderClient.sendLogMessage(anyList())).thenReturn(buildResponse(ResultCodeType.ERROR));
+            //testee.process(stringifyGroupedMessage(buildInvalidGroupedMessages()));
             testee.process(objectMapper.writeValueAsString(buildInvalidGroupedMessages()));
             verify(logSenderClient, times(1)).sendLogMessage(anyList());
         });
     }
 
-
-    @Test//(expected = BatchValidationException.class)
+    @Test
     public void testSendLogMessagesThrowsBatchValidationExceptionWhenErrorOccured() {
-        Assertions.assertThrows(BatchValidationException.class, () -> {
+        assertThrows(BatchValidationException.class, () -> {
             when(logSenderClient.sendLogMessage(anyList())).thenReturn(buildResponse(ResultCodeType.ERROR));
+            //testee.process(stringifyGroupedMessage(buildGroupedMessages()));
             testee.process(objectMapper.writeValueAsString(buildGroupedMessages()));
             verify(logSenderClient, times(1)).sendLogMessage(anyList());
         });
     }
 
-    @Test//(expected = BatchValidationException.class)
+    @Test
     public void testSendLogMessagesThrowsBatchValidationExceptionWhenValidationErrorOccured() {
-        Assertions.assertThrows(BatchValidationException.class, () -> {
+        assertThrows(BatchValidationException.class, () -> {
             when(logSenderClient.sendLogMessage(anyList())).thenReturn(buildResponse(ResultCodeType.VALIDATION_ERROR));
+            //testee.process(stringifyGroupedMessage(buildGroupedMessages()));
             testee.process(objectMapper.writeValueAsString(buildGroupedMessages()));
             verify(logSenderClient, times(1)).sendLogMessage(anyList());
         });
@@ -105,32 +118,36 @@ public class LogMessageSendProcessorTest {
     @Test
     public void testSendLogMessagesDoesNothingWhenInfoIsReturned() throws Exception {
         when(logSenderClient.sendLogMessage(anyList())).thenReturn(buildResponse(ResultCodeType.INFO));
+        //testee.process(stringifyGroupedMessage(buildGroupedMessages()));
         testee.process(objectMapper.writeValueAsString(buildGroupedMessages()));
         verify(logSenderClient, times(1)).sendLogMessage(anyList());
     }
 
-    @Test//(expected = BatchValidationException.class)
+    @Test
     public void testSendLogMessagesThrowsBatchValidationExceptionWhenIllegalArgumentExceptionIsThrown() {
-        Assertions.assertThrows(BatchValidationException.class, () -> {
+        assertThrows(BatchValidationException.class, () -> {
             when(logSenderClient.sendLogMessage(anyList())).thenThrow(new IllegalArgumentException("illegal"));
+            //testee.process(stringifyGroupedMessage(buildGroupedMessages()));
             testee.process(objectMapper.writeValueAsString(buildGroupedMessages()));
             verify(logSenderClient, times(1)).sendLogMessage(anyList());
         });
     }
 
-    @Test//(expected = TemporaryException.class)
+    @Test
     public void testSendLogMessagesThrowsTemporaryExceptionWhenLoggtjanstExecutionExceptionIsThrwn() {
-        Assertions.assertThrows(TemporaryException.class, () -> {
+        assertThrows(TemporaryException.class, () -> {
             when(logSenderClient.sendLogMessage(anyList())).thenThrow(new LoggtjanstExecutionException(null));
+            //testee.process(stringifyGroupedMessage(buildGroupedMessages()));
             testee.process(objectMapper.writeValueAsString(buildGroupedMessages()));
             verify(logSenderClient, times(1)).sendLogMessage(anyList());
         });
     }
 
-    @Test//(expected = TemporaryException.class)
+    @Test
     public void testSendLogMessagesThrowsTemporaryExceptionWhenWebServiceExceptionIsThrwn() {
-        Assertions.assertThrows(TemporaryException.class, () -> {
+        assertThrows(TemporaryException.class, () -> {
             when(logSenderClient.sendLogMessage(anyList())).thenThrow(new WebServiceException());
+            //testee.process(stringifyGroupedMessage(buildGroupedMessages()));
             testee.process(objectMapper.writeValueAsString(buildGroupedMessages()));
             verify(logSenderClient, times(1)).sendLogMessage(anyList());
         });
@@ -156,5 +173,19 @@ public class LogMessageSendProcessorTest {
         String pdlLogMessage1 = TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ);
         String pdlLogMessage2 = TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.PRINT);
         return Arrays.asList(pdlLogMessage1, pdlLogMessage2, "this-is-not-json");
+    }
+
+    private String stringifyGroupedMessage(List<String> messages) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i = 0; i < messages.size(); i++) {
+            sb.append(messages.get(i));
+            if ((i < messages.size() - 1)) {
+                sb.append(",");
+            } else {
+                sb.append("]");
+            }
+        }
+        return sb.toString();
     }
 }

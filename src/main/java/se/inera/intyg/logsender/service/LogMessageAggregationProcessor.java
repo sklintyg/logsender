@@ -29,6 +29,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import se.inera.intyg.common.util.integration.json.CustomObjectMapper;
+import se.inera.intyg.infra.logmessages.PdlLogMessage;
 import se.inera.intyg.logsender.exception.PermanentException;
 
 /**
@@ -57,7 +58,8 @@ public class LogMessageAggregationProcessor {
      */
     public String process(Exchange exchange) throws PermanentException, JsonProcessingException {
 
-        List<Exchange> grouped = exchange.getProperty(Exchange.GROUPED_EXCHANGE, List.class);
+        @SuppressWarnings("unchecked")
+        List<Exchange> grouped = exchange.getIn().getBody(List.class);
 
         if (grouped == null || grouped.isEmpty()) {
             LOG.info("No aggregated log messages, this is normal if camel aggregator has a batch timeout. Doing nothing.");

@@ -25,9 +25,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.xml.ws.WebServiceException;
 
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import se.inera.intyg.infra.logmessages.ActivityType;
 import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;

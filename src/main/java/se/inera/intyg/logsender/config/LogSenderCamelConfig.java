@@ -19,18 +19,12 @@
 
 package se.inera.intyg.logsender.config;
 
-import java.util.List;
-import org.apache.camel.CamelContext;
-import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.spring.CamelContextFactoryBean;
 import org.apache.camel.spring.CamelEndpointFactoryBean;
-import org.apache.camel.spring.SpringCamelContext;
 import org.apache.camel.spring.javaconfig.CamelConfiguration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import org.springframework.context.annotation.PropertySource;
 import se.inera.intyg.logsender.routes.LogSenderRouteBuilder;
 
 @Configuration
@@ -52,7 +46,6 @@ public class LogSenderCamelConfig extends CamelConfiguration {
         CamelEndpointFactoryBean receiveLogMessageEndpoint = new CamelEndpointFactoryBean();
         receiveLogMessageEndpoint.setId("receiveLogMessageEndpoint");
         receiveLogMessageEndpoint.setUri(receiveLogMessageEndpointUri);
-        //receiveLogMessageEndpoint.setUri("direct:receiveLogMessageEndpoint");
         return receiveLogMessageEndpoint;
     }
 
@@ -61,7 +54,6 @@ public class LogSenderCamelConfig extends CamelConfiguration {
         CamelEndpointFactoryBean receiveAggregatedLogMessageEndpoint = new CamelEndpointFactoryBean();
         receiveAggregatedLogMessageEndpoint.setId("receiveAggregatedLogMessageEndpoint");
         receiveAggregatedLogMessageEndpoint.setUri(receiveAggregatedLogMessageEndpointUri);
-        //receiveAggregatedLogMessageEndpoint.setUri("direct:receiveAggregatedLogMessageEndpoint");
         return receiveAggregatedLogMessageEndpoint;
     }
   /*

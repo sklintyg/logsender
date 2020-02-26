@@ -26,16 +26,17 @@ import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit5.CamelTestSupport;
-import org.apache.camel.test.spring.CamelSpringRunner;
-import org.apache.camel.test.spring.CamelTestContextBootstrapper;
-import org.apache.camel.test.spring.MockEndpointsAndSkip;
+//import org.apache.camel.test.spring.CamelSpringRunner;
+//import org.apache.camel.test.spring.CamelTestContextBootstrapper;
+//import org.apache.camel.test.spring.MockEndpointsAndSkip;
 import org.apache.camel.test.spring.junit5.CamelSpringTest;
+import org.apache.camel.test.spring.junit5.MockEndpoints;
 import org.apache.camel.test.spring.junit5.MockEndpointsAndSkip;
 //import org.junit.Test;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
+//import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.PropertySource;
@@ -58,42 +59,39 @@ import se.inera.intyg.infra.logmessages.ActivityType;
 import se.inera.intyg.logsender.config.LogSenderAppConfig;
 import se.inera.intyg.logsender.config.LogSenderCamelConfig;
 import se.inera.intyg.logsender.helper.TestDataHelper;
-import se.inera.intyg.logsender.testconfig.UnitTestConfig;
+//import se.inera.intyg.logsender.testconfig.UnitTestConfig;
 
-//@CamelSpringTest
+@CamelSpringTest
 //@ExtendWith(SpringExtension.class)
 //@ExtendWith(CamelTestSupport.class)
-@RunWith(CamelSpringRunner.class)
+//@RunWith(CamelSpringRunner.class)
 @TestPropertySource("classpath:logsender/unit-test.properties")
 @ContextConfiguration(classes = {LogSenderAppConfig.class}, loader = AnnotationConfigContextLoader.class)
 //@ComponentScan(basePackages = "se.inera.intyg.logsender")
-@BootstrapWith(CamelTestContextBootstrapper.class)
+//@BootstrapWith(CamelTestContextBootstrapper.class)
 @TestExecutionListeners(listeners = {DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
     TransactionalTestExecutionListener.class}) // Suppresses warning
 @MockEndpointsAndSkip("bean:logMessageAggregationProcessor|direct:logMessagePermanentErrorHandlerEndpoint|direct:logMessageTemporaryErrorHandlerEndpoint|direct:receiveAggregatedLogMessageEndpoint")
 //@MockEndpointsAndSkip("bean:logMessageAggregationProcessor|direct:logMessagePermanentErrorHandlerEndpoint|direct:logMessageTemporaryErrorHandlerEndpoint|direct:receiveAggregatedLogMessageEndpoint")
 public class AggregatorRouteTest {
 
-    //@Autowired
-    //UnitTestConfig unitTestConfig;
-
     @Autowired
     private CamelContext camelContext;
 
-    @Produce(uri = "direct://receiveLogMessageEndpoint")
-    private ProducerTemplate producerTemplate;
+    @Produce("direct://receiveLogMessageEndpoint")
+    protected ProducerTemplate producerTemplate;
 
-    @EndpointInject(uri = "mock:bean:logMessageAggregationProcessor")
-    private MockEndpoint logMessageAggregationProcessor;
+    @EndpointInject("mock:bean:logMessageAggregationProcessor")
+    protected MockEndpoint logMessageAggregationProcessor;
 
-    @EndpointInject(uri = "mock:direct:receiveAggregatedLogMessageEndpoint")
-    private MockEndpoint newAggregatedLogMessageQueue;
+    @EndpointInject("mock:direct:receiveAggregatedLogMessageEndpoint")
+    protected MockEndpoint newAggregatedLogMessageQueue;
 
-    @EndpointInject(uri = "mock:direct:logMessagePermanentErrorHandlerEndpoint")
-    private MockEndpoint logMessagePermanentErrorHandlerEndpoint;
+    @EndpointInject("mock:direct:logMessagePermanentErrorHandlerEndpoint")
+    protected MockEndpoint logMessagePermanentErrorHandlerEndpoint;
 
-    @EndpointInject(uri = "mock:direct:logMessageTemporaryErrorHandlerEndpoint")
-    private MockEndpoint logMessageTemporaryErrorHandlerEndpoint;
+    @EndpointInject("mock:direct:logMessageTemporaryErrorHandlerEndpoint")
+    protected MockEndpoint logMessageTemporaryErrorHandlerEndpoint;
 
     @BeforeEach
     public void setup() {
@@ -112,7 +110,9 @@ public class AggregatorRouteTest {
         // When
         for (int a = 0; a < 5; a++) {
             producerTemplate
-                .sendBodyAndHeaders(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ), ImmutableMap.<String, Object>of());
+                //.sendBodyAndHeaders(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ), ImmutableMap.<String, Object>of());
+                .sendBodyAndHeaders(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ), ImmutableMap.of());
+
         }
 
         // Then
@@ -134,7 +134,9 @@ public class AggregatorRouteTest {
         // When
         for (int a = 0; a < 4; a++) {
             producerTemplate
-                .sendBodyAndHeaders(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ), ImmutableMap.<String, Object>of());
+                //.sendBodyAndHeaders(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ), ImmutableMap.<String, Object>of());
+                .sendBodyAndHeaders(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ), ImmutableMap.of());
+
         }
 
         // Then

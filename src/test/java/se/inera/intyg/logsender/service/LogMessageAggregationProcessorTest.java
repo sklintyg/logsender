@@ -18,21 +18,22 @@
  */
 package se.inera.intyg.logsender.service;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.Test;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.mockito.junit.MockitoJUnitRunner;
 import se.inera.intyg.common.util.integration.json.CustomObjectMapper;
 import se.inera.intyg.infra.logmessages.ActivityType;
 import se.inera.intyg.logsender.exception.PermanentException;
@@ -41,7 +42,8 @@ import se.inera.intyg.logsender.helper.TestDataHelper;
 /**
  * Created by eriklupander on 2016-03-08.
  */
-@RunWith(MockitoJUnitRunner.class)
+
+@ExtendWith(MockitoExtension.class)
 public class LogMessageAggregationProcessorTest {
 
     private LogMessageAggregationProcessor testee = new LogMessageAggregationProcessor();
@@ -51,7 +53,7 @@ public class LogMessageAggregationProcessorTest {
     @Test
     public void testOkGroupedExchange() throws Exception {
         String body = testee.process(buildGroupedExchange(1, 1));
-        List<String> output = objectMapper.readValue(body, ArrayList.class);
+        List<?> output = objectMapper.readValue(body, ArrayList.class);
         assertEquals(1, output.size());
     }
 
@@ -62,36 +64,51 @@ public class LogMessageAggregationProcessorTest {
     @Test
     public void testGroupedExchangeWithMultipleResources() throws Exception {
         String body = testee.process(buildGroupedExchange(3, 5));
-        List<String> output = objectMapper.readValue(body, ArrayList.class);
+        List<?> output = objectMapper.readValue(body, ArrayList.class);
         assertEquals(3, output.size());
     }
 
-    @Test(expected = PermanentException.class)
-    public void testEmptyGroupedExchange() throws Exception {
-        testee.process(buildGroupedExchange(0, 1));
+    @Test
+    public void testEmptyGroupedExchange() {
+        assertThrows(PermanentException.class, () ->
+            testee.process(buildGroupedExchange(0, 1)));
     }
+
+
+    // Below chain of methods used for building a mock grouped exchange.
 
     private Exchange buildGroupedExchange(int exchangeSize, int resourcesPerMessageSize) {
         Exchange exchange = mock(Exchange.class);
-        List list = buildExchangeList(exchangeSize, resourcesPerMessageSize);
-        when(exchange.getProperty(Exchange.GROUPED_EXCHANGE, List.class)).thenReturn(list);
+        Message outerMessage = buildOuterMsg(exchangeSize, resourcesPerMessageSize);
+        when(exchange.getIn()).thenReturn(outerMessage);
         return exchange;
     }
 
-    private List buildExchangeList(int exchangeSize, int resourcesPerMessageSize) {
-        List<Exchange> exchangeList = new ArrayList<>();
-        for (int a = 0; a < exchangeSize; a++) {
-            Exchange exchange = mock(Exchange.class);
-            Message m = buildMockMessage(resourcesPerMessageSize);
-            when(exchange.getIn()).thenReturn(m);
-            exchangeList.add(exchange);
-        }
-        return exchangeList;
+    private Message buildOuterMsg(int exchangeSize, int resourcesPerMessageSize) {
+        Message outerMsg = mock(Message.class);
+        List<Exchange> outerBody = buildOuterBody(exchangeSize, resourcesPerMessageSize);
+        when(outerMsg.getBody(List.class)).thenReturn(outerBody);
+        return outerMsg;
     }
 
-    private Message buildMockMessage(int resourcesPerMessageSize) {
-        Message m = mock(Message.class);
-        when(m.getBody()).thenReturn(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ, resourcesPerMessageSize));
-        return m;
+    private List<Exchange> buildOuterBody(int exchangeSize, int resourcesPerMessageSize) {
+        List<Exchange> groupedMessages = new ArrayList<>();
+        for (int i = 0; i < exchangeSize; i++) {
+            Exchange innerExchange = mock(Exchange.class);
+            Message innerMessage = buildInnerMessage(resourcesPerMessageSize);
+            when(innerExchange.getIn()).thenReturn(innerMessage);
+            groupedMessages.add(innerExchange);
+        }
+        return groupedMessages;
+    }
+
+    private Message buildInnerMessage(int resourcesPerMessageSize) {
+        Message innerMessage = mock(Message.class);
+        when(innerMessage.getBody()).thenReturn(pdlLogMessageJson(resourcesPerMessageSize));
+        return innerMessage;
+    }
+
+    private String pdlLogMessageJson(int resourcesPerMessageSize) {
+        return TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ, resourcesPerMessageSize);
     }
 }

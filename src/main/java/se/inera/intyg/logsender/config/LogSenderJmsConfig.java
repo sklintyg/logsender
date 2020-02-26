@@ -22,8 +22,9 @@ package se.inera.intyg.logsender.config;
 import static org.apache.camel.LoggingLevel.OFF;
 
 import org.apache.activemq.ActiveMQConnectionFactory; //spring option??
-import org.apache.activemq.camel.component.ActiveMQComponent;
+import org.apache.camel.component.activemq.ActiveMQComponent;
 import org.apache.camel.component.jms.JmsConfiguration;
+
 
 import org.apache.camel.spring.spi.SpringTransactionPolicy;
 import org.springframework.beans.factory.annotation.Value;

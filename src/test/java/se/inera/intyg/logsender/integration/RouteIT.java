@@ -29,11 +29,15 @@ import javax.jms.Queue;
 import javax.jms.TextMessage;
 
 import org.apache.camel.CamelContext;
-import org.apache.camel.test.spring.CamelSpringRunner;
-import org.apache.camel.test.spring.CamelTestContextBootstrapper;
-import org.junit.Test;
+import org.apache.camel.test.junit5.CamelTestSupport;
+//import org.apache.camel.test.spring.CamelSpringRunner;
+//import org.apache.camel.test.spring.CamelTestContextBootstrapper;
+//import org.junit.Test;
+import org.apache.camel.test.spring.junit5.CamelSpringTest;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+//import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +48,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.BootstrapWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
@@ -73,10 +78,12 @@ import se.inera.intyg.logsender.helper.ValueInclude;
  *
  * @author eriklupander
  */
-
-@RunWith(CamelSpringRunner.class)
+@CamelSpringTest
+@ExtendWith(SpringExtension.class)
+@ExtendWith(CamelTestSupport.class)
+//@RunWith(CamelSpringRunner.class)
 @ContextConfiguration(classes = IntegrationTestConfig.class)
-@BootstrapWith(CamelTestContextBootstrapper.class)
+//@BootstrapWith(CamelTestContextBootstrapper.class)
 @TestExecutionListeners(listeners = {DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
     TransactionalTestExecutionListener.class}) // Suppresses warning
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
