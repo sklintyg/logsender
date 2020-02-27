@@ -24,8 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Collections;
 import javax.xml.ws.WebServiceException;
-import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
 import org.apache.camel.test.spring.junit5.CamelSpringTest;
 import org.apache.camel.test.spring.junit5.MockEndpointsAndSkip;
 import org.junit.jupiter.api.Test;
@@ -60,9 +58,10 @@ import se.inera.intyg.logsender.helper.TestDataHelper;
 @CamelSpringTest
 @TestPropertySource("classpath:logsender/unit-test.properties")
 @ContextConfiguration(classes = {LogSenderAppConfig.class}, loader = AnnotationConfigContextLoader.class)
-@TestExecutionListeners(listeners = {DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
-    TransactionalTestExecutionListener.class}) // Suppresses warning
-@MockEndpointsAndSkip("bean:logMessageSendProcessor|direct:logMessagePermanentErrorHandlerEndpoint|direct:logMessageTemporaryErrorHandlerEndpoint")
+@TestExecutionListeners(listeners = {DependencyInjectionTestExecutionListener.class,
+    DirtiesContextTestExecutionListener.class, TransactionalTestExecutionListener.class}) // Suppresses warning
+@MockEndpointsAndSkip("bean:logMessageSendProcessor|direct:logMessagePermanentErrorHandlerEndpoint|"
+    + "direct:logMessageTemporaryErrorHandlerEndpoint")
 public class ReceiveAggregatedLogMessageRouteTest {
 
     @Autowired
@@ -114,7 +113,6 @@ public class ReceiveAggregatedLogMessageRouteTest {
     @DirtiesContext
     public void testPermanentException() throws InterruptedException {
         // Given
-        //        // Given
         logMessageSendProcessor.whenAnyExchangeReceived(exchange -> {
             throw new PermanentException("");
         });
@@ -139,7 +137,6 @@ public class ReceiveAggregatedLogMessageRouteTest {
     public void testTemporaryException() {
         assertThrows(CamelExecutionException.class, () -> {
             // Given
-            //        // Given
             logMessageSendProcessor.whenAnyExchangeReceived(exchange -> {
                 throw new TemporaryException("");
             });
@@ -165,7 +162,6 @@ public class ReceiveAggregatedLogMessageRouteTest {
     @DirtiesContext
     public void testWebServiceException() throws InterruptedException {
         // Given
-        //        // Given
         logMessageSendProcessor.whenAnyExchangeReceived(exchange -> {
             throw new WebServiceException("");
         });
@@ -177,7 +173,6 @@ public class ReceiveAggregatedLogMessageRouteTest {
         for (int a = 0; a < 1; a++) {
             producerTemplate.sendBodyAndHeaders(Collections.singletonList(
                 TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ)), ImmutableMap.of());
-
         }
 
         // Then

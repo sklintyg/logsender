@@ -19,22 +19,33 @@
 
 package se.inera.intyg.logsender.testconfig;
 
+import org.apache.activemq.command.ActiveMQQueue;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-
-import se.inera.intyg.logsender.config.LogSenderAppConfig;
-import se.inera.intyg.logsender.mocks.MockTransactionManager;
 
 @Configuration
-@TestPropertySource("classpath:logsender/unit-test.properties")
-@ContextConfiguration(classes = LogSenderAppConfig.class)
-public class UnitTestConfig {
+@ContextConfiguration(classes = {IntegrationTestConfig.class})
+public class IntegrationTestQueueConfig {
 
     @Bean
-    public MockTransactionManager transactionManager() {
-        return new MockTransactionManager();
+    public ActiveMQQueue newLogMessageQueue() {
+        ActiveMQQueue newLogMessageQueue = new ActiveMQQueue();
+        newLogMessageQueue.setPhysicalName("newLogMessageQueue");
+        return newLogMessageQueue;
+    }
+
+    @Bean
+    public ActiveMQQueue newAggregatedLogMessageQueue() {
+        ActiveMQQueue newAggregatedLogMessageQueue = new ActiveMQQueue();
+        newAggregatedLogMessageQueue.setPhysicalName("newAggregatedLogMessageQueue");
+        return newAggregatedLogMessageQueue;
+    }
+
+    @Bean
+    public ActiveMQQueue newAggregatedLogMessageDLQ() {
+        ActiveMQQueue newAggregatedLogMessageDLQ = new ActiveMQQueue();
+        newAggregatedLogMessageDLQ.setPhysicalName("newAggregatedLogMessageDLQ");
+        return newAggregatedLogMessageDLQ;
     }
 }
-

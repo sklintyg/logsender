@@ -19,29 +19,21 @@
 
 package se.inera.intyg.logsender.testconfig;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
-import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import se.inera.intyg.logsender.client.mock.MockLogSenderClientImpl;
-import se.inera.intyg.logsender.config.LogSenderBeanConfig;
-import se.inera.intyg.logsender.config.LogSenderCamelConfig;
+import se.inera.intyg.logsender.config.LogSenderAppConfig;
 
 @Configuration
+@PropertySource("classpath:logsender/integration-test.properties")
 @TestPropertySource(locations = "classpath:logsender/integration-test.properties")
-@ComponentScan(basePackages = {"se.inera.intyg.logsender", "se.inera.intyg.infra.monitoring"})
-//@ImportResource("classpath:integration-test-broker-context.xml")
-@Profile("!dev")
+@ContextConfiguration(classes = {LogSenderAppConfig.class})
 public class IntegrationTestConfig {
-
-    @Autowired
-    LogSenderBeanConfig logSenderBeanConfig;
-
-    @Autowired
-    LogSenderCamelConfig logSenderCamelConfig;
 
     @Bean
     public MockLogSenderClientImpl mockSendCertificateServiceClient() {

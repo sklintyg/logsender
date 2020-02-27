@@ -56,12 +56,4 @@ public class LogSenderCamelConfig extends CamelConfiguration {
         receiveAggregatedLogMessageEndpoint.setUri(receiveAggregatedLogMessageEndpointUri);
         return receiveAggregatedLogMessageEndpoint;
     }
-  /*
-    @Override
-    public CamelContext logsenderCamelContext() throws Exception {
-        CamelContext camelContext = createCamelContext();
-        camelContext.addRoutes(logSenderRouteBuilder());
-        return camelContext;
-    }*/
-
 }

@@ -21,7 +21,6 @@ package se.inera.intyg.logsender.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.xml.ws.WebServiceException;
@@ -76,7 +75,7 @@ public class LogMessageSendProcessor {
                 if (!(item instanceof String)) {
                     groupedEntriesJson.add(objectMapper.writeValueAsString(item));
                 } else {
-                    groupedEntriesJson.add((String) item);
+                    groupedEntriesJson.add(item.toString());
                 }
             }
 

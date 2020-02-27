@@ -5,10 +5,9 @@ plugins {
     id 'idea'
     id 'war'
     id "se.inera.intyg.plugin.common" version "2.0.11"
-    //id "org.gretty" version "2.3.1"
     id "org.gretty" version "3.0.1"
-    id 'org.springframework.boot' version '2.2.4.RELEASE' apply false
-    //id "io.spring.dependency-management" version "1.0.9.RELEASE"
+    //id 'org.springframework.boot' version '2.2.4.RELEASE' apply false
+    id "io.spring.dependency-management" version "1.0.9.RELEASE"
 }
 
 ext {
@@ -17,27 +16,8 @@ ext {
 
     rivtaStoreLogSchemasVersion = "2.0.1"
 
-    activeMqVersion = "5.13.4"
-    apacheCXFVersion = "3.3.5"
-    awaitilityVersion = "1.4.0"
-    camelVersion = "3.0.1"
-    //camelVersion = "2.24.1"
-    //camelVersion = "2.16.0"
-    commonsIoVersion = "2.4"
-    geronimoJmsVersion = "1.1.1"
-    javaxJmsApiVersion = "2.0.1"
-    javaxWsRsApiVersion = "2.0.1"
-    servletApiVersion = "2.5"
-    //servletApiVersion = "3.1"
-    springVersion = "4.3.16.RELEASE"
-    xmlUnitVersion = "1.4"
 
-    jaxWsVersion = "2.3.2"
-
-    mockitoVersion = "1.9.0"
-    springockitoVersion = "1.0.8"
-    mysqlVersion = "5.1.40"
-    h2Version = "1.3.176"
+    //apacheCXFVersion = "3.3.5"
 
 }
 
@@ -56,10 +36,8 @@ uploadArchives.repositories.mavenDeployer {
 }
 
 gretty {
-    //servletContainer = 'jetty9'
     servletContainer = 'tomcat9'
     contextPath = '/logsender'
-    //contextConfigFile = file("src/main/webapp/WEB-INF/jetty-web.xml")
 
     integrationTestTask = null
     scanInterval = 0
@@ -110,18 +88,15 @@ apply plugin: "io.spring.dependency-management"
 
 dependencyManagement {
     imports {
-        mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+        mavenBom 'org.wildfly:wildfly-jaxws-client-bom:+'
+        mavenBom 'org.springframework.boot:spring-boot-dependencies:+'
+        mavenBom 'org.springframework:spring-framework-bom:+'
         mavenBom 'org.apache.camel:camel-bom:+'
+        mavenBom 'com.sun.xml.ws:jaxws-ri-bom:+'
     }
 }
 
 dependencies {
-    //implementation platform 'org.springframework.boot:spring-boot-dependencies:2.2.4.RELEASE'
-    //compile 'org.springframework:spring-framework-bom:5.2.3.RELEASE'
-    //compile 'org.springframework.boot:spring-boot-dependencies:2.2.4.RELEASE'
-    //implementation platform('org.springframework.boot:spring-boot-dependencies:2.2.4.RELEASE')
-    //compile group: 'org.apache.camel', name: 'camel-bom', version: '3.0.1', ext: 'pom'
-
     compile "se.riv.informationsecurity.auditing.log:informationsecurity-auditing-log-schemas:${rivtaStoreLogSchemasVersion}"
 
     compile "se.inera.intyg.infra:log-messages:${infraVersion}"
@@ -140,85 +115,30 @@ dependencies {
     compile "org.apache.camel:camel-spring-javaconfig"
 
     compile "org.apache.cxf:cxf-rt-wsdl"
-    compile "org.apache.cxf:cxf-rt-features-logging:${apacheCXFVersion}"
-    //compile "org.apache.cxf:cxf-rt-transports-http"
-    //compile "org.apache.activemq:activemq-camel"
+    compile "org.apache.cxf:cxf-rt-features-logging"
     compile "javax.ws.rs:javax.ws.rs-api"
     compile "javax.jms:javax.jms-api"
 
-    compile "com.sun.xml.ws:jaxws-ri:${jaxWsVersion}"
-    compile "com.sun.activation:javax.activation:1.2.0"
+    compile "com.sun.xml.ws:jaxws-ri"
 
-    //compileOnly "javax.servlet:javax.servlet-api"
+    //compile "com.sun.activation:jakarta.activation"
     //compileOnly "org.apache.geronimo.specs:geronimo-jms_1.1_spec"
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
-    //testCompile 'org.junit.jupiter:junit-jupiter-params'
     testCompile "org.mockito:mockito-junit-jupiter"
-    //testCompile "org.mockito:mockito-junit-jupiter"
-    //testCompile "org.kubek2k:springockito:${springockitoVersion}"
     testCompile "org.springframework:spring-test"
-    //testCompile "xmlunit:xmlunit:${xmlUnitVersion}" // old version
     testCompile "org.xmlunit:xmlunit-core" // Appears not tobe needed in logsender
-    //testCompile "com.jayway.awaitility:awaitility:${awaitilityVersion}"
     testCompile "org.awaitility:awaitility"
-    //testCompile "org.apache.camel:camel-test-spring:${camelVersion}"
-    //testCompile "org.apache.camel:camel-mock:${camelVersion}"
     testCompile "org.apache.camel:camel-test-spring-junit5"
     testCompile "org.apache.activemq:activemq-broker"
-    //testCompile "org.apache.commons:commons-lang3"
-
+    testCompile "org.apache.activemq:activemq-kahadb-store"
 
     gretty "org.apache.activemq:activemq-client"
     gretty "org.apache.activemq:activemq-broker"
     gretty "com.h2database:h2"
     gretty "mysql:mysql-connector-java"
-
 }
-
-/*
-dependencies {
-    compile "se.riv.informationsecurity.auditing.log:informationsecurity-auditing-log-schemas:${rivtaStoreLogSchemasVersion}"
-
-    compile "se.inera.intyg.infra:log-messages:${infraVersion}"
-    compile "se.inera.intyg.infra:loggtjanst-stub:${infraVersion}"
-    compile "se.inera.intyg.infra:monitoring:${infraVersion}"
-    compile "se.inera.intyg.common:logging-util:${commonVersion}"
-    compile "se.inera.intyg.common:integration-util:${commonVersion}"
-
-    compile "org.springframework:spring-jms:${springVersion}"
-    compile "org.springframework:spring-web:${springVersion}"
-    compile "org.springframework:spring-webmvc:${springVersion}"
-
-    compile "org.apache.activemq:activemq-spring:${activeMqVersion}"
-    compile "org.apache.camel:camel-spring:${camelVersion}"
-    compile "org.apache.activemq:activemq-camel:${activeMqVersion}"
-
-    compile "org.apache.camel:camel-spring-javaconfig:${camelVersion}"
-
-
-    compile "javax.ws.rs:javax.ws.rs-api:${javaxWsRsApiVersion}"
-    compile "javax.jms:javax.jms-api:${javaxJmsApiVersion}"
-
-    //compileOnly "javax.servlet:servlet-api:${servletApiVersion}"
-    compileOnly "org.apache.geronimo.specs:geronimo-jms_1.1_spec:${geronimoJmsVersion}"
-
-
-    testCompile 'junit:junit:4.+'
-    testCompile "org.mockito:mockito-core:${mockitoVersion}"
-    testCompile "org.kubek2k:springockito:${springockitoVersion}"
-    testCompile "org.springframework:spring-test:${springVersion}"
-    testCompile "xmlunit:xmlunit:${xmlUnitVersion}"
-    testCompile "com.jayway.awaitility:awaitility:${awaitilityVersion}"
-    testCompile "org.apache.camel:camel-test-spring:${camelVersion}"
-    testCompile "org.apache.activemq:activemq-broker:${activeMqVersion}"
-
-    gretty "org.apache.activemq:activemq-client:${activeMqVersion}"
-    gretty "org.apache.activemq:activemq-broker:${activeMqVersion}"
-    gretty "com.h2database:h2:${h2Version}"
-    gretty "mysql:mysql-connector-java:${mysqlVersion}"
-}*/
 
 repositories {
     mavenLocal()
