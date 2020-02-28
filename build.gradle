@@ -16,7 +16,7 @@ ext {
 
     rivtaStoreLogSchemasVersion = "2.0.1"
 
-    apacheCXFVersion = "3.3.5"
+    apacheCXFVersion = "3.2.4"
     jaxwsriVersion = "2.3.2"
 }
 
@@ -113,8 +113,9 @@ dependencies {
     compile "org.apache.camel:camel-spring"
     compile "org.apache.camel:camel-spring-javaconfig"
 
-    //compile "org.apache.cxf:cxf-core:${apacheCXFVersion}"
-    compile "org.apache.cxf:cxf-rt-wsdl:${apacheCXFVersion}"
+    compile "org.apache.cxf:cxf-rt-frontend-jaxrs:${apacheCXFVersion}"
+    compile "org.apache.cxf:cxf-rt-frontend-jaxws:${apacheCXFVersion}"
+    compile "org.apache.cxf:cxf-rt-transports-http:${apacheCXFVersion}"
     compile "org.apache.cxf:cxf-rt-features-logging:${apacheCXFVersion}"
     compile "javax.ws.rs:javax.ws.rs-api"
     compile "javax.jms:javax.jms-api"

@@ -22,24 +22,26 @@ package se.inera.intyg.logsender.webconfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
-import javax.servlet.annotation.WebInitParam;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
-import org.springframework.web.servlet.DispatcherServlet;
 import se.inera.intyg.common.util.logging.LogbackConfiguratorContextListener;
 import se.inera.intyg.logsender.config.LogSenderAppConfig;
 
-@WebInitParam(name = "logbackConfigParameter", value = "logback.file")
 public class LogSenderWebConfig implements WebApplicationInitializer {
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
 
+        servletContext.setInitParameter("logbackConfigParameter", "logback.file");
+
         AnnotationConfigWebApplicationContext webAppContext = new AnnotationConfigWebApplicationContext();
         webAppContext.setDisplayName("Logsender Web Application");
         webAppContext.register(LogSenderAppConfig.class);
+
+        servletContext.addListener(new LogbackConfiguratorContextListener());
+        servletContext.addListener(new ContextLoaderListener(webAppContext));
 
         ServletRegistration.Dynamic cxfServlet = servletContext
             .addServlet("ws", new CXFServlet());
@@ -50,7 +52,5 @@ public class LogSenderWebConfig implements WebApplicationInitializer {
             .addJspFile("version", "/webapp/version.jsp");
         versionServlet.addMapping("/version");
 
-        servletContext.addListener(new LogbackConfiguratorContextListener());
-        servletContext.addListener(new ContextLoaderListener());
     }
 }
