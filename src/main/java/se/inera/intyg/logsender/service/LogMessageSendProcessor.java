@@ -70,6 +70,7 @@ public class LogMessageSendProcessor {
 
             List<?> groupedList = objectMapper.readValue(groupedLogEntries, List.class);
 
+            // TODO Get rid of this if section.
             List<String> groupedEntriesJson = new ArrayList<>();
             for (Object item : groupedList) {
                 if (!(item instanceof String)) {

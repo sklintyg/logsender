@@ -19,23 +19,25 @@
 
 package se.inera.intyg.logsender.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 @Configuration
-@ComponentScan("se.inera.intyg.logsender")
 @PropertySource("classpath:default.properties")
 @PropertySource("file:${config.file}")
 @PropertySource("file:${credentials.file}")
-@ImportResource({"classpath:/loggtjanst-stub-context.xml", "classpath:/basic-cache-config.xml"})
-//@Import(value = {LogSenderBeanConfig.class, LogSenderCamelConfig.class, LogSenderJmsConfig.class,
-//    LogSenderWsConfig.class})
+@ComponentScan(basePackages = {"se.inera.intyg.logsender", "se.inera.intyg.infra"})
+@ImportResource(locations = {"classpath:/basic-cache-config.xml", "classpath:/loggtjanst-stub-context.xml"})
 public class LogSenderAppConfig {
 
     @Bean

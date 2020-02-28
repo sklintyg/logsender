@@ -19,17 +19,23 @@
 
 package se.inera.intyg.logsender.testconfig;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportResource;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
+import redis.embedded.Redis;
+import se.inera.intyg.infra.rediscache.core.EmbeddedCacheConfiguration;
 import se.inera.intyg.logsender.config.LogSenderAppConfig;
 import se.inera.intyg.logsender.mocks.MockTransactionManager;
 
 @Configuration
 @TestPropertySource("classpath:logsender/unit-test.properties")
-@ContextConfiguration(classes = LogSenderAppConfig.class)
+@ContextConfiguration(locations = {"classpath:/basic-cache-config.xml", "classpath:/loggtjanst-stub-context.xml"})
+//@ImportResource({"classpath:/basic-cache-config.xml", "classpath:/loggtjanst-stub-context.xml"})
 public class UnitTestConfig {
 
     @Bean

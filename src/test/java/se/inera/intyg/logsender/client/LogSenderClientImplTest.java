@@ -39,11 +39,20 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ImportResource;
+import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
+import se.inera.intyg.infra.loggtjanststub.LogStore;
+import se.inera.intyg.infra.rediscache.core.BasicCacheConfiguration;
+import se.inera.intyg.infra.rediscache.core.EmbeddedCacheConfiguration;
+import se.inera.intyg.infra.rediscache.core.RedisCacheOptionsSetter;
 import se.inera.intyg.logsender.config.LogSenderAppConfig;
 import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
+import se.inera.intyg.logsender.testconfig.UnitTestConfig;
 import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogType;
@@ -57,8 +66,11 @@ import se.riv.informationsecurity.auditing.log.v2.ResultType;
 
 @ExtendWith(SpringExtension.class)
 @ExtendWith(MockitoExtension.class)
-@TestPropertySource("classpath:logsender/unit-test.properties")
-@ContextConfiguration(classes = {LogSenderAppConfig.class}) //loader = AnnotationConfigContextLoader.class
+//@TestPropertySource("classpath:logsender/unit-test.properties")
+@ContextConfiguration(classes = {LogSenderAppConfig.class})
+//@ContextConfiguration(locations = {"classpath:/basic-cache-config.xml", "classpath:/loggtjanst-stub-context.xml"})
+//@ImportResource({"classpath:/basic-cache-config.xml", "classpath:/loggtjanst-stub-context.xml"})
+
 class LogSenderClientImplTest {
 
     @Mock
