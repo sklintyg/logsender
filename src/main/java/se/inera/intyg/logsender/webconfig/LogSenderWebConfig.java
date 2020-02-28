@@ -23,6 +23,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
 import javax.servlet.annotation.WebInitParam;
+import org.apache.cxf.transport.servlet.CXFServlet;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
@@ -41,7 +42,7 @@ public class LogSenderWebConfig implements WebApplicationInitializer {
         webAppContext.register(LogSenderAppConfig.class);
 
         ServletRegistration.Dynamic cxfServlet = servletContext
-            .addServlet("ws", new DispatcherServlet(webAppContext));
+            .addServlet("ws", new CXFServlet());
         cxfServlet.setLoadOnStartup(1);
         cxfServlet.addMapping("/*");
 

@@ -66,11 +66,9 @@ import se.riv.informationsecurity.auditing.log.v2.ResultType;
 
 @ExtendWith(SpringExtension.class)
 @ExtendWith(MockitoExtension.class)
-//@TestPropertySource("classpath:logsender/unit-test.properties")
-@ContextConfiguration(classes = {LogSenderAppConfig.class})
-//@ContextConfiguration(locations = {"classpath:/basic-cache-config.xml", "classpath:/loggtjanst-stub-context.xml"})
+@TestPropertySource("classpath:logsender/unit-test.properties")
+@ContextConfiguration(classes = {LogSenderAppConfig.class, EmbeddedCacheConfiguration.class, BasicCacheConfiguration.class, RedisCacheOptionsSetter.class})
 //@ImportResource({"classpath:/basic-cache-config.xml", "classpath:/loggtjanst-stub-context.xml"})
-
 class LogSenderClientImplTest {
 
     @Mock

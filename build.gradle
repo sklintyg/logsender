@@ -59,7 +59,7 @@ gretty {
 test {
     useJUnitPlatform()
     exclude '**/*IT*'
-/*
+
     jvmArgs = [
             "-Dcatalina.base=${buildDir}/catalina.base",
             "-Dspring.profiles.active=dev,wc-loggtjanst-stub,testability-api",
@@ -67,7 +67,7 @@ test {
             "-Dconfig.file=${projectDir}/log-sender-dev.properties",
             "-Dlogback.file=classpath:logback-ocp.xml",
             "-Djava.awt.headless=true"
-    ]*/
+    ]
 }
 
 tasks.withType(War) {
@@ -113,21 +113,22 @@ dependencies {
     compile "org.apache.camel:camel-spring"
     compile "org.apache.camel:camel-spring-javaconfig"
 
+    //compile "org.apache.cxf:cxf-core:${apacheCXFVersion}"
     compile "org.apache.cxf:cxf-rt-wsdl:${apacheCXFVersion}"
     compile "org.apache.cxf:cxf-rt-features-logging:${apacheCXFVersion}"
     compile "javax.ws.rs:javax.ws.rs-api"
     compile "javax.jms:javax.jms-api"
 
     compile "com.sun.xml.ws:jaxws-ri:${jaxwsriVersion}"
+    compile "com.sun.activation:jakarta.activation"
 
-    //compile "com.sun.activation:jakarta.activation"
     //compileOnly "org.apache.geronimo.specs:geronimo-jms_1.1_spec"
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
     testCompile "org.mockito:mockito-junit-jupiter"
     testCompile "org.springframework:spring-test"
-    testCompile "org.xmlunit:xmlunit-core" // Appears not tobe needed in logsender
+    testCompile "org.xmlunit:xmlunit-core"
     testCompile "org.awaitility:awaitility"
     testCompile "org.apache.camel:camel-test-spring-junit5"
     testCompile "org.apache.activemq:activemq-broker"

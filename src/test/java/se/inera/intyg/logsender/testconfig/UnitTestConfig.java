@@ -34,7 +34,7 @@ import se.inera.intyg.logsender.mocks.MockTransactionManager;
 
 @Configuration
 @TestPropertySource("classpath:logsender/unit-test.properties")
-@ContextConfiguration(locations = {"classpath:/basic-cache-config.xml", "classpath:/loggtjanst-stub-context.xml"})
+@ContextConfiguration(classes = {LogSenderAppConfig.class})
 //@ImportResource({"classpath:/basic-cache-config.xml", "classpath:/loggtjanst-stub-context.xml"})
 public class UnitTestConfig {
 

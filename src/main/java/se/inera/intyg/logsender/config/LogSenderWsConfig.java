@@ -66,8 +66,8 @@ public class LogSenderWsConfig {
     @Value("${loggtjanst.endpoint.url}")
     private String loggTjanstEndpointUrl;
 
-    private final int logMessageSize = 1024;
-    private final QName serviceName = QName.valueOf(
+    private static final int LOG_MESSAGE_SIZE = 1024;
+    private static final QName SERVICE_NAME = QName.valueOf(
         "{urn:riv:informationsecurity:auditing:log:StoreLog:2:rivtabp21}StoreLogResponderInterfacePort.http-conduit");
 
 
@@ -88,14 +88,14 @@ public class LogSenderWsConfig {
         JaxWsProxyFactoryBean jaxWsProxyFactoryBean = new JaxWsProxyFactoryBean();
         jaxWsProxyFactoryBean.setServiceClass(StoreLogResponderInterface.class);
         jaxWsProxyFactoryBean.setAddress(loggTjanstEndpointUrl);
-        //jaxWsProxyFactoryBean.setServiceName(serviceName);
+        //jaxWsProxyFactoryBean.setServiceName(SERVICE_NAME);
         jaxWsProxyFactoryBean.getFeatures().add(loggingFeature());
         return jaxWsProxyFactoryBean;
     }
 
     private LoggingFeature loggingFeature() {
         LoggingFeature loggingFeature = new LoggingFeature();
-        loggingFeature.setLimit(logMessageSize * logMessageSize);
+        loggingFeature.setLimit(LOG_MESSAGE_SIZE * LOG_MESSAGE_SIZE);
         loggingFeature.setPrettyLogging(true);
         return loggingFeature;
     }

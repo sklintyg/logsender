@@ -70,7 +70,7 @@ public class LogMessageSendProcessor {
 
             List<?> groupedList = objectMapper.readValue(groupedLogEntries, List.class);
 
-            // TODO Get rid of this if section.
+            // TODO Get rid of this if section. Tests give different types in groupedList - String and HashMap(?)
             List<String> groupedEntriesJson = new ArrayList<>();
             for (Object item : groupedList) {
                 if (!(item instanceof String)) {

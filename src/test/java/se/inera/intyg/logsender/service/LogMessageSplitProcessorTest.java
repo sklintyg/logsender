@@ -62,7 +62,7 @@ public class LogMessageSplitProcessorTest {
         assertEquals(3, messages.size());
     }
 
-    @Test//(expected = PermanentException.class)
+    @Test
     public void testNoResource() {
         assertThrows(PermanentException.class, () ->
             testee.process(buildMessage(0)));
