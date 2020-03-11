@@ -41,7 +41,7 @@ gretty {
     integrationTestTask = null
     scanInterval = 0
     httpPort = 9099
-    debugPort = 5010
+    debugPort = 5009
     debugSuspend = false
 
     jvmArgs = [
@@ -66,8 +66,7 @@ test {
             "-Dcredentials.file=${projectDir}/log-sender-dummy-credentials.properties",
             "-Dconfig.file=${projectDir}/log-sender-dev.properties",
             "-Dlogback.file=classpath:logback-ocp.xml",
-            "-Djava.awt.headless=true",
-            //"-Djava.net.useSystemProxies=true"
+            "-Djava.awt.headless=true"
     ]
 }
 
