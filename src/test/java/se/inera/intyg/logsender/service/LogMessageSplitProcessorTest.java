@@ -18,9 +18,7 @@
  */
 package se.inera.intyg.logsender.service;
 
-//import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-//import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.apache.camel.support.DefaultMessage;
@@ -29,20 +27,18 @@ import java.util.List;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Message;
-//import org.apache.camel.impl.DefaultMessage;
-//import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import se.inera.intyg.infra.logmessages.ActivityType;
-import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
 import se.inera.intyg.logsender.exception.PermanentException;
 import se.inera.intyg.logsender.helper.TestDataHelper;
 
 /**
  * Created by eriklupander on 2016-03-16.
  */
-@Service
+
+//@CamelSpringTest
+//@ContextConfiguration(classes = {LogSenderAppConfig.class}, loader = AnnotationConfigContextLoader.class)
 public class LogMessageSplitProcessorTest {
 
     @Autowired

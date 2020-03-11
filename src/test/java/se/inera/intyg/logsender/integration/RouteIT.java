@@ -74,7 +74,7 @@ import se.inera.intyg.logsender.helper.ValueInclude;
  */
 @CamelSpringTest
 @ExtendWith(SpringExtension.class)
-@ExtendWith(CamelTestSupport.class)
+//@ExtendWith(CamelTestSupport.class)
 @ContextConfiguration(classes = LogSenderAppConfig.class)
 @TestExecutionListeners(listeners = {DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
     TransactionalTestExecutionListener.class}) // Suppresses warning

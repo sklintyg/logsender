@@ -22,11 +22,14 @@ package se.inera.intyg.logsender.config;
 import static org.apache.camel.LoggingLevel.OFF;
 
 import org.apache.activemq.ActiveMQConnectionFactory; //spring option??
+import org.apache.camel.CamelContext;
 import org.apache.camel.component.activemq.ActiveMQComponent;
 import org.apache.camel.component.jms.JmsConfiguration;
 
 
+import org.apache.camel.component.jms.JmsEndpoint;
 import org.apache.camel.spring.spi.SpringTransactionPolicy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -48,7 +51,7 @@ public class LogSenderJmsConfig {
     @Value("${activemq.broker.url}")
     private String activemqBrokerUrl;
 
-    @Bean
+   @Bean
     public JmsTransactionManager jmsTransactionManager() {
         JmsTransactionManager jmsTransactionManager = new JmsTransactionManager();
         jmsTransactionManager.setConnectionFactory(cachingConnectionFactory());
@@ -58,6 +61,7 @@ public class LogSenderJmsConfig {
     @Bean
     public ActiveMQComponent activeMQComponent() {
         ActiveMQComponent activeMQComponent = new ActiveMQComponent();
+        activeMQComponent.setConnectionFactory(cachingConnectionFactory());
         activeMQComponent.setConfiguration(jmsConfiguration());
         activeMQComponent.setTransacted(true);
         activeMQComponent.setCacheLevelName("CACHE_CONSUMER");
@@ -68,6 +72,7 @@ public class LogSenderJmsConfig {
     public JmsConfiguration jmsConfiguration() {
         JmsConfiguration jmsConfig = new JmsConfiguration();
         jmsConfig.setConnectionFactory(cachingConnectionFactory());
+        //jmsConfig.setConnectionFactory(connectionFactory());
         jmsConfig.setErrorHandlerLoggingLevel(OFF);
         jmsConfig.setErrorHandlerLogStackTrace(false);
         jmsConfig.setDestinationResolver(jmsDestinationResolver());
@@ -80,7 +85,7 @@ public class LogSenderJmsConfig {
     }
 
     @Bean
-    public ActiveMQConnectionFactory jmsFactory() {
+    public ActiveMQConnectionFactory connectionFactory() {
         ActiveMQConnectionFactory jmsFactory = new ActiveMQConnectionFactory();
         jmsFactory.setUserName(activemqBrokerUsername);
         jmsFactory.setPassword(activemqBrokerPassword);
@@ -92,7 +97,7 @@ public class LogSenderJmsConfig {
     public TransactionAwareConnectionFactoryProxy cachingConnectionFactory() {
         TransactionAwareConnectionFactoryProxy cachingConnectionFactory
             = new TransactionAwareConnectionFactoryProxy();
-        cachingConnectionFactory.setTargetConnectionFactory(jmsFactory());
+        cachingConnectionFactory.setTargetConnectionFactory(connectionFactory());
         cachingConnectionFactory.setSynchedLocalTransactionAllowed(true);
         return cachingConnectionFactory;
     }

@@ -19,6 +19,9 @@
 
 package se.inera.intyg.logsender.config;
 
+import org.apache.cxf.Bus;
+import org.apache.cxf.bus.spring.SpringBus;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -32,7 +35,7 @@ import org.springframework.context.support.ResourceBundleMessageSource;
 @PropertySource("file:${config.file}")
 @PropertySource("file:${credentials.file}")
 @ComponentScan(basePackages = {"se.inera.intyg.logsender", "se.inera.intyg.infra"})
-@ImportResource(locations = {"classpath:/basic-cache-config.xml", "classpath:/loggtjanst-stub-context.xml"})
+@ImportResource(locations = {"classpath:basic-cache-config.xml", "classpath:/loggtjanst-stub-context.xml"})
 public class LogSenderAppConfig {
 
     @Bean
@@ -46,5 +49,10 @@ public class LogSenderAppConfig {
         messageSource.setDefaultEncoding("UTF-8");
         messageSource.setBasenames("version");
         return messageSource;
+    }
+
+    @Bean(name = Bus.DEFAULT_BUS_ID)
+    public Bus cxf() {
+        return new SpringBus();
     }
 }

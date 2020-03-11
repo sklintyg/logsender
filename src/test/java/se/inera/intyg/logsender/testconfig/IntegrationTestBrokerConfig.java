@@ -46,7 +46,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import se.inera.intyg.logsender.config.LogSenderAppConfig;
 
-@Service
+@Configuration
 public class IntegrationTestBrokerConfig {
 
     @Value("${testBrokerUrl}")
