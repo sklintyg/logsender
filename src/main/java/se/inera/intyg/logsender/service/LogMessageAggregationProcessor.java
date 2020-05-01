@@ -58,7 +58,6 @@ public class LogMessageAggregationProcessor {
      */
     public String process(Exchange exchange) throws PermanentException, JsonProcessingException {
 
-        @SuppressWarnings("unchecked")
         List<Exchange> grouped = exchange.getIn().getBody(List.class);
 
         if (grouped == null || grouped.isEmpty()) {

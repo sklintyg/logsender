@@ -54,6 +54,7 @@ public class LogSenderClientImpl implements LogSenderClient {
 
     @Override
     public StoreLogResponseType sendLogMessage(List<LogType> logEntries) {
+
         if (logEntries == null || logEntries.isEmpty()) {
             StoreLogResponseType response = new StoreLogResponseType();
             ResultType resultType = new ResultType();

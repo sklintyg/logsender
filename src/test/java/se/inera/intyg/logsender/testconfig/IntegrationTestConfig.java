@@ -20,19 +20,29 @@
 package se.inera.intyg.logsender.testconfig;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.stereotype.Service;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import se.inera.intyg.logsender.client.mock.MockLogSenderClientImpl;
 import se.inera.intyg.logsender.config.LogSenderAppConfig;
+import se.inera.intyg.logsender.config.LogSenderBeanConfig;
+import se.inera.intyg.logsender.config.LogSenderCamelConfig;
 
+@Lazy
 @Configuration
-@PropertySource("classpath:logsender/integration-test.properties")
-@TestPropertySource(locations = "classpath:logsender/integration-test.properties")
-@ContextConfiguration(classes = {LogSenderAppConfig.class})
+//@Import(LogSenderAppConfig.class)
+@ComponentScan(basePackages = {"se.inera.intyg.logsender", "se.inera.intyg.infra.monitoring"})
+
+//@PropertySource("classpath:logsender/integration-test.properties")
+//@TestPropertySource(locations = "classpath:logsender/integration-test.properties")
+//@ContextConfiguration(classes = {LogSenderBeanConfig.class, LogSenderCamelConfig.class})
+//@ContextConfiguration(locations = {"classpath:logsender", "classpath:se.inera.intyg.infra.monitoring"})
 public class IntegrationTestConfig {
 
     @Bean

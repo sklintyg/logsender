@@ -21,9 +21,11 @@ package se.inera.intyg.logsender.config;
 
 import static org.apache.camel.LoggingLevel.OFF;
 
-import org.apache.activemq.ActiveMQConnectionFactory; //spring option??
+import javax.jms.ConnectionFactory;
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.camel.CamelContext;
 import org.apache.camel.component.activemq.ActiveMQComponent;
+import org.apache.camel.component.jms.JmsComponent;
 import org.apache.camel.component.jms.JmsConfiguration;
 
 
@@ -33,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.jms.connection.JmsTransactionManager;
 import org.springframework.jms.connection.TransactionAwareConnectionFactoryProxy;
 import org.springframework.jms.support.destination.DynamicDestinationResolver;
@@ -51,17 +54,17 @@ public class LogSenderJmsConfig {
     @Value("${activemq.broker.url}")
     private String activemqBrokerUrl;
 
-   @Bean
+    @Bean
     public JmsTransactionManager jmsTransactionManager() {
         JmsTransactionManager jmsTransactionManager = new JmsTransactionManager();
-        jmsTransactionManager.setConnectionFactory(cachingConnectionFactory());
+        jmsTransactionManager.setConnectionFactory(transactionAwareConnectionFactoryProxy());
         return jmsTransactionManager;
     }
 
     @Bean
     public ActiveMQComponent activeMQComponent() {
         ActiveMQComponent activeMQComponent = new ActiveMQComponent();
-        activeMQComponent.setConnectionFactory(cachingConnectionFactory());
+        activeMQComponent.setConnectionFactory(transactionAwareConnectionFactoryProxy());
         activeMQComponent.setConfiguration(jmsConfiguration());
         activeMQComponent.setTransacted(true);
         activeMQComponent.setCacheLevelName("CACHE_CONSUMER");
@@ -71,8 +74,7 @@ public class LogSenderJmsConfig {
     @Bean
     public JmsConfiguration jmsConfiguration() {
         JmsConfiguration jmsConfig = new JmsConfiguration();
-        jmsConfig.setConnectionFactory(cachingConnectionFactory());
-        //jmsConfig.setConnectionFactory(connectionFactory());
+        jmsConfig.setConnectionFactory(transactionAwareConnectionFactoryProxy());
         jmsConfig.setErrorHandlerLoggingLevel(OFF);
         jmsConfig.setErrorHandlerLogStackTrace(false);
         jmsConfig.setDestinationResolver(jmsDestinationResolver());
@@ -94,14 +96,14 @@ public class LogSenderJmsConfig {
     }
 
     @Bean
-    public TransactionAwareConnectionFactoryProxy cachingConnectionFactory() {
+    public TransactionAwareConnectionFactoryProxy transactionAwareConnectionFactoryProxy() {
         TransactionAwareConnectionFactoryProxy cachingConnectionFactory
             = new TransactionAwareConnectionFactoryProxy();
         cachingConnectionFactory.setTargetConnectionFactory(connectionFactory());
         cachingConnectionFactory.setSynchedLocalTransactionAllowed(true);
         return cachingConnectionFactory;
     }
-
+/*
     // Added SpringTransactionPolicy to make jmsTransactionManger of this class take precedence over the
     // MockTransactionManager used in tests. The duplicate transaction managers caused conflicts in
     // TransactionErrorHandlerBuilder of file LogSenderRouteBuilder otherwise.
@@ -111,4 +113,6 @@ public class LogSenderJmsConfig {
         policy.setPropagationBehaviorName("PROPAGATION_REQUIRED");
         return policy;
     }
+
+ */
 }

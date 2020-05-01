@@ -21,28 +21,39 @@ package se.inera.intyg.logsender.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.support.DefaultMessage;
+import org.apache.camel.test.junit5.CamelTestSupport;
+import org.apache.camel.test.spring.junit5.CamelSpringTest;
+import org.apache.camel.test.spring.junit5.CamelTestContextBootstrapper;
 import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Message;
 
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.BootstrapWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import se.inera.intyg.infra.logmessages.ActivityType;
+import se.inera.intyg.logsender.config.LogSenderAppConfig;
+import se.inera.intyg.logsender.config.LogSenderCamelConfig;
 import se.inera.intyg.logsender.exception.PermanentException;
 import se.inera.intyg.logsender.helper.TestDataHelper;
+import se.inera.intyg.logsender.testconfig.UnitTestConfig;
 
 /**
  * Created by eriklupander on 2016-03-16.
  */
-
 //@CamelSpringTest
-//@ContextConfiguration(classes = {LogSenderAppConfig.class}, loader = AnnotationConfigContextLoader.class)
+//@ContextConfiguration(classes = {UnitTestConfig.class}, loader = AnnotationConfigContextLoader.class)
 public class LogMessageSplitProcessorTest {
 
-    @Autowired
-    CamelContext camelContext;
+    //@Autowired
+    //CamelContext camelContext;
 
     private LogMessageSplitProcessor testee = new LogMessageSplitProcessor();
 
@@ -65,7 +76,7 @@ public class LogMessageSplitProcessorTest {
     }
 
     private Message buildMessage(int numberOfResources) {
-        DefaultMessage msg = new DefaultMessage(camelContext);
+        DefaultMessage msg = new DefaultMessage(new DefaultCamelContext());
         msg.setBody(buildBody(numberOfResources));
         return msg;
     }

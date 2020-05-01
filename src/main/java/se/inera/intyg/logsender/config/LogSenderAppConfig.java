@@ -19,9 +19,11 @@
 
 package se.inera.intyg.logsender.config;
 
+import org.apache.camel.CamelContext;
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.spring.SpringBus;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -34,7 +36,7 @@ import org.springframework.context.support.ResourceBundleMessageSource;
 @PropertySource("classpath:default.properties")
 @PropertySource("file:${config.file}")
 @PropertySource("file:${credentials.file}")
-@ComponentScan(basePackages = {"se.inera.intyg.logsender", "se.inera.intyg.infra"})
+@ComponentScan(basePackages = {"se.inera.intyg.logsender"})
 @ImportResource(locations = {"classpath:basic-cache-config.xml", "classpath:/loggtjanst-stub-context.xml"})
 public class LogSenderAppConfig {
 

@@ -44,12 +44,8 @@ import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.jaxws.spring.JaxWsProxyFactoryBeanDefinitionParser.JAXWSSpringClientProxyFactoryBean;
-import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transport.http.HttpConduitConfig;
-import org.apache.cxf.transport.http.MessageTrustDecider;
-import org.apache.cxf.transport.http.URLConnectionInfo;
-import org.apache.cxf.transport.http.UntrustedURLConnectionIOException;
 import org.apache.cxf.transports.http.configuration.ConnectionType;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.springframework.beans.factory.annotation.Value;
@@ -80,7 +76,7 @@ public class LogSenderWsConfig {
     @SchemaValidation(type = SchemaValidationType.BOTH)
     public StoreLogResponderInterface storeLogClient() throws UnrecoverableKeyException,
         CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
-
+        env.getActiveProfiles();
         JaxWsProxyFactoryBean jaxWsProxyFactoryBean = createJaxWsProxyFactoryBean();
         StoreLogResponderInterface storeLogClient =
             (StoreLogResponderInterface) jaxWsProxyFactoryBean.create();
@@ -107,14 +103,14 @@ public class LogSenderWsConfig {
     private void setClient(StoreLogResponderInterface storeLogClient) throws UnrecoverableKeyException,
         CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
         Client client = ClientProxy.getClient(storeLogClient);
-        //if (!Arrays.asList(this.env.getActiveProfiles()).contains("dev")) {
+        if (!Arrays.asList(this.env.getActiveProfiles()).contains("dev")) {
             HTTPConduit httpConduit = (HTTPConduit) client.getConduit();
             configureTlsParameters().apply(httpConduit);
-        //}
+        }
     }
 
     @Bean
-    //@Profile("!dev")
+    @Profile("!dev")
     public HttpConduitConfig configureTlsParameters() throws UnrecoverableKeyException, CertificateException,
         NoSuchAlgorithmException, KeyStoreException, IOException {
         HttpConduitConfig config = new HttpConduitConfig();

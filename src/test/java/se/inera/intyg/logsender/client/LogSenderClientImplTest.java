@@ -45,8 +45,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import se.inera.intyg.logsender.config.LogSenderAppConfig;
 import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
+import se.inera.intyg.logsender.testconfig.UnitTestConfig;
 import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogType;
@@ -61,8 +63,8 @@ import se.riv.informationsecurity.auditing.log.v2.ResultType;
 @ExtendWith(SpringExtension.class)
 @ExtendWith(MockitoExtension.class)
 @TestPropertySource("classpath:logsender/unit-test.properties")
-@ContextConfiguration(classes = {LogSenderAppConfig.class})
-//@ImportResource({"classpath:/basic-cache-config.xml", "classpath:/loggtjanst-stub-context.xml"})
+@ContextConfiguration(classes = {UnitTestConfig.class}, loader = AnnotationConfigContextLoader.class)
+//@ContextConfiguration(classes = {LogSenderAppConfig.class})
 class LogSenderClientImplTest {
 
     @Mock

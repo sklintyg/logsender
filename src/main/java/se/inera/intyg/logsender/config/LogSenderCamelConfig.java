@@ -19,40 +19,47 @@
 
 package se.inera.intyg.logsender.config;
 
-
-
-import com.helger.commons.annotation.Singleton;
+import java.util.Collections;
+import java.util.List;
+import javax.annotation.Resource;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.camel.CamelContext;
+import org.apache.camel.Endpoint;
+import org.apache.camel.Exchange;
+import org.apache.camel.Processor;
+import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.activemq.ActiveMQComponent;
+import org.apache.camel.component.jms.JmsComponent;
 import org.apache.camel.component.jms.JmsConfiguration;
+import org.apache.camel.component.jms.JmsConstants;
 import org.apache.camel.component.jms.JmsEndpoint;
+import org.apache.camel.model.PropertyDefinition;
+import org.apache.camel.spring.CamelContextFactoryBean;
+import org.apache.camel.spring.CamelEndpointFactoryBean;
 import org.apache.camel.spring.SpringCamelContext;
 import org.apache.camel.spring.javaconfig.CamelConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jms.connection.TransactionAwareConnectionFactoryProxy;
 import se.inera.intyg.logsender.routes.LogSenderRouteBuilder;
 
 @Configuration
 public class LogSenderCamelConfig extends CamelConfiguration {
-
-    @Autowired
-    ActiveMQComponent activeMQComponent;
-
-    @Autowired
-    JmsConfiguration jmsConfiguration;
-
-    @Autowired
-    LogSenderRouteBuilder logSenderRouteBuilder;
 
     @Value("${receiveLogMessageEndpointUri}")
     String receiveLogMessageEndpointUri;
 
     @Value("${receiveAggregatedLogMessageEndpointUri}")
     String receiveAggregatedLogMessageEndpointUri;
-/*
+
+    @Autowired
+    LogSenderRouteBuilder logSenderRouteBuilder;
+
+    @Autowired
+    ActiveMQComponent activeMQComponent;
+
     @Bean
     public CamelEndpointFactoryBean receiveLogMessageEndpoint() {
         CamelEndpointFactoryBean receiveLogMessageEndpoint = new CamelEndpointFactoryBean();
@@ -62,60 +69,18 @@ public class LogSenderCamelConfig extends CamelConfiguration {
     }
 
     @Bean
-    public CamelEndpointFactoryBean receiveAggregatedLogMessageEndpoint() {
+    public CamelEndpointFactoryBean receiveAggregatedLogMessageEndpoint()  {
         CamelEndpointFactoryBean receiveAggregatedLogMessageEndpoint = new CamelEndpointFactoryBean();
         receiveAggregatedLogMessageEndpoint.setId("receiveAggregatedLogMessageEndpoint");
         receiveAggregatedLogMessageEndpoint.setUri(receiveAggregatedLogMessageEndpointUri);
-        receiveAggregatedLogMessageEndpoint.consu
         return receiveAggregatedLogMessageEndpoint;
     }
-*/
-    //@Bean
-/*    private JmsEndpoint receiveLogMessageEndpoint() {
-        JmsEndpoint jmsEndpoint = new JmsEndpoint();
-        jmsEndpoint.setConfiguration(jmsConfiguration);
-        jmsEndpoint.setDestinationName(receiveLogMessageEndpointUri);
-        return jmsEndpoint;
-    }
 
-
-    //@Bean
-    private JmsEndpoint receiveAggregatedLogMessageEndpoint() {
-        JmsEndpoint jmsEndpoint = new JmsEndpoint();
-        jmsEndpoint.setConfiguration(jmsConfiguration);
-        jmsEndpoint.setDestinationName(receiveAggregatedLogMessageEndpointUri);
-        return jmsEndpoint;
-    }
-*/
-    @Bean
-    public JmsEndpoint receiveLogMessageEndpoint() {
-        JmsEndpoint jmsEndpoint = new JmsEndpoint(receiveLogMessageEndpointUri,
-            activeMQComponent, receiveLogMessageEndpointUri, true, jmsConfiguration);
-        return  jmsEndpoint;
-    }
-
-    @Bean
-    public JmsEndpoint receiveAggregatedLogMessageEndpoint() {
-        JmsEndpoint jmsEndpoint = new JmsEndpoint(receiveAggregatedLogMessageEndpointUri,
-            activeMQComponent, receiveAggregatedLogMessageEndpointUri, true, jmsConfiguration);
-        return  jmsEndpoint;
-    }
-/*
-    @Bean
-    public JmsConsumer jmsConsumer() {
-        JmsConsumer jmsConsumer = new JmsConsumer();
-            jmsConsumer.
-
-        }
-*/
     @Override
-
     public CamelContext camelContext() throws Exception {
         CamelContext camelContext = new SpringCamelContext();
-        camelContext.addEndpoint(receiveLogMessageEndpointUri, receiveLogMessageEndpoint());
-        camelContext.addEndpoint(receiveAggregatedLogMessageEndpointUri, receiveAggregatedLogMessageEndpoint());
+        //camelContext.addComponent("jms", activeMQComponent);
         camelContext.addRoutes(logSenderRouteBuilder);
-        camelContext.disableJMX();
         return camelContext;
     }
 /*
@@ -123,5 +88,6 @@ public class LogSenderCamelConfig extends CamelConfiguration {
     public List<RouteBuilder> routes() {
         return Collections.singletonList(logSenderRouteBuilder);
     }
-*/
+    */
+
 }

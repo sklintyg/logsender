@@ -26,13 +26,15 @@ import org.apache.camel.spring.spi.SpringTransactionPolicy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.jms.connection.JmsTransactionManager;
 import org.springframework.jms.core.JmsTemplate;
+import org.springframework.stereotype.Service;
 import org.springframework.test.context.ContextConfiguration;
 
+@Lazy
 @Configuration
-@ContextConfiguration(classes = {IntegrationTestConfig.class})
 public class IntegrationTestJmsConfig {
 
     @Value("${errorhandling.maxRedeliveries}")
@@ -47,8 +49,8 @@ public class IntegrationTestJmsConfig {
     @Value("${testBrokerUrl}")
     private String testBrokerUrl;
 
-    //@Bean
-    private ActiveMQConnectionFactory jmsConnectionFactory() {
+    @Bean
+    public ActiveMQConnectionFactory jmsConnectionFactory() {
         ActiveMQConnectionFactory jmsConnectionFactory = new ActiveMQConnectionFactory();
         jmsConnectionFactory.setBrokerURL(testBrokerUrl);
         jmsConnectionFactory.setRedeliveryPolicy(redeliveryPolicy());
@@ -56,8 +58,8 @@ public class IntegrationTestJmsConfig {
         return jmsConnectionFactory;
     }
 
-    //@Bean
-    private RedeliveryPolicy redeliveryPolicy() {
+    @Bean
+    public RedeliveryPolicy redeliveryPolicy() {
         RedeliveryPolicy redeliveryPolicy = new RedeliveryPolicy();
         redeliveryPolicy.setMaximumRedeliveries(maximumRedeliveries);
         redeliveryPolicy.setMaximumRedeliveryDelay(maximumRedeliveryDelay);
@@ -67,8 +69,8 @@ public class IntegrationTestJmsConfig {
         return redeliveryPolicy;
     }
 
-    //@Bean
-    private CachingConnectionFactory cachingConnectionFactory() {
+    @Bean
+    public CachingConnectionFactory cachingConnectionFactory() {
         CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory();
         cachingConnectionFactory.setTargetConnectionFactory(jmsConnectionFactory());
         return cachingConnectionFactory;
@@ -81,15 +83,15 @@ public class IntegrationTestJmsConfig {
         return jmsTemplate;
     }
 
-    //@Bean
-    private JmsTransactionManager jmsTransactionManager() {
+    @Bean
+    public JmsTransactionManager jmsTransactionManager() {
         JmsTransactionManager jmsTransactionManager = new JmsTransactionManager();
         jmsTransactionManager.setConnectionFactory(cachingConnectionFactory());
         return jmsTransactionManager;
     }
 
-    //@Bean
-    private ActiveMQComponent jms() {
+    @Bean
+    public ActiveMQComponent jms() {
         ActiveMQComponent activeMQComponent = new ActiveMQComponent();
         activeMQComponent.setConnectionFactory(cachingConnectionFactory());
         activeMQComponent.setTransactionManager(jmsTransactionManager());
@@ -98,8 +100,8 @@ public class IntegrationTestJmsConfig {
         return activeMQComponent;
     }
 
-    //@Bean
-    private SpringTransactionPolicy policy() {
+    @Bean
+    public SpringTransactionPolicy policy() {
         SpringTransactionPolicy policy = new SpringTransactionPolicy();
         policy.setTransactionManager(jmsTransactionManager());
         policy.setPropagationBehaviorName("PROPAGATION_REQUIRED");

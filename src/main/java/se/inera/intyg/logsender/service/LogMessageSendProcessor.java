@@ -19,7 +19,6 @@
 package se.inera.intyg.logsender.service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -68,19 +67,9 @@ public class LogMessageSendProcessor {
 
         try {
 
-            List<?> groupedList = objectMapper.readValue(groupedLogEntries, List.class);
+            List<String> groupedList = objectMapper.readValue(groupedLogEntries, List.class);
 
-            // TODO Get rid of this if section. Tests give different types in groupedList - String and HashMap(?)
-            List<String> groupedEntriesJson = new ArrayList<>();
-            for (Object item : groupedList) {
-                if (!(item instanceof String)) {
-                    groupedEntriesJson.add(objectMapper.writeValueAsString(item));
-                } else {
-                    groupedEntriesJson.add(item.toString());
-                }
-            }
-
-            List<LogType> logMessages = groupedEntriesJson.stream()
+            List<LogType> logMessages = groupedList.stream()
                 .map(this::jsonToPdlLogMessage)
                 .map(alm -> logTypeFactory.convert(alm))
                 .collect(Collectors.toList());
