@@ -43,7 +43,7 @@ gretty {
     integrationTestTask = null
     scanInterval = 0
     httpPort = 9099
-    debugPort = 5010
+    debugPort = 5009
     debugSuspend = false
 
     jvmArgs = [
