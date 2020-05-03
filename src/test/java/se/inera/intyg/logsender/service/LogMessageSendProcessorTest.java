@@ -19,26 +19,15 @@
 package se.inera.intyg.logsender.service;
 
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.util.JSONPObject;
-import java.io.ByteArrayOutputStream;
-import java.io.StringWriter;
-import java.util.Map;
 import javax.xml.ws.WebServiceException;
 import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.List;
-
 
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -80,7 +69,6 @@ public class LogMessageSendProcessorTest {
     @Test
     public void testSendLogMessagesWhenAllOk() throws Exception {
         when(logSenderClient.sendLogMessage(anyList())).thenReturn(buildResponse(ResultCodeType.OK));
-        //testee.process(stringifyGroupedMessage(buildGroupedMessages()));
         testee.process(objectMapper.writeValueAsString(buildGroupedMessages()));
         verify(logSenderClient, times(1)).sendLogMessage(anyList());
     }
@@ -88,8 +76,6 @@ public class LogMessageSendProcessorTest {
     @Test
     public void testSendLogMessagesThrowsPermanentExceptionWhenInvalidJsonIsSupplied() {
         assertThrows(BatchValidationException.class, () -> {
-            //lenient();when(logSenderClient.sendLogMessage(anyList())).thenReturn(buildResponse(ResultCodeType.ERROR));
-            //testee.process(stringifyGroupedMessage(buildInvalidGroupedMessages()));
             testee.process(objectMapper.writeValueAsString(buildInvalidGroupedMessages()));
             verify(logSenderClient, times(1)).sendLogMessage(anyList());
         });
@@ -99,7 +85,6 @@ public class LogMessageSendProcessorTest {
     public void testSendLogMessagesThrowsBatchValidationExceptionWhenErrorOccured() {
         assertThrows(BatchValidationException.class, () -> {
             when(logSenderClient.sendLogMessage(anyList())).thenReturn(buildResponse(ResultCodeType.ERROR));
-            //testee.process(stringifyGroupedMessage(buildGroupedMessages()));
             testee.process(objectMapper.writeValueAsString(buildGroupedMessages()));
             verify(logSenderClient, times(1)).sendLogMessage(anyList());
         });
@@ -109,7 +94,6 @@ public class LogMessageSendProcessorTest {
     public void testSendLogMessagesThrowsBatchValidationExceptionWhenValidationErrorOccured() {
         assertThrows(BatchValidationException.class, () -> {
             when(logSenderClient.sendLogMessage(anyList())).thenReturn(buildResponse(ResultCodeType.VALIDATION_ERROR));
-            //testee.process(stringifyGroupedMessage(buildGroupedMessages()));
             testee.process(objectMapper.writeValueAsString(buildGroupedMessages()));
             verify(logSenderClient, times(1)).sendLogMessage(anyList());
         });
@@ -118,7 +102,6 @@ public class LogMessageSendProcessorTest {
     @Test
     public void testSendLogMessagesDoesNothingWhenInfoIsReturned() throws Exception {
         when(logSenderClient.sendLogMessage(anyList())).thenReturn(buildResponse(ResultCodeType.INFO));
-        //testee.process(stringifyGroupedMessage(buildGroupedMessages()));
         testee.process(objectMapper.writeValueAsString(buildGroupedMessages()));
         verify(logSenderClient, times(1)).sendLogMessage(anyList());
     }
@@ -127,7 +110,6 @@ public class LogMessageSendProcessorTest {
     public void testSendLogMessagesThrowsBatchValidationExceptionWhenIllegalArgumentExceptionIsThrown() {
         assertThrows(BatchValidationException.class, () -> {
             when(logSenderClient.sendLogMessage(anyList())).thenThrow(new IllegalArgumentException("illegal"));
-            //testee.process(stringifyGroupedMessage(buildGroupedMessages()));
             testee.process(objectMapper.writeValueAsString(buildGroupedMessages()));
             verify(logSenderClient, times(1)).sendLogMessage(anyList());
         });
@@ -137,7 +119,6 @@ public class LogMessageSendProcessorTest {
     public void testSendLogMessagesThrowsTemporaryExceptionWhenLoggtjanstExecutionExceptionIsThrwn() {
         assertThrows(TemporaryException.class, () -> {
             when(logSenderClient.sendLogMessage(anyList())).thenThrow(new LoggtjanstExecutionException(null));
-            //testee.process(stringifyGroupedMessage(buildGroupedMessages()));
             testee.process(objectMapper.writeValueAsString(buildGroupedMessages()));
             verify(logSenderClient, times(1)).sendLogMessage(anyList());
         });
@@ -147,7 +128,6 @@ public class LogMessageSendProcessorTest {
     public void testSendLogMessagesThrowsTemporaryExceptionWhenWebServiceExceptionIsThrwn() {
         assertThrows(TemporaryException.class, () -> {
             when(logSenderClient.sendLogMessage(anyList())).thenThrow(new WebServiceException());
-            //testee.process(stringifyGroupedMessage(buildGroupedMessages()));
             testee.process(objectMapper.writeValueAsString(buildGroupedMessages()));
             verify(logSenderClient, times(1)).sendLogMessage(anyList());
         });
@@ -166,26 +146,11 @@ public class LogMessageSendProcessorTest {
         String pdlLogMessage1 = TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ);
         String pdlLogMessage2 = TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.PRINT);
         return Arrays.asList(pdlLogMessage1, pdlLogMessage2);
-
     }
 
     private List<String> buildInvalidGroupedMessages() {
         String pdlLogMessage1 = TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ);
         String pdlLogMessage2 = TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.PRINT);
         return Arrays.asList(pdlLogMessage1, pdlLogMessage2, "this-is-not-json");
-    }
-
-    private String stringifyGroupedMessage(List<String> messages) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[");
-        for (int i = 0; i < messages.size(); i++) {
-            sb.append(messages.get(i));
-            if ((i < messages.size() - 1)) {
-                sb.append(",");
-            } else {
-                sb.append("]");
-            }
-        }
-        return sb.toString();
     }
 }

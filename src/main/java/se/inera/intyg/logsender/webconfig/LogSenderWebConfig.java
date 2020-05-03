@@ -19,6 +19,7 @@
 
 package se.inera.intyg.logsender.webconfig;
 
+import javax.annotation.Nonnull;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
 import org.apache.cxf.transport.servlet.CXFServlet;
@@ -31,7 +32,7 @@ import se.inera.intyg.logsender.config.LogSenderAppConfig;
 public class LogSenderWebConfig implements WebApplicationInitializer {
 
     @Override
-    public void onStartup(ServletContext servletContext) {
+    public void onStartup(@Nonnull ServletContext servletContext) {
 
         AnnotationConfigWebApplicationContext webAppContext = new AnnotationConfigWebApplicationContext();
         webAppContext.setDisplayName("Logsender Web Application");

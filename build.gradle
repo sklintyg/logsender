@@ -1,3 +1,5 @@
+import org.gradle.api.tasks.testing.Test
+
 plugins {
     id 'maven'
     id 'idea'
@@ -14,7 +16,7 @@ ext {
     rivtaStoreLogSchemasVersion = "2.0.1"
 
     apacheCXFVersion = "3.2.4"
-    camelVersion = "3.0.1"
+    camelVersion = "3.2.0"
     geronimoVersion = "1.1.1"
 
     springbootMavenBomVersion = "2.2.5.RELEASE"
@@ -75,8 +77,18 @@ tasks.withType(War) {
 }
 
 task camelTest(type: Test) {
+    useJUnitPlatform()
     outputs.upToDateWhen { false }
-    include "**/*IT*"
+    include '**/*IT*'
+
+    jvmArgs = [
+            "-Dcatalina.base=${buildDir}/catalina.base",
+            "-Dspring.profiles.active=dev,wc-loggtjanst-stub,testability-api,caching-enabled",
+            "-Dcredentials.file=${projectDir}/log-sender-dummy-credentials.properties",
+            "-Dconfig.file=${projectDir}/log-sender-dev.properties",
+            "-Dlogback.file=classpath:logback-ocp.xml",
+            "-Djava.awt.headless=true"
+    ]
 }
 
 task tagRelease(type: TagReleaseTask)
@@ -110,6 +122,7 @@ dependencies {
     compile "org.apache.camel:camel-activemq:${camelVersion}"
     compile "org.apache.camel:camel-spring:${camelVersion}"
     compile "org.apache.camel:camel-jms:${camelVersion}"
+
     compile "org.apache.camel:camel-spring-javaconfig:${camelVersion}"
     compile "org.apache.camel:camel-direct:${camelVersion}"
     compile "org.apache.cxf:cxf-rt-frontend-jaxws:${apacheCXFVersion}"
@@ -121,7 +134,6 @@ dependencies {
 
     testCompile "org.apache.activemq:activemq-broker"
     testCompile "org.apache.camel:camel-test-spring-junit5:${camelVersion}"
-    testCompile "org.apache.camel:camel-test-spring:2.25.0"
     testCompile "org.awaitility:awaitility"
     testCompile "org.junit.jupiter:junit-jupiter-api"
     testCompile "org.mockito:mockito-junit-jupiter"

@@ -21,22 +21,8 @@ package se.inera.intyg.logsender.config;
 
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Resource;
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.camel.CamelContext;
-import org.apache.camel.Endpoint;
-import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.component.activemq.ActiveMQComponent;
-import org.apache.camel.component.jms.JmsComponent;
-import org.apache.camel.component.jms.JmsConfiguration;
-import org.apache.camel.component.jms.JmsConstants;
-import org.apache.camel.component.jms.JmsEndpoint;
-import org.apache.camel.model.PropertyDefinition;
-import org.apache.camel.spring.CamelContextFactoryBean;
 import org.apache.camel.spring.CamelEndpointFactoryBean;
-import org.apache.camel.spring.SpringCamelContext;
 import org.apache.camel.spring.javaconfig.CamelConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,11 +40,9 @@ public class LogSenderCamelConfig extends CamelConfiguration {
     @Value("${receiveAggregatedLogMessageEndpointUri}")
     String receiveAggregatedLogMessageEndpointUri;
 
-    @Autowired
-    LogSenderRouteBuilder logSenderRouteBuilder;
 
     @Autowired
-    ActiveMQComponent activeMQComponent;
+    LogSenderRouteBuilder logSenderRouteBuilder;
 
     @Bean
     public CamelEndpointFactoryBean receiveLogMessageEndpoint() {
@@ -77,17 +61,7 @@ public class LogSenderCamelConfig extends CamelConfiguration {
     }
 
     @Override
-    public CamelContext camelContext() throws Exception {
-        CamelContext camelContext = new SpringCamelContext();
-        //camelContext.addComponent("jms", activeMQComponent);
-        camelContext.addRoutes(logSenderRouteBuilder);
-        return camelContext;
-    }
-/*
-    @Override
     public List<RouteBuilder> routes() {
         return Collections.singletonList(logSenderRouteBuilder);
     }
-    */
-
 }

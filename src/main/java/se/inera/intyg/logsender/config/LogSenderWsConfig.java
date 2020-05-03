@@ -33,7 +33,6 @@ import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
-import javax.xml.namespace.QName;
 
 import org.apache.cxf.annotations.SchemaValidation;
 import org.apache.cxf.annotations.SchemaValidation.SchemaValidationType;
@@ -51,7 +50,6 @@ import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
 
@@ -69,8 +67,6 @@ public class LogSenderWsConfig {
     private String loggTjanstEndpointUrl;
 
     private static final int LOG_MESSAGE_SIZE = 1024;
-    private static final QName ENDPOINT_NAME = QName.valueOf(
-        "{urn:riv:informationsecurity:auditing:log:StoreLog:2:rivtabp21}StoreLogResponderInterfacePort.http-conduit");
 
     @Bean
     @SchemaValidation(type = SchemaValidationType.BOTH)
@@ -89,7 +85,6 @@ public class LogSenderWsConfig {
         jaxWsProxyFactoryBean.setServiceClass(StoreLogResponderInterface.class);
         jaxWsProxyFactoryBean.setAddress(loggTjanstEndpointUrl);
         jaxWsProxyFactoryBean.getFeatures().add(loggingFeature());
-        //jaxWsProxyFactoryBean.setEndpointName(ENDPOINT_NAME);
         return jaxWsProxyFactoryBean;
     }
 
@@ -109,16 +104,13 @@ public class LogSenderWsConfig {
         }
     }
 
-    @Bean
-    @Profile("!dev")
-    public HttpConduitConfig configureTlsParameters() throws UnrecoverableKeyException, CertificateException,
+    private HttpConduitConfig configureTlsParameters() throws UnrecoverableKeyException, CertificateException,
         NoSuchAlgorithmException, KeyStoreException, IOException {
         HttpConduitConfig config = new HttpConduitConfig();
         config.setClientPolicy(setupHTTPClientPolicy());
         config.setTlsClientParameters(setupTLSClientParameters());
         return config;
     }
-
 
     private HTTPClientPolicy setupHTTPClientPolicy() {
         HTTPClientPolicy httpClientPolicy = new HTTPClientPolicy();
@@ -127,7 +119,6 @@ public class LogSenderWsConfig {
         httpClientPolicy.setConnection(ConnectionType.KEEP_ALIVE);
         return httpClientPolicy;
     }
-
 
     private TLSClientParameters setupTLSClientParameters() throws KeyStoreException, IOException,
         NoSuchAlgorithmException, CertificateException, UnrecoverableKeyException {
@@ -138,86 +129,6 @@ public class LogSenderWsConfig {
             tlsClientParameters.setKeyManagers(setupKeyManagers());
             tlsClientParameters.setTrustManagers(setupTrustManagers());
         }
-        return tlsClientParameters;
-    }
-
-    @Bean
-    @Profile("!dev")
-    public KeyManager[] setupKeyManagers() throws KeyStoreException, IOException, UnrecoverableKeyException,
-        NoSuchAlgorithmException, CertificateException {
-        final String keyStoreFile = Objects.requireNonNull(env.getProperty("sakerhetstjanst.ws.certificate.file"));
-        final char[] keyStorePassword = Objects.requireNonNull(env.getProperty("sakerhetstjanst.ws.certificate.password")).toCharArray();
-        final KeyStore keyStore = KeyStore.getInstance(keyStoreType);
-        keyStore.load(new FileInputStream(keyStoreFile), keyStorePassword);
-        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(keyStoreType);
-        keyManagerFactory.init(keyStore, keyStorePassword);
-        return keyManagerFactory.getKeyManagers();
-    }
-
-    @Bean
-    @Profile("!dev")
-    public TrustManager[] setupTrustManagers() throws KeyStoreException, IOException, CertificateException,
-        NoSuchAlgorithmException {
-        final String trustStoreFile = Objects.requireNonNull(env.getProperty("sakerhetstjanst.ws.truststore.file"));
-        final char[] trustStorePassword =
-            Objects.requireNonNull(env.getProperty("sakerhetstjanst.ws.truststore.password")).toCharArray();
-        final KeyStore trustStore = KeyStore.getInstance(trustStoreType);
-        trustStore.load(new FileInputStream(trustStoreFile), trustStorePassword);
-        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(trustStoreType);
-        trustManagerFactory.init(trustStore);
-        return trustManagerFactory.getTrustManagers();
-    }
-
-    private FiltersType setupCipherSuitesFilter() {
-        FiltersType cipherSuitesFilter = new FiltersType();
-        cipherSuitesFilter.getInclude().add(".*_EXPORT_.*");
-        cipherSuitesFilter.getInclude().add(".*_EXPORT1024_.*");
-        cipherSuitesFilter.getInclude().add(".*_WITH_AES_256_.*");
-        cipherSuitesFilter.getInclude().add(".*_WITH_AES_128_.*");
-        cipherSuitesFilter.getInclude().add(".*_WITH_3DES_.*");
-        cipherSuitesFilter.getInclude().add(".*_WITH_DES_.*");
-        cipherSuitesFilter.getInclude().add(".*_WITH_NULL_.*");
-        cipherSuitesFilter.getExclude().add(".*_DH_anon_.*");
-        return cipherSuitesFilter;
-    }
-}
-
-/*
-private void setClient(StoreLogResponderInterface storeLogClient) throws UnrecoverableKeyException,
-        CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
-        Client client = ClientProxy.getClient(storeLogClient);
-        if (!Arrays.asList(this.env.getActiveProfiles()).contains("dev")) {
-            HTTPConduit httpConduit = (HTTPConduit) client.getConduit();
-            configureTlsParameters().apply(httpConduit);
-        }
-    }
-
-    @Bean
-    @Profile("!dev")
-    public HttpConduitConfig configureTlsParameters() throws UnrecoverableKeyException, CertificateException,
-        NoSuchAlgorithmException, KeyStoreException, IOException {
-        HttpConduitConfig config = new HttpConduitConfig();
-        config.setClientPolicy(setupHTTPClientPolicy());
-        config.setTlsClientParameters(setupTLSClientParameters());
-        return config;
-    }
-
-
-    private HTTPClientPolicy setupHTTPClientPolicy() {
-        HTTPClientPolicy httpClientPolicy = new HTTPClientPolicy();
-        httpClientPolicy.setAllowChunking(false);
-        httpClientPolicy.setAutoRedirect(true);
-        httpClientPolicy.setConnection(ConnectionType.KEEP_ALIVE);
-        return httpClientPolicy;
-    }
-
-    private TLSClientParameters setupTLSClientParameters() throws KeyStoreException, IOException,
-        NoSuchAlgorithmException, CertificateException, UnrecoverableKeyException {
-        TLSClientParameters tlsClientParameters = new TLSClientParameters();
-        tlsClientParameters.setDisableCNCheck(true);
-        tlsClientParameters.setKeyManagers(setupKeyManagers());
-        tlsClientParameters.setTrustManagers(setupTrustManagers());
-        tlsClientParameters.setCipherSuitesFilter(setupCipherSuitesFilter());
         return tlsClientParameters;
     }
 
@@ -256,5 +167,4 @@ private void setClient(StoreLogResponderInterface storeLogClient) throws Unrecov
         cipherSuitesFilter.getExclude().add(".*_DH_anon_.*");
         return cipherSuitesFilter;
     }
- */
-
+}

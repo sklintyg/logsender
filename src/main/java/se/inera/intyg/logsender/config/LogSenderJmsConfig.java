@@ -21,21 +21,15 @@ package se.inera.intyg.logsender.config;
 
 import static org.apache.camel.LoggingLevel.OFF;
 
-import javax.jms.ConnectionFactory;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.camel.CamelContext;
 import org.apache.camel.component.activemq.ActiveMQComponent;
-import org.apache.camel.component.jms.JmsComponent;
 import org.apache.camel.component.jms.JmsConfiguration;
 
-
-import org.apache.camel.component.jms.JmsEndpoint;
-import org.apache.camel.spring.spi.SpringTransactionPolicy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.jms.connection.JmsTransactionManager;
 import org.springframework.jms.connection.TransactionAwareConnectionFactoryProxy;
 import org.springframework.jms.support.destination.DynamicDestinationResolver;
@@ -54,45 +48,25 @@ public class LogSenderJmsConfig {
     @Value("${activemq.broker.url}")
     private String activemqBrokerUrl;
 
-    @Bean
-    public JmsTransactionManager jmsTransactionManager() {
-        JmsTransactionManager jmsTransactionManager = new JmsTransactionManager();
-        jmsTransactionManager.setConnectionFactory(transactionAwareConnectionFactoryProxy());
-        return jmsTransactionManager;
-    }
+    @Autowired
+    CamelContext camelContext;
 
-    @Bean
+    @Bean(name = "jms")
     public ActiveMQComponent activeMQComponent() {
         ActiveMQComponent activeMQComponent = new ActiveMQComponent();
         activeMQComponent.setConnectionFactory(transactionAwareConnectionFactoryProxy());
         activeMQComponent.setConfiguration(jmsConfiguration());
         activeMQComponent.setTransacted(true);
         activeMQComponent.setCacheLevelName("CACHE_CONSUMER");
+        activeMQComponent.setCamelContext(camelContext);
         return activeMQComponent;
     }
 
     @Bean
-    public JmsConfiguration jmsConfiguration() {
-        JmsConfiguration jmsConfig = new JmsConfiguration();
-        jmsConfig.setConnectionFactory(transactionAwareConnectionFactoryProxy());
-        jmsConfig.setErrorHandlerLoggingLevel(OFF);
-        jmsConfig.setErrorHandlerLogStackTrace(false);
-        jmsConfig.setDestinationResolver(jmsDestinationResolver());
-        return jmsConfig;
-    }
-
-    @Bean
-    public DynamicDestinationResolver jmsDestinationResolver() {
-        return new DynamicDestinationResolver();
-    }
-
-    @Bean
-    public ActiveMQConnectionFactory connectionFactory() {
-        ActiveMQConnectionFactory jmsFactory = new ActiveMQConnectionFactory();
-        jmsFactory.setUserName(activemqBrokerUsername);
-        jmsFactory.setPassword(activemqBrokerPassword);
-        jmsFactory.setBrokerURL(activemqBrokerUrl);
-        return jmsFactory;
+    public JmsTransactionManager jmsTransactionManager() {
+        JmsTransactionManager jmsTransactionManager = new JmsTransactionManager();
+        jmsTransactionManager.setConnectionFactory(transactionAwareConnectionFactoryProxy());
+        return jmsTransactionManager;
     }
 
     @Bean
@@ -103,16 +77,25 @@ public class LogSenderJmsConfig {
         cachingConnectionFactory.setSynchedLocalTransactionAllowed(true);
         return cachingConnectionFactory;
     }
-/*
-    // Added SpringTransactionPolicy to make jmsTransactionManger of this class take precedence over the
-    // MockTransactionManager used in tests. The duplicate transaction managers caused conflicts in
-    // TransactionErrorHandlerBuilder of file LogSenderRouteBuilder otherwise.
-    @Bean
-    public SpringTransactionPolicy policy() {
-        SpringTransactionPolicy policy = new SpringTransactionPolicy(jmsTransactionManager());
-        policy.setPropagationBehaviorName("PROPAGATION_REQUIRED");
-        return policy;
+
+    private ActiveMQConnectionFactory connectionFactory() {
+        ActiveMQConnectionFactory jmsFactory = new ActiveMQConnectionFactory();
+        jmsFactory.setUserName(activemqBrokerUsername);
+        jmsFactory.setPassword(activemqBrokerPassword);
+        jmsFactory.setBrokerURL(activemqBrokerUrl);
+        return jmsFactory;
     }
 
- */
+    private JmsConfiguration jmsConfiguration() {
+        JmsConfiguration jmsConfig = new JmsConfiguration();
+        jmsConfig.setConnectionFactory(transactionAwareConnectionFactoryProxy());
+        jmsConfig.setErrorHandlerLoggingLevel(OFF);
+        jmsConfig.setErrorHandlerLogStackTrace(false);
+        jmsConfig.setDestinationResolver(jmsDestinationResolver());
+        return jmsConfig;
+    }
+
+    private DynamicDestinationResolver jmsDestinationResolver() {
+        return new DynamicDestinationResolver();
+    }
 }

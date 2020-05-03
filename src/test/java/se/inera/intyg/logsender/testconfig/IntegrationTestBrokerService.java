@@ -32,12 +32,9 @@ import org.apache.activemq.broker.region.policy.PolicyMap;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
 
-@Lazy
 @Configuration
-public class IntegrationTestBrokerConfig {
+public class IntegrationTestBrokerService {
 
     @Value("${testBrokerUrl}")
     private String testBrokerUrl;

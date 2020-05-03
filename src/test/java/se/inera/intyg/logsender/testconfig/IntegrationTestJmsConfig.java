@@ -21,19 +21,17 @@ package se.inera.intyg.logsender.testconfig;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.RedeliveryPolicy;
+import org.apache.camel.CamelContext;
 import org.apache.camel.component.activemq.ActiveMQComponent;
 import org.apache.camel.spring.spi.SpringTransactionPolicy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.jms.connection.JmsTransactionManager;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.stereotype.Service;
-import org.springframework.test.context.ContextConfiguration;
 
-@Lazy
 @Configuration
 public class IntegrationTestJmsConfig {
 
@@ -49,8 +47,34 @@ public class IntegrationTestJmsConfig {
     @Value("${testBrokerUrl}")
     private String testBrokerUrl;
 
+    @Autowired
+    CamelContext camelContext;
+
+    @Bean(name = "jms")
+    public ActiveMQComponent integrationActiveMQComponent() {
+        ActiveMQComponent activeMQComponent = new ActiveMQComponent();
+        activeMQComponent.setConnectionFactory(cachingConnectionFactory());
+        activeMQComponent.setTransactionManager(jmsTransactionManager());
+        activeMQComponent.setTransacted(true);
+        activeMQComponent.setCacheLevelName("CACHE_CONSUMER");
+        activeMQComponent.setCamelContext(camelContext);
+        return activeMQComponent;
+    }
+
     @Bean
-    public ActiveMQConnectionFactory jmsConnectionFactory() {
+    public CachingConnectionFactory cachingConnectionFactory() {
+        CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory();
+        cachingConnectionFactory.setTargetConnectionFactory(jmsConnectionFactory());
+        return cachingConnectionFactory;
+    }
+
+    private JmsTransactionManager jmsTransactionManager() {
+        JmsTransactionManager jmsTransactionManager = new JmsTransactionManager();
+        jmsTransactionManager.setConnectionFactory(cachingConnectionFactory());
+        return jmsTransactionManager;
+    }
+
+    private ActiveMQConnectionFactory jmsConnectionFactory() {
         ActiveMQConnectionFactory jmsConnectionFactory = new ActiveMQConnectionFactory();
         jmsConnectionFactory.setBrokerURL(testBrokerUrl);
         jmsConnectionFactory.setRedeliveryPolicy(redeliveryPolicy());
@@ -58,8 +82,7 @@ public class IntegrationTestJmsConfig {
         return jmsConnectionFactory;
     }
 
-    @Bean
-    public RedeliveryPolicy redeliveryPolicy() {
+    private RedeliveryPolicy redeliveryPolicy() {
         RedeliveryPolicy redeliveryPolicy = new RedeliveryPolicy();
         redeliveryPolicy.setMaximumRedeliveries(maximumRedeliveries);
         redeliveryPolicy.setMaximumRedeliveryDelay(maximumRedeliveryDelay);
@@ -70,34 +93,10 @@ public class IntegrationTestJmsConfig {
     }
 
     @Bean
-    public CachingConnectionFactory cachingConnectionFactory() {
-        CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory();
-        cachingConnectionFactory.setTargetConnectionFactory(jmsConnectionFactory());
-        return cachingConnectionFactory;
-    }
-
-    @Bean
     public JmsTemplate jmsTemplate() {
         JmsTemplate jmsTemplate = new JmsTemplate();
         jmsTemplate.setConnectionFactory(cachingConnectionFactory());
         return jmsTemplate;
-    }
-
-    @Bean
-    public JmsTransactionManager jmsTransactionManager() {
-        JmsTransactionManager jmsTransactionManager = new JmsTransactionManager();
-        jmsTransactionManager.setConnectionFactory(cachingConnectionFactory());
-        return jmsTransactionManager;
-    }
-
-    @Bean
-    public ActiveMQComponent jms() {
-        ActiveMQComponent activeMQComponent = new ActiveMQComponent();
-        activeMQComponent.setConnectionFactory(cachingConnectionFactory());
-        activeMQComponent.setTransactionManager(jmsTransactionManager());
-        activeMQComponent.setTransacted(true);
-        activeMQComponent.setCacheLevelName("CACHE_CONSUMER");
-        return activeMQComponent;
     }
 
     @Bean

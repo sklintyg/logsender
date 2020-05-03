@@ -25,6 +25,7 @@ import se.inera.intyg.logsender.client.LogSenderClient;
 import se.inera.intyg.logsender.client.LogSenderClientImpl;
 import se.inera.intyg.logsender.converter.LogTypeFactory;
 import se.inera.intyg.logsender.converter.LogTypeFactoryImpl;
+import se.inera.intyg.logsender.routes.LogSenderRouteBuilder;
 import se.inera.intyg.logsender.service.LogMessageAggregationProcessor;
 import se.inera.intyg.logsender.service.LogMessageSendProcessor;
 import se.inera.intyg.logsender.service.LogMessageSplitProcessor;
@@ -55,5 +56,10 @@ public class LogSenderBeanConfig {
     @Bean
     public LogMessageSplitProcessor logMessageSplitProcessor() {
         return new LogMessageSplitProcessor();
+    }
+
+    @Bean
+    public LogSenderRouteBuilder logSenderRouteBuilder() {
+        return new LogSenderRouteBuilder();
     }
 }

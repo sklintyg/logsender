@@ -35,7 +35,6 @@ import se.inera.intyg.logsender.exception.TemporaryException;
  *
  * @author eriklupander
  */
-@Service
 public class LogSenderRouteBuilder extends SpringRouteBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(LogSenderRouteBuilder.class);

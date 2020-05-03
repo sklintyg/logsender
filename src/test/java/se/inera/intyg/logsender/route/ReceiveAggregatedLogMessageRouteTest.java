@@ -54,10 +54,10 @@ import se.inera.intyg.logsender.helper.TestDataHelper;
 import se.inera.intyg.logsender.testconfig.UnitTestConfig;
 
 @CamelSpringTest
+@ContextConfiguration(classes = UnitTestConfig.class, loader = AnnotationConfigContextLoader.class)
 @TestPropertySource("classpath:logsender/unit-test.properties")
-@ContextConfiguration(classes = {UnitTestConfig.class}, loader = AnnotationConfigContextLoader.class)
 @TestExecutionListeners(listeners = {DependencyInjectionTestExecutionListener.class,
-    DirtiesContextTestExecutionListener.class, TransactionalTestExecutionListener.class}) // Suppresses warning
+    DirtiesContextTestExecutionListener.class, TransactionalTestExecutionListener.class})
 public class ReceiveAggregatedLogMessageRouteTest {
 
     @Autowired

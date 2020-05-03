@@ -75,8 +75,6 @@ public class LogMessageAggregationProcessorTest {
     }
 
 
-    // Below chain of methods used for building a mock grouped exchange.
-
     private Exchange buildGroupedExchange(int exchangeSize, int resourcesPerMessageSize) {
         Exchange exchange = mock(Exchange.class);
         Message outerMessage = buildOuterMsg(exchangeSize, resourcesPerMessageSize);

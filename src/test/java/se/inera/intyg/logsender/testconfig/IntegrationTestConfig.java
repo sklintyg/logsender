@@ -19,34 +19,49 @@
 
 package se.inera.intyg.logsender.testconfig;
 
+import javax.jms.Queue;
+import org.apache.activemq.command.ActiveMQQueue;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.stereotype.Service;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import se.inera.intyg.logsender.client.mock.MockLogSenderClientImpl;
-import se.inera.intyg.logsender.config.LogSenderAppConfig;
 import se.inera.intyg.logsender.config.LogSenderBeanConfig;
 import se.inera.intyg.logsender.config.LogSenderCamelConfig;
 
 @Lazy
 @Configuration
-//@Import(LogSenderAppConfig.class)
-@ComponentScan(basePackages = {"se.inera.intyg.logsender", "se.inera.intyg.infra.monitoring"})
-
-//@PropertySource("classpath:logsender/integration-test.properties")
-//@TestPropertySource(locations = "classpath:logsender/integration-test.properties")
-//@ContextConfiguration(classes = {LogSenderBeanConfig.class, LogSenderCamelConfig.class})
-//@ContextConfiguration(locations = {"classpath:logsender", "classpath:se.inera.intyg.infra.monitoring"})
+@Import({LogSenderBeanConfig.class, LogSenderCamelConfig.class, IntegrationTestJmsConfig.class,
+    IntegrationTestBrokerService.class})
+@PropertySource({"classpath:default.properties", "classpath:logsender/integration-test.properties"})
+@ImportResource({"classpath:/basic-cache-config.xml", "classpath:/loggtjanst-stub-context.xml"})
 public class IntegrationTestConfig {
 
     @Bean
     public MockLogSenderClientImpl mockSendCertificateServiceClient() {
         return new MockLogSenderClientImpl();
+    }
+
+    @Bean
+    public Queue newLogMessageQueue() {
+        ActiveMQQueue newLogMessageQueue = new ActiveMQQueue();
+        newLogMessageQueue.setPhysicalName("newLogMessageQueue");
+        return newLogMessageQueue;
+    }
+
+    @Bean
+    public Queue newAggregatedLogMessageQueue() {
+        ActiveMQQueue newAggregatedLogMessageQueue = new ActiveMQQueue();
+        newAggregatedLogMessageQueue.setPhysicalName("newAggregatedLogMessageQueue");
+        return newAggregatedLogMessageQueue;
+    }
+
+    @Bean
+    public Queue newAggregatedLogMessageDLQ() {
+        ActiveMQQueue newAggregatedLogMessageDLQ = new ActiveMQQueue();
+        newAggregatedLogMessageDLQ.setPhysicalName("DLQ.newAggregatedLogMessageQueue");
+        return newAggregatedLogMessageDLQ;
     }
 }

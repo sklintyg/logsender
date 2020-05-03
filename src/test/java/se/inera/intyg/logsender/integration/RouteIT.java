@@ -28,18 +28,9 @@ import javax.jms.JMSException;
 import javax.jms.Queue;
 
 import org.apache.camel.CamelContext;
-import org.apache.camel.test.junit5.CamelTestSupport;
-import org.apache.camel.test.spring.CamelSpringJUnit4ClassRunner;
-import org.apache.camel.test.spring.CamelSpringRunner;
-import org.apache.camel.test.spring.CamelTestContextBootstrapper;
 import org.apache.camel.test.spring.junit5.CamelSpringTest;
-import org.apache.camel.test.spring.junit5.CamelSpringTestContextLoader;
-import org.apache.camel.test.spring.junit5.CamelSpringTestHelper;
-import org.apache.camel.test.spring.junit5.CamelSpringTestSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,11 +38,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jms.core.BrowserCallback;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.BootstrapWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
@@ -67,7 +56,6 @@ import se.inera.intyg.common.util.integration.json.CustomObjectMapper;
 import se.inera.intyg.infra.logmessages.ActivityType;
 import se.inera.intyg.infra.logmessages.PdlLogMessage;
 import se.inera.intyg.logsender.client.mock.MockLogSenderClientImpl;
-import se.inera.intyg.logsender.config.LogSenderAppConfig;
 import se.inera.intyg.logsender.helper.TestDataHelper;
 import se.inera.intyg.logsender.testconfig.IntegrationTestConfig;
 import se.inera.intyg.logsender.helper.ValueInclude;
@@ -83,10 +71,7 @@ import se.inera.intyg.logsender.helper.ValueInclude;
  * @author eriklupander
  */
 @CamelSpringTest
-@ExtendWith(SpringExtension.class)
-//@RunWith(CamelSpringJUnit4ClassRunner.class)
-@BootstrapWith(CamelTestContextBootstrapper.class)
-@TestPropertySource(locations = {"classpath:default.properties", "classpath:logsender/integration-test.properties"})
+@TestPropertySource({"classpath:logsender/integration-test.properties"})
 @ContextConfiguration(classes = IntegrationTestConfig.class, loader = AnnotationConfigContextLoader.class)
 @TestExecutionListeners(listeners = {DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
     TransactionalTestExecutionListener.class}) // Suppresses warning
