@@ -137,7 +137,9 @@ public class LogSenderWsConfig {
         final String keyStoreFile = Objects.requireNonNull(env.getProperty("sakerhetstjanst.ws.certificate.file"));
         final char[] keyStorePassword = Objects.requireNonNull(env.getProperty("sakerhetstjanst.ws.certificate.password")).toCharArray();
         final KeyStore keyStore = KeyStore.getInstance(keyStoreType);
-        keyStore.load(new FileInputStream(keyStoreFile), keyStorePassword);
+        try (FileInputStream keyStoreInputStream = new FileInputStream(keyStoreFile)) {
+            keyStore.load(keyStoreInputStream, keyStorePassword);
+        }
         KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(keyStoreType);
         keyManagerFactory.init(keyStore, keyStorePassword);
         return keyManagerFactory.getKeyManagers();
@@ -149,7 +151,9 @@ public class LogSenderWsConfig {
         final char[] trustStorePassword =
             Objects.requireNonNull(env.getProperty("sakerhetstjanst.ws.truststore.password")).toCharArray();
         final KeyStore trustStore = KeyStore.getInstance(trustStoreType);
-        trustStore.load(new FileInputStream(trustStoreFile), trustStorePassword);
+        try (FileInputStream trustStoreInputStream = new FileInputStream(trustStoreFile)) {
+            trustStore.load(trustStoreInputStream, trustStorePassword);
+        }
         TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(trustStoreType);
         trustManagerFactory.init(trustStore);
         return trustManagerFactory.getTrustManagers();
