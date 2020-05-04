@@ -1,5 +1,3 @@
-import org.gradle.api.tasks.testing.Test
-
 plugins {
     id 'maven'
     id 'idea'
@@ -61,15 +59,7 @@ gretty {
 test {
     useJUnitPlatform()
     exclude '**/*IT*'
-
-    jvmArgs = [
-            "-Dcatalina.base=${buildDir}/catalina.base",
-            "-Dspring.profiles.active=dev,wc-loggtjanst-stub,testability-api,caching-enabled",
-            "-Dcredentials.file=${projectDir}/log-sender-dummy-credentials.properties",
-            "-Dconfig.file=${projectDir}/log-sender-dev.properties",
-            "-Dlogback.file=classpath:logback-ocp.xml",
-            "-Djava.awt.headless=true"
-    ]
+    jvmArgs = gretty.jvmArgs
 }
 
 tasks.withType(War) {
@@ -80,15 +70,7 @@ task camelTest(type: Test) {
     useJUnitPlatform()
     outputs.upToDateWhen { false }
     include '**/*IT*'
-
-    jvmArgs = [
-            "-Dcatalina.base=${buildDir}/catalina.base",
-            "-Dspring.profiles.active=dev,wc-loggtjanst-stub,testability-api,caching-enabled",
-            "-Dcredentials.file=${projectDir}/log-sender-dummy-credentials.properties",
-            "-Dconfig.file=${projectDir}/log-sender-dev.properties",
-            "-Dlogback.file=classpath:logback-ocp.xml",
-            "-Djava.awt.headless=true"
-    ]
+    jvmArgs = gretty.jvmArgs
 }
 
 task tagRelease(type: TagReleaseTask)
@@ -122,9 +104,9 @@ dependencies {
     compile "org.apache.camel:camel-activemq:${camelVersion}"
     compile "org.apache.camel:camel-spring:${camelVersion}"
     compile "org.apache.camel:camel-jms:${camelVersion}"
-
     compile "org.apache.camel:camel-spring-javaconfig:${camelVersion}"
     compile "org.apache.camel:camel-direct:${camelVersion}"
+
     compile "org.apache.cxf:cxf-rt-frontend-jaxws:${apacheCXFVersion}"
     compile "org.apache.cxf:cxf-rt-transports-http:${apacheCXFVersion}"
     compile "org.apache.cxf:cxf-rt-features-logging:${apacheCXFVersion}"

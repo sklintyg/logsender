@@ -72,7 +72,6 @@ public class LogSenderWsConfig {
     @SchemaValidation(type = SchemaValidationType.BOTH)
     public StoreLogResponderInterface storeLogClient() throws UnrecoverableKeyException,
         CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
-        env.getActiveProfiles();
         JaxWsProxyFactoryBean jaxWsProxyFactoryBean = createJaxWsProxyFactoryBean();
         StoreLogResponderInterface storeLogClient =
             (StoreLogResponderInterface) jaxWsProxyFactoryBean.create();
