@@ -24,7 +24,8 @@ import java.util.List;
 
 import org.apache.camel.Body;
 import org.apache.camel.Message;
-import org.apache.camel.impl.DefaultMessage;
+import org.apache.camel.impl.DefaultCamelContext;
+import org.apache.camel.support.DefaultMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,7 +83,7 @@ public class LogMessageSplitProcessor {
             PdlLogMessage copiedPdlLogMsg = pdlLogMessage.copy(false);
             copiedPdlLogMsg.getPdlResourceList().add(resource);
 
-            DefaultMessage message = new DefaultMessage();
+            DefaultMessage message = new DefaultMessage(new DefaultCamelContext());
             message.setBody(objectMapper.writeValueAsString(copiedPdlLogMsg));
             answer.add(message);
         }

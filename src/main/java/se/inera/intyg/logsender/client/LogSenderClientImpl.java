@@ -44,7 +44,6 @@ import se.riv.informationsecurity.auditing.log.v2.ResultType;
  * Created by eriklupander on 2016-02-29.
  */
 public class LogSenderClientImpl implements LogSenderClient {
-
     private static final Logger LOG = LoggerFactory.getLogger(LogSenderClientImpl.class);
 
     @Value("${loggtjanst.logicalAddress}")
@@ -70,7 +69,6 @@ public class LogSenderClientImpl implements LogSenderClient {
 
         try {
             StoreLogResponseType response = storeLogClient.storeLog(logicalAddress, request);
-
             if (response.getResult().getResultCode() == ResultCodeType.OK) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Successfully sent {} PDL log entries for ID's: {}", logEntries.size(), logEntries.stream()
@@ -78,7 +76,6 @@ public class LogSenderClientImpl implements LogSenderClient {
                         .collect(Collectors.joining(", ")));
                 }
             }
-
             return response;
         } catch (WebServiceException e) {
             throw new LoggtjanstExecutionException(e);

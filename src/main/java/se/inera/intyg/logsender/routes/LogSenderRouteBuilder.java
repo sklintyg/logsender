@@ -19,12 +19,13 @@
 package se.inera.intyg.logsender.routes;
 
 import org.apache.camel.LoggingLevel;
+import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.processor.aggregate.GroupedExchangeAggregationStrategy;
-import org.apache.camel.spring.SpringRouteBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
+import se.inera.intyg.infra.logmessages.PdlLogMessage;
 import se.inera.intyg.logsender.exception.BatchValidationException;
 import se.inera.intyg.logsender.exception.TemporaryException;
 
@@ -33,7 +34,8 @@ import se.inera.intyg.logsender.exception.TemporaryException;
  *
  * @author eriklupander
  */
-public class LogSenderRouteBuilder extends SpringRouteBuilder {
+//public class LogSenderRouteBuilder extends SpringRouteBuilder {
+public class LogSenderRouteBuilder extends RouteBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(LogSenderRouteBuilder.class);
 
@@ -59,7 +61,7 @@ public class LogSenderRouteBuilder extends SpringRouteBuilder {
      */
     @Override
     public void configure() {
-        errorHandler(transactionErrorHandler().logExhausted(false));
+        errorHandler(defaultErrorHandler().logExhausted(false));
 
         // 1. Starts by splitting any inbound PdlLogMessage instances having more than one PdlResource into separate
         // PdlLogMessage instances, one per each PdlResource.
@@ -110,5 +112,4 @@ public class LogSenderRouteBuilder extends SpringRouteBuilder {
                 simple("ENTER - Temporary exception (redelivered) for logMessage batch: ${exception.message}").getText())
             .stop();
     }
-
 }

@@ -45,6 +45,7 @@ import se.inera.intyg.logsender.helper.ValueInclude;
  *
  * Created by eriklupander on 2017-10-24.
  */
+
 public class SimpleLogMessageSender {
 
     private static String url = ActiveMQConnection.DEFAULT_BROKER_URL;

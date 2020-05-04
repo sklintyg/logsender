@@ -18,13 +18,15 @@
  */
 package se.inera.intyg.logsender.service;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import org.apache.camel.impl.DefaultCamelContext;
+import org.apache.camel.support.DefaultMessage;
+import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import org.apache.camel.Message;
-import org.apache.camel.impl.DefaultMessage;
-import org.junit.Test;
 
 import se.inera.intyg.infra.logmessages.ActivityType;
 import se.inera.intyg.logsender.exception.PermanentException;
@@ -49,13 +51,14 @@ public class LogMessageSplitProcessorTest {
         assertEquals(3, messages.size());
     }
 
-    @Test(expected = PermanentException.class)
-    public void testNoResource() throws Exception {
-        testee.process(buildMessage(0));
+    @Test
+    public void testNoResource() {
+        assertThrows(PermanentException.class, () ->
+            testee.process(buildMessage(0)));
     }
 
     private Message buildMessage(int numberOfResources) {
-        DefaultMessage msg = new DefaultMessage();
+        DefaultMessage msg = new DefaultMessage(new DefaultCamelContext());
         msg.setBody(buildBody(numberOfResources));
         return msg;
     }

@@ -18,7 +18,7 @@
  */
 package se.inera.intyg.logsender.integration;
 
-import static com.jayway.awaitility.Awaitility.await;
+import static org.awaitility.Awaitility.await;
 
 import java.io.IOException;
 import java.util.Enumeration;
@@ -26,14 +26,11 @@ import java.util.concurrent.TimeUnit;
 
 import javax.jms.JMSException;
 import javax.jms.Queue;
-import javax.jms.TextMessage;
 
 import org.apache.camel.CamelContext;
-import org.apache.camel.test.spring.CamelSpringJUnit4ClassRunner;
-import org.apache.camel.test.spring.CamelTestContextBootstrapper;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.camel.test.spring.junit5.CamelSpringTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,9 +38,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jms.core.BrowserCallback;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.BootstrapWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
@@ -59,6 +57,7 @@ import se.inera.intyg.infra.logmessages.ActivityType;
 import se.inera.intyg.infra.logmessages.PdlLogMessage;
 import se.inera.intyg.logsender.client.mock.MockLogSenderClientImpl;
 import se.inera.intyg.logsender.helper.TestDataHelper;
+import se.inera.intyg.logsender.testconfig.IntegrationTestConfig;
 import se.inera.intyg.logsender.helper.ValueInclude;
 
 /**
@@ -71,9 +70,9 @@ import se.inera.intyg.logsender.helper.ValueInclude;
  *
  * @author eriklupander
  */
-@RunWith(CamelSpringJUnit4ClassRunner.class)
-@ContextConfiguration("/logsender/integration-test-certificate-sender-config.xml")
-@BootstrapWith(CamelTestContextBootstrapper.class)
+@CamelSpringTest
+@TestPropertySource({"classpath:logsender/integration-test.properties"})
+@ContextConfiguration(classes = IntegrationTestConfig.class, loader = AnnotationConfigContextLoader.class)
 @TestExecutionListeners(listeners = {DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
     TransactionalTestExecutionListener.class}) // Suppresses warning
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -102,11 +101,10 @@ public class RouteIT {
     private MockLogSenderClientImpl mockLogSenderClient;
 
     @Autowired
-    @Qualifier("webcertLogMessageSender")
     CamelContext camelContext;
 
-    @Before
-    public void resetStub() throws Exception {
+    @BeforeEach
+    public void resetStub() {
         mockLogSenderClient.reset();
     }
 
@@ -175,8 +173,7 @@ public class RouteIT {
         String body = buildPdlLogMessageWithInvalidResourceJson();
         jmsTemplate.send(sendQueue, session -> {
             try {
-                TextMessage textMessage = session.createTextMessage(body);
-                return textMessage;
+                return session.createTextMessage(body);
             } catch (JMSException e) {
                 throw new RuntimeException(e);
             }
@@ -222,11 +219,10 @@ public class RouteIT {
 
         jmsTemplate.send(sendQueue, session -> {
             try {
-                PdlLogMessage pdlLogMessage
-                    = TestDataHelper.buildBasePdlLogMessage(ActivityType.READ, 1, ValueInclude.INCLUDE, ValueInclude.INCLUDE);
+                PdlLogMessage pdlLogMessage = TestDataHelper.buildBasePdlLogMessage(ActivityType.READ,
+                    1, ValueInclude.INCLUDE, ValueInclude.INCLUDE);
                 pdlLogMessage.setSystemId("invalid");
-                TextMessage textMessage = session.createTextMessage(new CustomObjectMapper().writeValueAsString(pdlLogMessage));
-                return textMessage;
+                return session.createTextMessage(new CustomObjectMapper().writeValueAsString(pdlLogMessage));
             } catch (JMSException | JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
@@ -261,9 +257,7 @@ public class RouteIT {
     private void sendMessage(final ActivityType activityType, int numberOfResources) {
         jmsTemplate.send(sendQueue, session -> {
             try {
-                TextMessage textMessage = session
-                    .createTextMessage(TestDataHelper.buildBasePdlLogMessageAsJson(activityType, numberOfResources));
-                return textMessage;
+                return session.createTextMessage(TestDataHelper.buildBasePdlLogMessageAsJson(activityType, numberOfResources));
             } catch (JMSException e) {
                 throw new RuntimeException(e);
             }
@@ -293,7 +287,7 @@ public class RouteIT {
         return (numberOfReceivedMessages == expected);
     }
 
-    private Boolean expectedDLQMessages(int expectedDlqMessages) throws Exception {
+    private Boolean expectedDLQMessages(int expectedDlqMessages) {
         int numberOfDLQMessages = numberOfDLQMessages();
         LOG.info("numberOfDLQMessages: {}", numberOfDLQMessages);
         return (numberOfDLQMessages == expectedDlqMessages);

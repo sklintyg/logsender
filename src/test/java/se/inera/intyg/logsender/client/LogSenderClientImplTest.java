@@ -18,10 +18,11 @@
  */
 package se.inera.intyg.logsender.client;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -31,13 +32,21 @@ import java.util.List;
 
 import javax.xml.ws.WebServiceException;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
+import se.inera.intyg.logsender.testconfig.UnitTestConfig;
 import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogType;
@@ -48,14 +57,19 @@ import se.riv.informationsecurity.auditing.log.v2.ResultType;
 /**
  * Created by eriklupander on 2016-03-08.
  */
-@RunWith(MockitoJUnitRunner.class)
-public class LogSenderClientImplTest {
+
+@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
+@TestPropertySource(locations = {"classpath:logsender/unit-test.properties"})
+@ContextConfiguration(classes = {UnitTestConfig.class}, loader = AnnotationConfigContextLoader.class)
+class LogSenderClientImplTest {
 
     @Mock
     StoreLogResponderInterface storeLogResponderInterface;
 
+    @Autowired
     @InjectMocks
-    private LogSenderClientImpl testee;
+    private LogSenderClient testee;
 
     @Test
     public void testSendOk() {
@@ -91,10 +105,12 @@ public class LogSenderClientImplTest {
         verify(storeLogResponderInterface, times(0)).storeLog(anyString(), any(StoreLogType.class));
     }
 
-    @Test(expected = LoggtjanstExecutionException.class)
+    @Test
     public void testWebServiceExceptionCausesLoggtjanstExecutionException() {
-        when(storeLogResponderInterface.storeLog(anyString(), any(StoreLogType.class))).thenThrow(new WebServiceException("error"));
-        testee.sendLogMessage(buildLogEntries());
+        assertThrows(LoggtjanstExecutionException.class, () -> {
+            when(storeLogResponderInterface.storeLog(anyString(), any(StoreLogType.class))).thenThrow(new WebServiceException("error"));
+            testee.sendLogMessage(buildLogEntries());
+        });
     }
 
     private StoreLogResponseType buildOkResponse() {
@@ -120,8 +136,6 @@ public class LogSenderClientImplTest {
     }
 
     private LogType buildLogEntry() {
-        LogType logType = new LogType();
-        return logType;
+        return new LogType();
     }
-
 }

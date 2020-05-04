@@ -114,5 +114,4 @@ public class LogMessageSendProcessor {
             throw new IllegalArgumentException("Could not parse PdlLogMessage from log message JSON: " + e.getMessage());
         }
     }
-
 }

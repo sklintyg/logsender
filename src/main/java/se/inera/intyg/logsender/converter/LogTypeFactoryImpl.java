@@ -156,5 +156,4 @@ public class LogTypeFactoryImpl implements LogTypeFactory {
 
         return resource;
     }
-
 }

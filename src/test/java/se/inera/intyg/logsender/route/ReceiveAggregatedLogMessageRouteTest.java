@@ -20,29 +20,27 @@ package se.inera.intyg.logsender.route;
 
 import static org.apache.camel.component.mock.MockEndpoint.assertIsSatisfied;
 
-import java.util.Arrays;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.Collections;
 import javax.xml.ws.WebServiceException;
+import org.apache.camel.builder.AdviceWithRouteBuilder;
+import org.apache.camel.test.spring.junit5.CamelSpringTest;
+import org.junit.jupiter.api.Test;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.CamelExecutionException;
 import org.apache.camel.EndpointInject;
-import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.test.spring.CamelSpringJUnit4ClassRunner;
-import org.apache.camel.test.spring.CamelTestContextBootstrapper;
-import org.apache.camel.test.spring.MockEndpointsAndSkip;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.BootstrapWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
@@ -53,33 +51,37 @@ import se.inera.intyg.infra.logmessages.ActivityType;
 import se.inera.intyg.logsender.exception.PermanentException;
 import se.inera.intyg.logsender.exception.TemporaryException;
 import se.inera.intyg.logsender.helper.TestDataHelper;
+import se.inera.intyg.logsender.testconfig.UnitTestConfig;
 
-@RunWith(CamelSpringJUnit4ClassRunner.class)
-@ContextConfiguration("/logsender/unit-test-certificate-sender-config.xml")
-@BootstrapWith(CamelTestContextBootstrapper.class)
-@TestExecutionListeners(listeners = {DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
-    TransactionalTestExecutionListener.class}) // Suppresses warning
-@MockEndpointsAndSkip("bean:logMessageSendProcessor|direct:logMessagePermanentErrorHandlerEndpoint|direct:logMessageTemporaryErrorHandlerEndpoint")
+@CamelSpringTest
+@ContextConfiguration(classes = UnitTestConfig.class, loader = AnnotationConfigContextLoader.class)
+@TestPropertySource("classpath:logsender/unit-test.properties")
+@TestExecutionListeners(listeners = {DependencyInjectionTestExecutionListener.class,
+    DirtiesContextTestExecutionListener.class, TransactionalTestExecutionListener.class})
 public class ReceiveAggregatedLogMessageRouteTest {
 
     @Autowired
-    CamelContext camelContext;
+    private CamelContext camelContext;
 
-    @Produce(uri = "direct://receiveAggregatedLogMessageEndpoint")
-    private ProducerTemplate producerTemplate;
+    @Produce("direct://receiveAggregatedLogMessageEndpoint")
+    protected ProducerTemplate producerTemplate;
 
-    @EndpointInject(uri = "mock:bean:logMessageSendProcessor")
-    private MockEndpoint logMessageSendProcessor;
+    @EndpointInject("mock:bean:logMessageSendProcessor")
+    protected MockEndpoint logMessageSendProcessor;
 
-    @EndpointInject(uri = "mock:direct:logMessagePermanentErrorHandlerEndpoint")
-    private MockEndpoint logMessagePermanentErrorHandlerEndpoint;
+    @EndpointInject("mock:direct:logMessagePermanentErrorHandlerEndpoint")
+    protected MockEndpoint logMessagePermanentErrorHandlerEndpoint;
 
-    @EndpointInject(uri = "mock:direct:logMessageTemporaryErrorHandlerEndpoint")
-    private MockEndpoint logMessageTemporaryErrorHandlerEndpoint;
+    @EndpointInject("mock:direct:logMessageTemporaryErrorHandlerEndpoint")
+    protected MockEndpoint logMessageTemporaryErrorHandlerEndpoint;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    public void setup() throws Exception {
         MockEndpoint.resetMocks(camelContext);
+
+        AdviceWithRouteBuilder.adviceWith(camelContext, "aggregatedJmsToSenderRoute", in ->
+                in.mockEndpointsAndSkip("direct:logMessageTemporaryErrorHandlerEndpoint",
+                    "bean:logMessageSendProcessor", "direct:logMessagePermanentErrorHandlerEndpoint"));
     }
 
     @Test
@@ -92,10 +94,9 @@ public class ReceiveAggregatedLogMessageRouteTest {
 
         // When
         for (int a = 0; a < 1; a++) {
-            producerTemplate.sendBodyAndHeaders(Arrays.asList(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ)),
-                ImmutableMap.<String, Object>of());
+            producerTemplate.sendBodyAndHeaders(Collections.singletonList(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ)),
+                ImmutableMap.of());
         }
-
         // Then
         assertIsSatisfied(logMessageSendProcessor);
         assertIsSatisfied(logMessagePermanentErrorHandlerEndpoint);
@@ -106,12 +107,8 @@ public class ReceiveAggregatedLogMessageRouteTest {
     @DirtiesContext
     public void testPermanentException() throws InterruptedException {
         // Given
-        //        // Given
-        logMessageSendProcessor.whenAnyExchangeReceived(new Processor() {
-            @Override
-            public void process(Exchange exchange) throws Exception {
-                throw new PermanentException("");
-            }
+        logMessageSendProcessor.whenAnyExchangeReceived(exchange -> {
+            throw new PermanentException("");
         });
         logMessageSendProcessor.expectedMessageCount(1);
         logMessagePermanentErrorHandlerEndpoint.expectedMessageCount(1);
@@ -119,35 +116,8 @@ public class ReceiveAggregatedLogMessageRouteTest {
 
         // When
         for (int a = 0; a < 1; a++) {
-            producerTemplate.sendBodyAndHeaders(Arrays.asList(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ)),
-                ImmutableMap.<String, Object>of());
-        }
-
-        // Then
-        assertIsSatisfied(logMessageSendProcessor);
-        assertIsSatisfied(logMessagePermanentErrorHandlerEndpoint);
-        assertIsSatisfied(logMessageTemporaryErrorHandlerEndpoint);
-    }
-
-    @Test(expected = CamelExecutionException.class)
-    @DirtiesContext
-    public void testTemporaryException() throws InterruptedException {
-        // Given
-        //        // Given
-        logMessageSendProcessor.whenAnyExchangeReceived(new Processor() {
-            @Override
-            public void process(Exchange exchange) throws Exception {
-                throw new TemporaryException("");
-            }
-        });
-        logMessageSendProcessor.expectedMessageCount(1);
-        logMessagePermanentErrorHandlerEndpoint.expectedMessageCount(0);
-        logMessageTemporaryErrorHandlerEndpoint.expectedMessageCount(1);
-
-        // When
-        for (int a = 0; a < 1; a++) {
-            producerTemplate.sendBodyAndHeaders(Arrays.asList(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ)),
-                ImmutableMap.<String, Object>of());
+            producerTemplate.sendBodyAndHeaders(Collections.singletonList(
+                TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ)), ImmutableMap.of());
         }
 
         // Then
@@ -158,23 +128,47 @@ public class ReceiveAggregatedLogMessageRouteTest {
 
     @Test
     @DirtiesContext
-    public void testWebServiceException() throws InterruptedException {
-        // Given
-        //        // Given
-        logMessageSendProcessor.whenAnyExchangeReceived(new Processor() {
-            @Override
-            public void process(Exchange exchange) throws Exception {
-                throw new WebServiceException("");
+    public void testTemporaryException() {
+        assertThrows(CamelExecutionException.class, () -> {
+            // Given
+            logMessageSendProcessor.whenAnyExchangeReceived(exchange -> {
+                throw new TemporaryException("");
+            });
+            logMessageSendProcessor.expectedMessageCount(1);
+            logMessagePermanentErrorHandlerEndpoint.expectedMessageCount(0);
+            logMessageTemporaryErrorHandlerEndpoint.expectedMessageCount(1);
+
+            // When
+            for (int a = 0; a < 1; a++) {
+                producerTemplate.sendBodyAndHeaders(
+                    Collections.singletonList(TestDataHelper.buildBasePdlLogMessageAsJson(
+                        ActivityType.READ)), ImmutableMap.of());
             }
+
+            // Then
+            assertIsSatisfied(logMessageSendProcessor);
+            assertIsSatisfied(logMessagePermanentErrorHandlerEndpoint);
+            assertIsSatisfied(logMessageTemporaryErrorHandlerEndpoint);
         });
+    }
+
+    @Test
+    @DirtiesContext
+    public void testWebServiceException() throws Exception {
+
+        // Given
+        logMessageSendProcessor.whenAnyExchangeReceived(exchange -> {
+            throw new WebServiceException("");
+        });
+
         logMessageSendProcessor.expectedMessageCount(1);
         logMessagePermanentErrorHandlerEndpoint.expectedMessageCount(1);
         logMessageTemporaryErrorHandlerEndpoint.expectedMessageCount(0);
 
         // When
         for (int a = 0; a < 1; a++) {
-            producerTemplate.sendBodyAndHeaders(Arrays.asList(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ)),
-                ImmutableMap.<String, Object>of());
+            producerTemplate.sendBodyAndHeaders(Collections.singletonList(
+                TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ)), ImmutableMap.of());
         }
 
         // Then
