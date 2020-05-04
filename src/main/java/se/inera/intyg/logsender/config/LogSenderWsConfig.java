@@ -33,7 +33,6 @@ import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
-
 import org.apache.cxf.annotations.SchemaValidation;
 import org.apache.cxf.annotations.SchemaValidation.SchemaValidationType;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
@@ -124,10 +123,8 @@ public class LogSenderWsConfig {
         TLSClientParameters tlsClientParameters = new TLSClientParameters();
         tlsClientParameters.setDisableCNCheck(true);
         tlsClientParameters.setCipherSuitesFilter(setupCipherSuitesFilter());
-        if (!Arrays.asList(this.env.getActiveProfiles()).contains("dev")) {
-            tlsClientParameters.setKeyManagers(setupKeyManagers());
-            tlsClientParameters.setTrustManagers(setupTrustManagers());
-        }
+        tlsClientParameters.setKeyManagers(setupKeyManagers());
+        tlsClientParameters.setTrustManagers(setupTrustManagers());
         return tlsClientParameters;
     }
 
@@ -139,7 +136,7 @@ public class LogSenderWsConfig {
         try (FileInputStream keyStoreInputStream = new FileInputStream(keyStoreFile)) {
             keyStore.load(keyStoreInputStream, keyStorePassword);
         }
-        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(keyStoreType);
+        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         keyManagerFactory.init(keyStore, keyStorePassword);
         return keyManagerFactory.getKeyManagers();
     }
@@ -153,7 +150,7 @@ public class LogSenderWsConfig {
         try (FileInputStream trustStoreInputStream = new FileInputStream(trustStoreFile)) {
             trustStore.load(trustStoreInputStream, trustStorePassword);
         }
-        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(trustStoreType);
+        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
         trustManagerFactory.init(trustStore);
         return trustManagerFactory.getTrustManagers();
     }
