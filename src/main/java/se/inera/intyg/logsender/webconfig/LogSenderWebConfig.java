@@ -26,6 +26,7 @@ import org.apache.cxf.transport.servlet.CXFServlet;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+import org.springframework.web.servlet.DispatcherServlet;
 import se.inera.intyg.common.util.logging.LogbackConfiguratorContextListener;
 import se.inera.intyg.logsender.config.LogSenderAppConfig;
 
@@ -41,6 +42,11 @@ public class LogSenderWebConfig implements WebApplicationInitializer {
         servletContext.setInitParameter("logbackConfigParameter", "logback.file");
         servletContext.addListener(new LogbackConfiguratorContextListener());
         servletContext.addListener(new ContextLoaderListener(webAppContext));
+
+        ServletRegistration.Dynamic restServlet = servletContext
+            .addServlet("loggtjanst-api", new DispatcherServlet(webAppContext));
+        restServlet.setLoadOnStartup(1);
+        restServlet.addMapping("/api/*");
 
         ServletRegistration.Dynamic cxfServlet = servletContext
             .addServlet("ws", new CXFServlet());
