@@ -83,7 +83,10 @@ public class LoggingDispatcherServlet extends DispatcherServlet {
             int length = Math.min(buf.length, PAYLOAD_LOG_SIZE);
             try {
                 return new String(buf, 0, length, wrapper.getCharacterEncoding())
-                    + (buf.length > PAYLOAD_LOG_SIZE ? "'...(truncated by Logger)" : "'");
+                        .replaceAll(" +", buf.length > PAYLOAD_LOG_SIZE * 2 ? "" : " ")
+                        .replaceAll("(\r\n)", " ")
+                    + (buf.length > PAYLOAD_LOG_SIZE
+                    ? "'...(truncated by Logger at " + PAYLOAD_LOG_SIZE + " chars)" : "'");
             } catch (UnsupportedEncodingException ex) {
                 // NOOP
             }
@@ -100,6 +103,7 @@ public class LoggingDispatcherServlet extends DispatcherServlet {
     }
 
     private static class LogMessage {
+
         private int httpStatus;
         private String responsePayload;
         private String javaMethod;
@@ -131,8 +135,6 @@ public class LoggingDispatcherServlet extends DispatcherServlet {
             return "{"
                 + "httpStatus=" + httpStatus
                 + ", responsePayload='" + responsePayload
-                    .replaceAll("(\r\n|\n)", " ")
-                    .replaceAll("  +", "")
                 + ", javaMethod='" + javaMethod + '\''
                 + ", clientIp='" + clientIp + '\''
                 + ", path='" + path + '\''
@@ -140,5 +142,4 @@ public class LoggingDispatcherServlet extends DispatcherServlet {
                 + '}';
         }
     }
-
 }
