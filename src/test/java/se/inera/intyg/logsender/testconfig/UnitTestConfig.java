@@ -24,8 +24,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.PropertySource;
 
+import se.inera.intyg.infra.loggtjanststub.LoggtjanstStubConfig;
 import se.inera.intyg.logsender.client.mock.MockLogSenderClientImpl;
 import se.inera.intyg.logsender.config.LogSenderBeanConfig;
 import se.inera.intyg.logsender.config.LogSenderCamelConfig;
@@ -34,8 +36,8 @@ import se.inera.intyg.logsender.mocks.MockTransactionManager;
 @Lazy
 @Configuration
 @Import({LogSenderBeanConfig.class, LogSenderCamelConfig.class})
-@PropertySource({"classpath:default.properties"})
-@ImportResource({"classpath:/basic-cache-config.xml", "classpath:/loggtjanst-stub-context.xml"})
+@PropertySource("classpath:default.properties")
+@ImportResource("classpath:/basic-cache-config.xml")
 public class UnitTestConfig {
 
     @Bean
@@ -48,4 +50,3 @@ public class UnitTestConfig {
         return new MockLogSenderClientImpl();
     }
 }
-

@@ -21,7 +21,6 @@ package se.inera.intyg.logsender.config;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.spring.SpringBus;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -29,15 +28,15 @@ import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.context.support.ResourceBundleMessageSource;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import se.inera.intyg.infra.loggtjanststub.LoggtjanstStubConfig;
 
 @Configuration
-@EnableWebMvc
 @PropertySource("classpath:default.properties")
 @PropertySource("file:${config.file}")
 @PropertySource("file:${credentials.file}")
-@Import({LogSenderBeanConfig.class, LogSenderJmsConfig.class, LogSenderCamelConfig.class, LogSenderWsConfig.class})
-@ImportResource(locations = {"classpath:basic-cache-config.xml", "classpath:/loggtjanst-stub-context.xml"})
+@Import({LogSenderBeanConfig.class, LogSenderJmsConfig.class, LogSenderCamelConfig.class, LogSenderWsConfig.class,
+    LoggtjanstStubConfig.class})
+@ImportResource(locations = "classpath:basic-cache-config.xml")
 public class LogSenderAppConfig {
 
     @Bean

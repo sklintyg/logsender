@@ -89,7 +89,7 @@ public class LogSenderWsConfig {
     private LoggingFeature loggingFeature() {
         LoggingFeature loggingFeature = new LoggingFeature();
         loggingFeature.setLimit(LOG_MESSAGE_SIZE * LOG_MESSAGE_SIZE);
-        loggingFeature.setPrettyLogging(true);
+        loggingFeature.setPrettyLogging(false);
         return loggingFeature;
     }
 

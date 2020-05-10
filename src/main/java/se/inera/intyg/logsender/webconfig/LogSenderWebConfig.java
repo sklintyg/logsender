@@ -43,10 +43,10 @@ public class LogSenderWebConfig implements WebApplicationInitializer {
         servletContext.addListener(new LogbackConfiguratorContextListener());
         servletContext.addListener(new ContextLoaderListener(webAppContext));
 
-        ServletRegistration.Dynamic restServlet = servletContext
-            .addServlet("loggtjanst-api", new DispatcherServlet(webAppContext));
-        restServlet.setLoadOnStartup(1);
-        restServlet.addMapping("/api/*");
+        ServletRegistration.Dynamic mvcServlet = servletContext
+            .addServlet("loggtjanst-api", new LoggingDispatcherServlet(webAppContext));
+        mvcServlet.setLoadOnStartup(1);
+        mvcServlet.addMapping("/api/*");
 
         ServletRegistration.Dynamic cxfServlet = servletContext
             .addServlet("ws", new CXFServlet());
