@@ -2,14 +2,14 @@ plugins {
     id 'maven'
     id 'idea'
     id 'war'
-    id "se.inera.intyg.plugin.common" version "3.1.1"
+    id "se.inera.intyg.plugin.common" version "3.1.2"
     id "org.gretty" version "3.0.1"
     id "io.spring.dependency-management" version "1.0.9.RELEASE"
 }
 
 ext {
-    commonVersion = System.properties['commonVersion'] ?: '3.13.1-SNAPSHOT'
-    infraVersion = System.properties['infraVersion'] ?: '3.13.1-SNAPSHOT'
+    commonVersion = System.properties['commonVersion'] ?: '3.14.0-SNAPSHOT'
+    infraVersion = System.properties['infraVersion'] ?: '3.14.0-SNAPSHOT'
 
     rivtaStoreLogSchemasVersion = "2.0.1"
 
