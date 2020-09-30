@@ -54,7 +54,7 @@ Not applicable for Logsender
 
 Software artifacts are located at, and downloaded from:
 
-* From Installing Client - https://build-inera.nordicmedtest.se/nexus/repository/releases/se/inera/intyg/logsender/
+* From Installing Client - https://nexus.drift.inera.se/repository/maven-releases/se/inera/intyg/logsender/
 * From OpenShift Cluster - docker.drift.inera.se/intyg/
 
 ### 2.7 Access to OpenShift Cluster
