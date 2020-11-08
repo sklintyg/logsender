@@ -50,7 +50,7 @@ gretty {
             "-Dprojectdir=${projectDir}",
             "-Dcredentials.file=${projectDir}/log-sender-dummy-credentials.properties",
             "-Dconfig.file=${projectDir}/log-sender-dev.properties",
-            "-Dlogback.file=classpath:logback-ocp.xml",
+            "-Dlogback.file=classpath:logback-dev.xml",
             "-Djava.awt.headless=true"
     ]
 
