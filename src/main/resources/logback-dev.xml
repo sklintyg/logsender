@@ -20,6 +20,8 @@
 
 <configuration>
 
+  <property name="APP_NAME" value="${APP_NAME:-logsender}"/>
+
   <include resource="logback-dev-base.xml"/>
 
   <root level="info">
