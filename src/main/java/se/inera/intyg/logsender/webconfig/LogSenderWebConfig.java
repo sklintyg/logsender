@@ -26,7 +26,7 @@ import org.apache.cxf.transport.servlet.CXFServlet;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
-import se.inera.intyg.common.util.logging.LogbackConfiguratorContextListener;
+import se.inera.intyg.infra.monitoring.logging.LogbackConfiguratorContextListener;
 import se.inera.intyg.logsender.config.LogSenderAppConfig;
 
 public class LogSenderWebConfig implements WebApplicationInitializer {
