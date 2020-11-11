@@ -30,7 +30,7 @@ node {
 
     stage('sonarqube') {
         try {
-            shgradle11 "build -P codeQuality jacocoTestReport sonarqube ${versionFlags}"
+            shgradle11 "build -P codeQuality jacocoTestReport sonarqube -DsonarProjectPrefix=intyg- ${versionFlags}"
         } finally {
             publishHTML allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: 'build/reports/jacoco/test/html', \
             reportFiles: 'index.html', reportName: 'Code coverage'
