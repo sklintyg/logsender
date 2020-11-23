@@ -35,14 +35,19 @@ uploadArchives.repositories.mavenDeployer {
 }
 
 gretty {
+    def instance = System.properties['instance'] ?: '0'
+    def useHttpPort = 8010 + (instance as Integer)
+    def useInternalHttpPort = 8110 + (instance as Integer)
+
     servletContainer = 'tomcat9'
     contextPath = '/logsender'
 
     integrationTestTask = null
     scanInterval = 0
-    httpPort = 9099
-    debugPort = 5009
+    debugPort = 8810 + (instance as Integer)
+    portPropertiesFileName = "gretty_ports_${instance}.properties"
     debugSuspend = false
+    serverConfigFile = "tomcat-gretty-${instance}.xml"
 
     jvmArgs = [
             "-Dcatalina.base=${buildDir}/catalina.base",
@@ -51,7 +56,8 @@ gretty {
             "-Dcredentials.file=${projectDir}/log-sender-dummy-credentials.properties",
             "-Dconfig.file=${projectDir}/log-sender-dev.properties",
             "-Dlogback.file=classpath:logback-dev.xml",
-            "-Djava.awt.headless=true"
+            "-Djava.awt.headless=true",
+            "-Ddev.http.port=${useHttpPort}"
     ]
 
     extraResourceBase 'build/apps/'
