@@ -1,17 +1,9 @@
 #!/bin/bash
 
-export ACTIVEMQ_BROKER_USERNAME=${ACTIVEMQ_BROKER_USERNAME:-admin}
-export ACTIVEMQ_BROKER_PASSWORD=${ACTIVEMQ_BROKER_PASSWORD:-admin}
-
-export SPRING_PROFILES_ACTIVE="${SPRING_PROFILES_ACTIVE:-test,wc-loggtjanst-stub,testability-api,caching-enabled}"
+APP_DIR="/opt/$APP_NAME"
 
 export CATALINA_OPTS_APPEND="\
--Dconfig.file=/opt/$APP_NAME/config/logsender.properties \
--Dconfig.dir=/opt/$APP_NAME/config \
--Dlogback.file=classpath:logback-ocp.xml \
--Dcertificate.folder=/opt/$APP_NAME/certifikat \
+-Dapplication.dir=$APP_DIR \
+-Dlogback.file=$APP_DIR/config/logback-ocp.xml \
 -Djava.awt.headless=true \
--Dcredentials.file=/opt/$APP_NAME/env/secret-env.properties \
--Dresources.folder=/tmp/resources \
--Dfile.encoding=UTF-8 \
--DbaseUrl=http://${APP_NAME}:8080"
+-Dfile.encoding=UTF-8"

@@ -38,26 +38,28 @@ gretty {
     def instance = System.properties['instance'] ?: '0'
     def useHttpPort = 8010 + (instance as Integer)
     def useInternalHttpPort = 8110 + (instance as Integer)
+    def applicationDir = "${projectDir}/devops/dev"
 
     servletContainer = 'tomcat9'
-    contextPath = '/logsender'
+    contextPath = '/'
 
     integrationTestTask = null
     scanInterval = 0
     debugPort = 8810 + (instance as Integer)
     portPropertiesFileName = "gretty_ports_${instance}.properties"
     debugSuspend = false
-    serverConfigFile = "tomcat-gretty-${instance}.xml"
+    serverConfigFile = "tomcat-gretty.xml"
 
     jvmArgs = [
             "-Dcatalina.base=${buildDir}/catalina.base",
             "-Dspring.profiles.active=dev,wc-loggtjanst-stub,testability-api,caching-enabled",
-            "-Dprojectdir=${projectDir}",
-            "-Dcredentials.file=${projectDir}/log-sender-dummy-credentials.properties",
-            "-Dconfig.file=${projectDir}/log-sender-dev.properties",
-            "-Dlogback.file=classpath:logback-dev.xml",
+            "-Dapplication.dir=${applicationDir}",
+            "-Dlogback.file=${applicationDir}/config/logback-dev.xml",
             "-Djava.awt.headless=true",
-            "-Ddev.http.port=${useHttpPort}"
+            "-Dfile.encoding=UTF-8",
+            "-Ddev.config.file=${applicationDir}/config/application-dev.properties",
+            "-Ddev.http.port=${useHttpPort}",
+            "-Ddev.http.port.internal=${useInternalHttpPort}"
     ]
 
     extraResourceBase 'build/apps/'
