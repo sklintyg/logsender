@@ -35,7 +35,7 @@ import se.inera.intyg.logsender.config.LogSenderCamelConfig;
 @Configuration
 @Import({LogSenderBeanConfig.class, LogSenderCamelConfig.class, IntegrationTestJmsConfig.class,
     IntegrationTestBrokerService.class})
-@PropertySource({"classpath:default.properties", "classpath:logsender/integration-test.properties"})
+@PropertySource({"classpath:application.properties", "classpath:logsender/integration-test.properties"})
 @ImportResource({"classpath:/basic-cache-config.xml", "classpath:/loggtjanst-stub-context.xml"})
 public class IntegrationTestConfig {
 
