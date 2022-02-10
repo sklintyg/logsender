@@ -16,6 +16,7 @@ ext {
     apacheCXFVersion = "3.2.4"
     camelVersion = "3.2.0"
     geronimoVersion = "1.1.1"
+    h2Version = "2.1.210"
 
     springbootMavenBomVersion = "2.2.5.RELEASE"
 }
@@ -135,7 +136,7 @@ dependencies {
 
     gretty "org.apache.activemq:activemq-client"
     gretty "org.apache.activemq:activemq-broker"
-    gretty "com.h2database:h2"
+    gretty "com.h2database:h2:${h2Version}"
     gretty "mysql:mysql-connector-java"
 }
 
