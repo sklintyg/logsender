@@ -13,6 +13,7 @@ ext {
 
     rivtaStoreLogSchemasVersion = "2.0.1"
 
+    springFrameworkVersion = "5.2.20.RELEASE" // included because of vulnerability (CVE-2022-22965) in 5.2.4.RELEASE
     apacheCXFVersion = "3.2.4"
     camelVersion = "3.2.0"
     geronimoVersion = "1.1.1"
@@ -106,9 +107,58 @@ dependencies {
     compile "jakarta.ws.rs:jakarta.ws.rs-api"
     compile "org.glassfish.jaxb:jaxb-runtime"
 
-    compile "org.springframework:spring-jms"
-    compile "org.springframework:spring-web"
-    compile "org.springframework:spring-webmvc"
+    // Exclude and import of non-BOM version of Spring Framework due to
+    // vulnerability (CVE-2022-22965) in BOM-version 5.2.4.RELEASE.
+    compile("org.springframework:spring-web") {
+        version {
+            strictly "${springFrameworkVersion}"
+        }
+    }
+    compile("org.springframework:spring-webmvc") {
+        version {
+            strictly "${springFrameworkVersion}"
+        }
+    }
+    compile("org.springframework:spring-aop") {
+        version {
+            strictly "${springFrameworkVersion}"
+        }
+    }
+    compile("org.springframework:spring-beans") {
+        version {
+            strictly "${springFrameworkVersion}"
+        }
+    }
+    compile("org.springframework:spring-context") {
+        version {
+            strictly "${springFrameworkVersion}"
+        }
+    }
+    compile("org.springframework:spring-core") {
+        version {
+            strictly "${springFrameworkVersion}"
+        }
+    }
+    compile("org.springframework:spring-expression") {
+        version {
+            strictly "${springFrameworkVersion}"
+        }
+    }
+    compile("org.springframework:spring-jms") {
+        version {
+            strictly "${springFrameworkVersion}"
+        }
+    }
+    compile("org.springframework:spring-tx") {
+        version {
+            strictly "${springFrameworkVersion}"
+        }
+    }
+    compile("org.springframework:spring-messaging") {
+        version {
+            strictly "${springFrameworkVersion}"
+        }
+    }
 
     compile "org.apache.activemq:activemq-spring"
     compile "org.apache.camel:camel-activemq:${camelVersion}"
