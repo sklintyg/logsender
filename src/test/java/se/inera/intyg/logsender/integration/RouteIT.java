@@ -39,12 +39,7 @@ import org.springframework.jms.core.BrowserCallback;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.support.AnnotationConfigContextLoader;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
-import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
-import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -72,9 +67,7 @@ import se.inera.intyg.logsender.helper.ValueInclude;
  */
 @CamelSpringTest
 @TestPropertySource({"classpath:logsender/integration-test.properties"})
-@ContextConfiguration(classes = IntegrationTestConfig.class, loader = AnnotationConfigContextLoader.class)
-@TestExecutionListeners(listeners = {DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
-    TransactionalTestExecutionListener.class}) // Suppresses warning
+@ContextConfiguration(classes = IntegrationTestConfig.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class RouteIT {
 
@@ -268,8 +261,8 @@ public class RouteIT {
         sendMessage(activityType, 1);
     }
 
-    private int numberOfDLQMessages() {
-        Integer count = (Integer) jmsTemplate.browse(newAggregatedLogMessageDLQ, (BrowserCallback<Object>) (session, browser) -> {
+    private Integer numberOfDLQMessages() {
+        return (Integer) jmsTemplate.browse(newAggregatedLogMessageDLQ, (BrowserCallback<Object>) (session, browser) -> {
             int counter = 0;
             Enumeration<?> msgs = browser.getEnumeration();
             while (msgs.hasMoreElements()) {
@@ -278,7 +271,6 @@ public class RouteIT {
             }
             return counter;
         });
-        return count;
     }
 
     private Boolean messagesReceived(int expected) {

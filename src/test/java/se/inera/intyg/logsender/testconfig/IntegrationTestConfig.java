@@ -28,14 +28,12 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.PropertySource;
 import se.inera.intyg.logsender.client.mock.MockLogSenderClientImpl;
 import se.inera.intyg.logsender.config.LogSenderBeanConfig;
-import se.inera.intyg.logsender.config.LogSenderCamelConfig;
 
 @Lazy
 @Configuration
-@Import({LogSenderBeanConfig.class, LogSenderCamelConfig.class, IntegrationTestJmsConfig.class,
-    IntegrationTestBrokerService.class})
+@Import({LogSenderBeanConfig.class, IntegrationTestJmsConfig.class, IntegrationTestBrokerService.class})
 @PropertySource({"classpath:application.properties", "classpath:logsender/integration-test.properties"})
-@ImportResource({"classpath:/basic-cache-config.xml", "classpath:/loggtjanst-stub-context.xml"})
+@ImportResource({"classpath:camel-context.xml","classpath:/basic-cache-config.xml", "classpath:/loggtjanst-stub-context.xml"})
 public class IntegrationTestConfig {
 
     @Bean
