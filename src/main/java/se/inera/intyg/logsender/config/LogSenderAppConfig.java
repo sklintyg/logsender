@@ -31,8 +31,8 @@ import org.springframework.context.support.ResourceBundleMessageSource;
 @Configuration
 @PropertySource("classpath:application.properties")
 @PropertySource(ignoreResourceNotFound = true, value = "file:${dev.config.file}")
-@Import({LogSenderBeanConfig.class, LogSenderJmsConfig.class, LogSenderCamelConfig.class, LogSenderWsConfig.class})
-@ImportResource(locations = {"classpath:basic-cache-config.xml", "classpath:/loggtjanst-stub-context.xml"})
+@Import({LogSenderBeanConfig.class, LogSenderJmsConfig.class, LogSenderWsConfig.class})
+@ImportResource(locations = {"classpath:camel-context.xml", "classpath:basic-cache-config.xml", "classpath:/loggtjanst-stub-context.xml"})
 public class LogSenderAppConfig {
 
     @Bean

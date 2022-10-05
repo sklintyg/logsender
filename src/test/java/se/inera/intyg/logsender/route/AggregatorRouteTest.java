@@ -23,20 +23,16 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
-import org.apache.camel.builder.AdviceWithRouteBuilder;
+import org.apache.camel.builder.AdviceWith;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.spring.junit5.CamelSpringTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.support.AnnotationConfigContextLoader;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
-import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
-import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -46,9 +42,8 @@ import se.inera.intyg.logsender.testconfig.UnitTestConfig;
 
 @CamelSpringTest
 @TestPropertySource(locations = "classpath:logsender/unit-test.properties")
-@ContextConfiguration(classes = {UnitTestConfig.class}, loader = AnnotationConfigContextLoader.class)
-@TestExecutionListeners(listeners = {DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
-    TransactionalTestExecutionListener.class})
+@ContextConfiguration(classes = {UnitTestConfig.class})
+@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class AggregatorRouteTest {
 
     @Autowired
@@ -71,29 +66,23 @@ public class AggregatorRouteTest {
 
     @BeforeEach
     public void setup() throws Exception {
-        MockEndpoint.resetMocks(camelContext);
-
-        AdviceWithRouteBuilder.adviceWith(camelContext, "aggregatorRoute", in ->
+        AdviceWith.adviceWith(camelContext, "aggregatorRoute", in ->
             in.mockEndpointsAndSkip("bean:logMessageAggregationProcessor", "direct:receiveAggregatedLogMessageEndpoint",
                 "direct:logMessageTemporaryErrorHandlerEndpoint", "direct:logMessagePermanentErrorHandlerEndpoint"));
     }
 
     @Test
-    @DirtiesContext
     public void testNormalLogStoreRoute() throws InterruptedException {
-        // Given
         logMessageAggregationProcessor.expectedMessageCount(1);
         newAggregatedLogMessageQueue.expectedMessageCount(1);
         logMessagePermanentErrorHandlerEndpoint.expectedMessageCount(0);
         logMessageTemporaryErrorHandlerEndpoint.expectedMessageCount(0);
 
-        // When
         for (int a = 0; a < 5; a++) {
             producerTemplate
                 .sendBodyAndHeaders(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ), ImmutableMap.of());
         }
 
-        // Then
         assertIsSatisfied(logMessageAggregationProcessor);
         assertIsSatisfied(newAggregatedLogMessageQueue);
         assertIsSatisfied(logMessagePermanentErrorHandlerEndpoint);
@@ -101,22 +90,17 @@ public class AggregatorRouteTest {
     }
 
     @Test
-    @DirtiesContext
     public void testNoMessagesReceivedWhenMessageCountLessThanBatchSize() throws InterruptedException {
-        // Given
         logMessageAggregationProcessor.expectedMessageCount(0);
         newAggregatedLogMessageQueue.expectedMessageCount(0);
         logMessagePermanentErrorHandlerEndpoint.expectedMessageCount(0);
         logMessageTemporaryErrorHandlerEndpoint.expectedMessageCount(0);
 
-        // When
         for (int a = 0; a < 4; a++) {
             producerTemplate
                 .sendBodyAndHeaders(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ), ImmutableMap.of());
-
         }
 
-        // Then
         assertIsSatisfied(logMessageAggregationProcessor);
         assertIsSatisfied(newAggregatedLogMessageQueue);
         assertIsSatisfied(logMessagePermanentErrorHandlerEndpoint);

@@ -34,7 +34,6 @@ import se.inera.intyg.logsender.exception.TemporaryException;
  *
  * @author eriklupander
  */
-//public class LogSenderRouteBuilder extends SpringRouteBuilder {
 public class LogSenderRouteBuilder extends RouteBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(LogSenderRouteBuilder.class);
@@ -91,13 +90,13 @@ public class LogSenderRouteBuilder extends RouteBuilder {
         from("direct:logMessagePermanentErrorHandlerEndpoint").routeId("permanentErrorLogging")
             .log(LoggingLevel.ERROR, LOG,
                 simple("ENTER - Permanent exception for LogMessage batch: ${exception.message}\n ${exception.stacktrace}")
-                    .getText())
+                    .toString())
             .stop();
 
         from("direct:logMessageBatchValidationErrorHandlerEndpoint").routeId("batchValidationErrorLogging")
             .log(LoggingLevel.ERROR, LOG,
                 simple("ENTER - Batch validation exception for LogMessage batch: ${exception.message}\n ${exception.stacktrace}")
-                    .getText())
+                    .toString())
             .to(newAggregatedLogMessageDLQ)
             .stop();
 
@@ -106,10 +105,10 @@ public class LogSenderRouteBuilder extends RouteBuilder {
             .when(header("JMSRedelivered").isEqualTo("false"))
             .log(LoggingLevel.ERROR, LOG,
                 simple("ENTER - Temporary exception for logMessage batch: ${exception.message}\n ${exception.stacktrace}")
-                    .getText())
+                    .toString())
             .otherwise()
             .log(LoggingLevel.WARN, LOG,
-                simple("ENTER - Temporary exception (redelivered) for logMessage batch: ${exception.message}").getText())
+                simple("ENTER - Temporary exception (redelivered) for logMessage batch: ${exception.message}").toString())
             .stop();
     }
 }
