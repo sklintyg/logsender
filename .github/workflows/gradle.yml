@@ -3,9 +3,10 @@
 
 name: Java CI with Gradle
 
-on:
-  pull_request:
-    branches: [ release/2021-2 ]
+# Build is currently not working due to dependencies requiring VPN to download
+#on:
+#  pull_request:
+#    branches: [ release/2021-2 ]
 
 jobs:
   build:
@@ -22,4 +23,4 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
-      run: ./gradlew --no-daemon build -PcodeQuality -DgruntColors=false -DcommonVersion=3.18.0.+ -DinfraVersion=3.18.0.+
+      run: ./gradlew --no-daemon build -PcodeQuality -DgruntColors=false -DcommonVersion=3.19.0.+ -DinfraVersion=3.19.0.+

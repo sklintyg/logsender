@@ -8,16 +8,16 @@ plugins {
 }
 
 ext {
-    commonVersion = System.properties['commonVersion'] ?: '3.18.0-SNAPSHOT'
-    infraVersion = System.properties['infraVersion'] ?: '3.18.0-SNAPSHOT'
+    commonVersion = System.properties['commonVersion'] ?: '3.19.0-SNAPSHOT'
+    infraVersion = System.properties['infraVersion'] ?: '3.19.0-SNAPSHOT'
 
     rivtaStoreLogSchemasVersion = "2.0.1"
 
-    apacheCXFVersion = "3.5.3"
+    apacheCXFVersion = "3.5.5"
     camelVersion = "3.18.2"
     geronimoVersion = "1.1.1"
 
-    springbootMavenBomVersion = "2.7.3"
+    springbootMavenBomVersion = "2.7.6"
 }
 
 group = 'se.inera.intyg.logsender'
