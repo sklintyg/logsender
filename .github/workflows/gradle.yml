@@ -3,9 +3,10 @@
 
 name: Java CI with Gradle
 
-on:
-  pull_request:
-    branches: [ release/2021-2 ]
+# Build is currently not working due to dependencies requiring VPN to download
+#on:
+#  pull_request:
+#    branches: [ release/2021-2 ]
 
 jobs:
   build:
