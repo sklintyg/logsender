@@ -1,0 +1,89 @@
+@Library( 'essLib')_
+
+//
+// Context
+//
+String gitUrl
+String gitBranch
+String buildBranch
+String buildTag
+String project
+String artifact
+String version
+Map    cloneInfo
+List   culprits = []
+String commit
+
+//
+// Pipeline
+//
+try
+{
+    node('linux')
+    {
+        stage( 'Setup')
+        {
+            //
+            // Setup environment
+            //
+            gitUrl      = essJob.getProperty( name:'git.url', value:essJob.getScmUrl())
+            gitBranch   = essJob.getProperty( name:'git.branch', value:'master')
+            buildBranch = gitBranch
+            buildTag    = ''
+
+            cloneInfo = essGit.clone url: gitUrl, branch: buildBranch
+
+            //
+            // If the job was started manually, ask for the branch to build
+            //
+            if( essJob.isStartedManually())
+            {
+                buildBranch = essAsk.askForBranch default: gitBranch
+
+                cloneInfo = essGit.checkoutRef url: gitUrl, branch: buildBranch
+            }
+
+            buildTag = (gitBranch == buildBranch) ? '' : essJob.getBuildTagFromBranchName( branch: buildBranch)
+
+            essJob.tagBuildName tag: buildTag
+
+            commit   = essGit.getCommit()
+            project  = essJob.getProperty( name:'project.name')
+            artifact = essJob.getProperty( name:'artifact.name')
+            version  = essCmn.getVersion()
+            culprits = essGit.getCulpritsMail( info:cloneInfo)
+        }
+
+        stage( 'Build')
+        {
+            agent {
+              docker {
+                image 'gradle:6.9.2-jdk11'
+                reuseNode true
+              }
+            }
+            steps {
+              sh 'gradle build --no-daemon -PcodeQuality -DbuildVersion=0.1.0  -DinfraVersion=3.19.0.+ -DcommonVersion=3.19.0.+ -DrefDataVersion=1.0-SNAPSHOT -Dfile.encoding=UTF-8'
+            }
+        }
+
+        stage( 'Build Image')
+        {
+            essDocker.build( project:project, name:artifact, version:version, commit:commit, url:gitUrl, path:'docker/target/docker', tag:buildTag)
+        }
+
+        stage( 'Start downstream jobs')
+        {
+            if( ! buildTag)
+            {
+                essJob.startJobs( parameters: ['metrics-demo-ms':version, commit: commit])
+            }
+        }
+
+        essNotify.success()
+    }
+}
+catch( error)
+{
+    essNotify.error( exception:error, recipients:culprits)
+}
