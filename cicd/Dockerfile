@@ -2,4 +2,4 @@ FROM docker.drift.inera.se/intyg/tomcat-java11-base:9
 
 ENV APP_NAME=logsender SCRIPT_DEBUG=true
 
-ADD ./web/build/libs/*.war $JWS_HOME/webapps/ROOT.war
+ADD ./ROOT.war $JWS_HOME/webapps/ROOT.war
