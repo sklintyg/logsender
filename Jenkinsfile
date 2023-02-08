@@ -23,6 +23,7 @@ pipeline {
 
     environment {
         TEST_MODE = 'true'
+        GIT_BRANCH = 'pocbranch'
     }
 
     stages {
