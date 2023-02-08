@@ -70,14 +70,14 @@ pipeline {
             }
             steps {
               sh 'gradle build --no-daemon -PcodeQuality -DbuildVersion=0.1.0  -DinfraVersion=3.19.0.+ -DcommonVersion=3.19.0.+ -DrefDataVersion=1.0-SNAPSHOT -Dfile.encoding=UTF-8'
-              sh 'cp ./web/build/libs/*.war ./cicd/ROOT.war'
+              sh 'cp ./web/build/libs/*.war ./ROOT.war'
             }
         }
 
         stage('Build Image') {
             steps {
                 script {
-                    essDocker.build( project:project, name:artifact, version:version, commit:commit, path:'cicd', url:gitUrl, tag:buildTag)
+                    essDocker.build( project:project, name:artifact, version:version, commit:commit, url:gitUrl, tag:buildTag)
                 }
             }
         }
