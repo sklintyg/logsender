@@ -23,7 +23,6 @@ pipeline {
 
     environment {
         TEST_MODE = 'true'
-        GIT_CREDENTIAL='intyg-github'
     }
 
     stages {
