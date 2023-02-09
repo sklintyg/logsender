@@ -23,7 +23,7 @@ pipeline {
 
     environment {
         TEST_MODE = 'true'
-        GIT_BRANCH = 'pocbranch'
+        GIT_BRANCH = 'poc/INTYGFV-15255'
     }
 
     stages {
