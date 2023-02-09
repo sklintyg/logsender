@@ -22,7 +22,6 @@ pipeline {
     agent any
 
     environment {
-        TEST_MODE = 'true'
         GIT_BRANCH = 'poc/INTYGFV-15255'
     }
 
