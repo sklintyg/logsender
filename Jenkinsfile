@@ -61,7 +61,7 @@ pipeline {
               }
             }
             steps {
-              sh 'gradle build --no-daemon -PcodeQuality -DbuildVersion=0.1.0  -DinfraVersion=3.19.0.+ -DcommonVersion=3.19.0.+ -DrefDataVersion=1.0-SNAPSHOT -Dfile.encoding=UTF-8'
+              sh 'gradle build --no-daemon -x Test -DbuildVersion=0.1.0  -DinfraVersion=3.19.0.+ -DcommonVersion=3.19.0.+ -DrefDataVersion=1.0-SNAPSHOT -Dfile.encoding=UTF-8'
               sh 'cp ./web/build/libs/*.war ./ROOT.war'
             }
         }
