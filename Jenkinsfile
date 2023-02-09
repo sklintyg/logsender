@@ -22,7 +22,7 @@ pipeline {
     agent any
 
     environment {
-        GIT_BRANCH = 'poc/INTYGFV-152551'
+        GIT_BRANCH = 'poc/INTYGFV-15255'
     }
 
     stages {
