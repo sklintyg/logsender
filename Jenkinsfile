@@ -14,6 +14,12 @@ Map    cloneInfo
 List   culprits = []
 String commit
 
+String infraVersion
+String commonVersion
+String builderImage
+String runtimeImage
+String buildArgs
+
 //
 // Pipeline
 //
@@ -39,9 +45,15 @@ pipeline {
 
                     cloneInfo = essGit.clone url: gitUrl, branch: buildBranch
 
-                    buildTag = (gitBranch == buildBranch) ? '' : essJob.getBuildTagFromBranchName( branch: buildBranch)
+                    buildTag = essJob.getProperty( name:'artifact.version')
 
                     essJob.tagBuildName tag: buildTag
+
+                    infraVersion = essJob.getProperty( name:'dependencies.infra.version')
+                    commonVersion = essJob.getProperty( name:'dependencies.common.version')
+                    builderImage = essJob.getProperty( name:'builder.image')
+                    runtimeImage = essJob.getProperty( name:'runtime.image')
+                    buildArgs = essJob.getProperty( name:'build.args')
 
                     commit   = essGit.getCommit()
                     project  = essJob.getProperty( name:'project.name')
@@ -55,13 +67,13 @@ pipeline {
         stage('Build') {
             agent {
               docker {
-                image 'gradle:6.9.2-jdk11'
+                image builderImage
+                args '-v $HOME/.m2:/root/.m2'
                 reuseNode true
               }
             }
             steps {
-              sh 'gradle build --no-daemon -x Test -DbuildVersion=0.1.0  -DinfraVersion=3.19.0.+ -DcommonVersion=3.19.0.+ -DrefDataVersion=1.0-SNAPSHOT -Dfile.encoding=UTF-8'
-              sh 'cp ./web/build/libs/*.war ./ROOT.war'
+              sh 'gradle $buildArgs --no-daemon -DbuildVersion=$buildTag  -DinfraVersion=$infraVersion -DcommonVersion=$commonVersion -Dfile.encoding=UTF-8'
             }
         }
 
