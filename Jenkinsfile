@@ -60,6 +60,8 @@ pipeline {
                     artifact = essJob.getProperty( name:'artifact.name')
                     version  = essCmn.getVersion()
                     culprits = essGit.getCulpritsMail( info:cloneInfo)
+
+                    essJob.setProperty( name: 'docker.server', value: 'registry.hub.docker.com')
                 }
             }
         }
