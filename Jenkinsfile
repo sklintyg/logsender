@@ -73,7 +73,7 @@ pipeline {
               }
             }
             steps {
-              sh 'gradle $buildArgs --no-daemon -DbuildVersion=$buildTag  -DinfraVersion=$infraVersion -DcommonVersion=$commonVersion -Dfile.encoding=UTF-8'
+              sh 'gradle ' + buildArgs + ' --no-daemon -DbuildVersion=' + version + ' -DinfraVersion=' + infraVersion + ' -DcommonVersion=' + commonVersion + ' -Dfile.encoding=UTF-8'
             }
         }
 
