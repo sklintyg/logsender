@@ -60,8 +60,6 @@ pipeline {
                     artifact = essJob.getProperty( name:'artifact.name')
                     version  = essCmn.getVersion()
                     culprits = essGit.getCulpritsMail( info:cloneInfo)
-
-                    essJob.updateProperty( name: 'docker.server', value: 'registry.hub.docker.com')
                 }
             }
         }
@@ -82,7 +80,7 @@ pipeline {
         stage('Build Image') {
             steps {
                 script {
-                    essDocker.build( project:project, name:artifact, version:version, commit:commit, url:gitUrl, tag:buildTag)
+                    essDocker.build( project:project, name:artifact, version:version, commit:commit, url:gitUrl)
                 }
             }
         }
