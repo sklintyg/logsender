@@ -61,7 +61,7 @@ pipeline {
                     version  = essCmn.getVersion()
                     culprits = essGit.getCulpritsMail( info:cloneInfo)
 
-                    essJob.setProperty( name: 'docker.server', value: 'registry.hub.docker.com')
+                    essJob.updateProperty( name: 'docker.server', value: 'registry.hub.docker.com')
                 }
             }
         }
