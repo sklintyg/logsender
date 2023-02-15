@@ -45,7 +45,9 @@ pipeline {
 
                     cloneInfo = essGit.clone url: gitUrl, branch: buildBranch
 
-                    buildTag = essJob.getProperty( name:'artifact.version')
+                    String currentVersion = essCmn.getVersion()
+                    String newVersion = essCmn.bumpVersion( version: currentVersion)
+                    buildTag = newVersion
 
                     essJob.tagBuildName tag: buildTag
 
