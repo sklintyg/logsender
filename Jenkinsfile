@@ -48,7 +48,7 @@ pipeline {
                     String currentVersion = essCmn.getVersion()
                     String newVersion = essCmn.bumpVersion( version: currentVersion)
                     essCmn.setVersion( version: newVersion)
-                    buildTag = newVersion
+                    buildTag = 'v' + newVersion
 
                     essJob.tagBuildName tag: buildTag
 
@@ -63,6 +63,8 @@ pipeline {
                     artifact = essJob.getProperty( name:'artifact.name')
                     version  = essCmn.getVersion()
                     culprits = essGit.getCulpritsMail( info:cloneInfo)
+
+                    essGit.commitAndPushChanges( message: 'BUILDENV: Release of ' + buildTag, tag: buildTag)
                 }
             }
         }
