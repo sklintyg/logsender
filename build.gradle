@@ -1,5 +1,4 @@
 plugins {
-    id 'com.gradle.build-scan' version '2.4.2'
     id 'maven'
     id 'idea'
     id 'war'
@@ -33,13 +32,6 @@ uploadArchives.repositories.mavenDeployer {
     repository(url: "https://nexus.drift.inera.se/repository/maven-releases/") {
         authentication(userName: System.properties['ineraNexusUsername'], password: System.properties['ineraNexusPassword'])
     }
-}
-
-buildScan {
-    termsOfServiceUrl = 'https://gradle.com/terms-of-service'
-    termsOfServiceAgree = 'yes'
-
-    publishAlways()
 }
 
 gretty {
