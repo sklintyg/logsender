@@ -47,6 +47,7 @@ pipeline {
 
                     String currentVersion = essCmn.getVersion()
                     String newVersion = essCmn.bumpVersion( version: currentVersion)
+                    essCmn.setVersion( version: newVersion)
                     buildTag = newVersion
 
                     essJob.tagBuildName tag: buildTag
