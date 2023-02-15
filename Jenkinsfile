@@ -65,6 +65,9 @@ pipeline {
         }
 
         stage('Build') {
+            when {
+                expression { false }
+            }
             agent {
               docker {
                 image builderImage
@@ -73,11 +76,14 @@ pipeline {
               }
             }
             steps {
-              sh 'gradle ' + buildArgs + ' --no-daemon -DbuildVersion=' + version + ' -DinfraVersion=' + infraVersion + ' -DcommonVersion=' + commonVersion + ' -Dfile.encoding=UTF-8 --scan'
+              sh 'gradle ' + buildArgs + ' --no-daemon -DbuildVersion=' + version + ' -DinfraVersion=' + infraVersion + ' -DcommonVersion=' + commonVersion + ' -Dfile.encoding=UTF-8'
             }
         }
 
         stage('Build Image') {
+            when {
+                expression { false }
+            }
             steps {
                 script {
                     essDocker.build( project:project, name:artifact, version:version, commit:commit, url:gitUrl)
