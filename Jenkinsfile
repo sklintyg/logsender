@@ -68,7 +68,6 @@ pipeline {
             agent {
               docker {
                 image builderImage
-                args '-v $HOME/.m2:/root/.m2'
                 reuseNode true
               }
             }
