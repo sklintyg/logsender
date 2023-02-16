@@ -21,6 +21,7 @@ String runtimeImage
 String buildArgs
 
 String tagCmd
+String pushCmd
 
 //
 // Pipeline
@@ -69,6 +70,7 @@ pipeline {
                     commit = essGit.commitChanges( message: 'BUILDENV: Release of ' + buildTag)
 
                     tagCmd = 'git tag -a ' + buildTag + '-m "Release of ' + buildTag + '"'
+                    pushCmd = 'git push --follow-tags --set-upstream origin ' + buildBranch
                 }
             }
         }
@@ -82,7 +84,7 @@ pipeline {
                 sh('''
                     git config --local credential.helper "!f() { echo username=\\$GIT_AUTH_USR; echo password=\\$GIT_AUTH_PSW; }; f"
                     echo ''' + tagCmd + '''
-                    git push --follow-tags
+                    echo ''' + pushCmd + '''
                 ''')
             }
         }
