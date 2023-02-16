@@ -68,7 +68,7 @@ pipeline {
 
                     commit = essGit.commitChanges( message: 'BUILDENV: Release of ' + buildTag)
 
-                    tagCmd = 'git tag ' + buildTag + ' ' + commit
+                    tagCmd = 'git tag -a ' + buildTag + '-m "Release of ' + buildTag + '"'
                 }
             }
         }
@@ -82,7 +82,7 @@ pipeline {
                 sh('''
                     git config --local credential.helper "!f() { echo username=\\$GIT_AUTH_USR; echo password=\\$GIT_AUTH_PSW; }; f"
                     echo ''' + tagCmd + '''
-                    git push --tags origin HEAD:$TARGET_BRANCH
+                    git push --follow-tags origin HEAD:$TARGET_BRANCH
                 ''')
             }
         }
