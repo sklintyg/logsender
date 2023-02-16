@@ -20,6 +20,8 @@ String builderImage
 String runtimeImage
 String buildArgs
 
+String tagCmd
+
 //
 // Pipeline
 //
@@ -64,7 +66,9 @@ pipeline {
                     version  = essCmn.getVersion()
                     culprits = essGit.getCulpritsMail( info:cloneInfo)
 
-                    essGit.commitChanges( message: 'BUILDENV: Release of ' + buildTag)
+                    commit = essGit.commitChanges( message: 'BUILDENV: Release of ' + buildTag)
+
+                    tagCmd = 'git tag ' + buildTag + ' ' + commit
                 }
             }
         }
@@ -77,6 +81,7 @@ pipeline {
             steps {
                 sh('''
                     git config --local credential.helper "!f() { echo username=\\$GIT_AUTH_USR; echo password=\\$GIT_AUTH_PSW; }; f"
+                    echo ''' + tagCmd + '''
                     git push origin HEAD:$TARGET_BRANCH
                 ''')
             }
