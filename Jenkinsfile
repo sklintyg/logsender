@@ -77,10 +77,9 @@ pipeline {
             }
         }
 
-        stage('Push') {
+        stage('Tag and push') {
             environment {
                 GIT_AUTH = credentials('intyg-github')
-                TARGET_BRANCH = essJob.getProperty( name:'git.branch', value:'master')
             }
             steps {
                 sh('''
@@ -93,9 +92,6 @@ pipeline {
         }
 
         stage('Build') {
-            when {
-                expression { false }
-            }
             agent {
               docker {
                 image builderImage
@@ -109,9 +105,6 @@ pipeline {
         }
 
         stage('Build Image') {
-            when {
-                expression { false }
-            }
             steps {
                 script {
                     essDocker.build( project:project, name:artifact, version:version, commit:commit, url:gitUrl)
