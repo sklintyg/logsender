@@ -72,7 +72,7 @@ pipeline {
         stage('Push') {
             environment {
                 GIT_AUTH = credentials('intyg-github')
-                TARGET_BRANCH = buildBranch
+                TARGET_BRANCH = essJob.getProperty( name:'git.branch', value:'master')
             }
             steps {
                 sh('''
