@@ -72,6 +72,7 @@ pipeline {
         stage('Push') {
             environment {
                 GIT_AUTH = credentials('intyg-github')
+                TARGET_BRANCH = buildBranch
             }
             steps {
                 sh('''
