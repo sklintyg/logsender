@@ -65,7 +65,6 @@ pipeline {
                     culprits = essGit.getCulpritsMail( info:cloneInfo)
 
                     essGit.commitChanges( message: 'BUILDENV: Release of ' + buildTag)
-                    essGit.setTagOnCommit( tag: buildTag)
                 }
             }
         }
