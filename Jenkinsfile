@@ -64,8 +64,21 @@ pipeline {
                     version  = essCmn.getVersion()
                     culprits = essGit.getCulpritsMail( info:cloneInfo)
 
-                    essGit.commitAndPushChanges( message: 'BUILDENV: Release of ' + buildTag, tag: buildTag)
+                    essGit.commitChanges( message: 'BUILDENV: Release of ' + buildTag)
+                    essGit.setTagOnCommit( tag: buildTag)
                 }
+            }
+        }
+
+        stage('Push') {
+            environment {
+                GIT_AUTH = credentials('intyg-github')
+            }
+            steps {
+                sh('''
+                    git config --local credential.helper "!f() { echo username=\\$GIT_AUTH_USR; echo password=\\$GIT_AUTH_PSW; }; f"
+                    git push origin HEAD:$TARGET_BRANCH
+                ''')
             }
         }
 
