@@ -1,0 +1,3 @@
+FROM docker.drift.inera.se/intyg/app-builder-image:11.0.2
+
+RUN gradle dependencies
