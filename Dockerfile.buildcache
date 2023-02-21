@@ -6,6 +6,6 @@ RUN gradle --no-daemon dependencies -DinfraVersion=3.19.0.+ -DcommonVersion=3.19
 RUN find ${GRADLE_USER_HOME} -type f -name "*.lock" -delete
 
 FROM docker.drift.inera.se/intyg/app-builder-image:11.0.2
-ENV GRADLE_USER_HOME /tmp/cache
-COPY --from=builder ${GRADLE_USER_HOME}/caches/modules-2 ${GRADLE_USER_HOME}/caches/modules-2
-RUN chmod 777 -R ${GRADLE_USER_HOME}/
+ENV GRADLE_RO_DEP_CACHE /tmp/cache/caches/
+COPY --from=builder /tmp/cache/caches/modules-2 /tmp/cache/caches/modules-2
+RUN chmod 777 -R /tmp/cache/
