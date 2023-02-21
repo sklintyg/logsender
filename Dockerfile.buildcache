@@ -1,5 +1,7 @@
 FROM docker.drift.inera.se/intyg/app-builder-image:11.0.2
 
+ENV GRADLE_USER_HOME /tmp/cache
+
 WORKDIR /usr/app/
 
 COPY . .
