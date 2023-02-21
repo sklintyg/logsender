@@ -5,5 +5,6 @@ COPY . .
 RUN gradle --no-daemon dependencies -DinfraVersion=3.19.0.+ -DcommonVersion=3.19.0.+ -Dfile.encoding=UTF-8
 
 FROM docker.drift.inera.se/intyg/app-builder-image:11.0.2
+ENV GRADLE_USER_HOME /tmp/cache
 COPY --from=builder ${GRADLE_USER_HOME} ${GRADLE_USER_HOME}
-RUN chmod 777 -R ${GRADLE_USER_HOME}
+RUN chmod 777 -R ${GRADLE_USER_HOME}/
