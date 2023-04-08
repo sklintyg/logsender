@@ -17,7 +17,7 @@ LABEL se.inera.from_image=${from_image}       \
       se.inera.vcs_url=${vcs_url}             \
       se.inera.vcs_ref=${vcs_ref}
 
-ENV APP_NAME=logsender
+ENV APP_NAME=$artifact
 ENV SCRIPT_DEBUG=true
 
 ADD /web/build/libs/*.war $JWS_HOME/webapps/ROOT.war
