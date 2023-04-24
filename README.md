@@ -7,7 +7,7 @@ Läs vidare i gemensam dokumentation [devops/develop README-filen](https://githu
 ## Aggregering av loggposter
 Kom ihåg att standardinställningen för aggregering av loggmeddelanden från producenter är 5 st, dvs. om man vill testa från lokal Webcert (https://wc.localtest.me) så kan man förslagsvis logga in, gå in på 191212121212, skapa ett Utkast och sedan klicka sig in och ut på Utkastet ytterligare 4 gånger via sidan för Ej signerade utkast. Varje "titt" på utkastet skapar en loggpost och efter totalt 5 st så kommer logsender sammanställa ett loggmeddelande utifrån samtliga aggregerade och skicka till PDL-tjänsten.
 
-## Kontrollera stubbe 
+## Kontrollera stubbe
 
 Lokalt är förstås tjänsten stubbad, man bör kunna kika på innehållet i stubben på:
 
