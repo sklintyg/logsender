@@ -2,7 +2,7 @@ plugins {
     id 'maven'
     id 'idea'
     id 'war'
-    id "se.inera.intyg.plugin.common" version "3.2.5"
+    id "se.inera.intyg.plugin.common" version "3.2.7"
     id "org.gretty" version "3.0.8"
     id "io.spring.dependency-management" version "1.0.13.RELEASE"
 }
