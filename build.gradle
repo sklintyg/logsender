@@ -8,14 +8,16 @@ plugins {
 }
 
 ext {
-    commonVersion = System.properties['commonVersion'] ?: '3.19.1-SNAPSHOT'
-    infraVersion = System.properties['infraVersion'] ?: '3.19.1-SNAPSHOT'
+    commonVersion = System.properties['commonVersion'] ?: '3.20.0-SNAPSHOT'
+    infraVersion = System.properties['infraVersion'] ?: '3.20.0-SNAPSHOT'
 
-    rivtaStoreLogSchemasVersion = "2.0.1"
+    rivtaStoreLogSchemasVersion = "2.0.1.1"
 
     apacheCXFVersion = "3.5.5"
     camelVersion = "3.18.2"
     geronimoVersion = "1.1.1"
+    javaxJwsApiVersion = "1.1"
+    jaxb2Version = "0.13.1"
 
     springbootMavenBomVersion = "2.7.6"
 }
@@ -95,6 +97,9 @@ dependencyManagement {
 dependencies {
     compile "se.riv.informationsecurity.auditing.log:informationsecurity-auditing-log-schemas:${rivtaStoreLogSchemasVersion}"
 
+    implementation "javax.jws:javax.jws-api:${javaxJwsApiVersion}"
+    implementation "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:${jaxb2Version}"
+
     compile "se.inera.intyg.infra:log-messages:${infraVersion}"
     compile "se.inera.intyg.infra:loggtjanst-stub:${infraVersion}"
     compile "se.inera.intyg.infra:monitoring:${infraVersion}"
@@ -138,6 +143,8 @@ dependencies {
 }
 
 repositories {
+    //maven { url "http://localhost:37373/repository/it-public/" }
+    maven { url "http://172.21.0.1:37373/repository/it-public/" }
     mavenLocal()
     maven { url "https://nexus.drift.inera.se/repository/it-public/" }
     mavenCentral {
