@@ -2,9 +2,9 @@ plugins {
     id 'maven'
     id 'idea'
     id 'war'
-    id "se.inera.intyg.plugin.common" version "3.2.7"
-    id "org.gretty" version "3.0.8"
-    id "io.spring.dependency-management" version "1.0.13.RELEASE"
+    id "se.inera.intyg.plugin.common" version "3.2.9"
+    id "org.gretty" version "3.0.9"
+    id "io.spring.dependency-management" version "1.0.15.RELEASE"
 }
 
 ext {
@@ -13,13 +13,13 @@ ext {
 
     rivtaStoreLogSchemasVersion = "2.0.1.1"
 
-    apacheCXFVersion = "3.5.5"
-    camelVersion = "3.18.2"
+    apacheCXFVersion = "3.6.2"
+    camelVersion = "3.21.1"
     geronimoVersion = "1.1.1"
     javaxJwsApiVersion = "1.1"
     jaxb2Version = "0.13.1"
 
-    springbootMavenBomVersion = "2.7.6"
+    springbootMavenBomVersion = "2.7.17"
 }
 
 group = 'se.inera.intyg.logsender'
@@ -139,7 +139,7 @@ dependencies {
 
     gretty "org.apache.activemq:activemq-client"
     gretty "org.apache.activemq:activemq-broker"
-    gretty "mysql:mysql-connector-java"
+    gretty "com.mysql:mysql-connector-j"
 }
 
 repositories {
