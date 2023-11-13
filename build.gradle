@@ -1,8 +1,12 @@
+import se.inera.intyg.IntygPluginKt
+
+import java.nio.file.Files
+import java.nio.file.Paths
+
 plugins {
     id "se.inera.intyg.plugin.common" version "3.2.10-SNAPSHOT"
     id "io.spring.dependency-management" version "1.1.3"
     id "org.gretty" version "3.1.1"
-    id 'maven-publish'
     id 'idea'
     id 'war'
 }
@@ -76,9 +80,41 @@ tasks.register('camelTest', Test) {
     jvmArgs = gretty.jvmArgs
 }
 
-tasks.register('install') {
-    description("Publishes artifact to local maven repository.")
-    dependsOn(publishMavenWebPublicationToMavenLocal)
+tasks.register('unzipBuildTools', Copy) {
+    into "${rootProject.layout.buildDirectory.get().asFile}/build-tools/"
+    from { zipTree(project.rootProject.buildscript.configurations.classpath.find { it.name.contains("se.inera.intyg.plugin.common") })
+            .matching { include "/spotbugs/**", "/git_hooks/**" }
+    }
+}
+
+tasks.register("applyGitHooks", Copy) {
+    dependsOn("unzipBuildTools")
+    def repository = IntygPluginKt.findGitRepository(project.rootProject.projectDir)
+    def commitMsg = rootProject.layout.buildDirectory.file("/build-tools/git_hooks/commit-msg").get().asFile
+    def preCommit = rootProject.layout.buildDirectory.file("/build-tools/git_hooks/pre-commit").get().asFile
+    def toDir = Paths.get(repository.directory.path, "hooks")
+
+    if (!Files.exists(toDir)) {
+        Files.createDirectory(toDir)
+    }
+
+    IntygPluginKt.copyFile(commitMsg, toDir)
+    IntygPluginKt.copyFile(preCommit, toDir)
+}
+
+if (project.hasProperty('codeQuality')) {
+    tasks.register('spotbugsIncludesAndExcludes') {
+        dependsOn ":unzipBuildTools"
+        spotbugsMain {
+            includeFilter.set(rootProject.layout.buildDirectory.file("/build-tools/spotbugs/spotbugsIncludeFilter.xml").get().asFile)
+            excludeFilter.set(rootProject.layout.buildDirectory.file("/build-tools/spotbugs/spotbugsExcludeFilter.xml").get().asFile)
+        }
+    }
+
+    spotbugsMain.dependsOn('spotbugsIncludesAndExcludes')
+    spotbugsMain.dependsOn(':unzipBuildTools')
+    spotbugsTest.enabled(false)
+    dependencies { spotbugsSlf4j "org.slf4j:slf4j-simple" }
 }
 
 repositories {
@@ -92,30 +128,13 @@ repositories {
     }
 }
 
-publishing {
-    publications {
-        mavenWeb(MavenPublication) {
-            from components.web
-        }
-    }
-}
-
-clean {
-    setDelete(fileTree(buildDirectory) {
-        exclude("/tmp/.cache/expanded/expanded.lock")
-    })
-}
-
 test {
     useJUnitPlatform()
     exclude '**/*IT*'
     jvmArgs = gretty.jvmArgs
 }
 
-if (project.hasProperty('codeQuality')) {
-    dependencies { spotbugsSlf4j "org.slf4j:slf4j-simple" }
-}
-
+applyGitHooks.dependsOn(unzipBuildTools)
 checkstyleMain.dependsOn createVersionPropertyFile
 compileTestJava.dependsOn createVersionPropertyFile
 war.dependsOn createVersionPropertyFile
