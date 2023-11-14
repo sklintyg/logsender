@@ -1,21 +1,29 @@
+import se.inera.intyg.IntygPluginKt
+
+import java.nio.file.Files
+import java.nio.file.Paths
+
 plugins {
-    id 'maven'
+    id "se.inera.intyg.plugin.common" version "3.3.1"
+    id "io.spring.dependency-management" version "1.1.3"
+    id "org.gretty" version "3.1.1"
     id 'idea'
     id 'war'
-    id "se.inera.intyg.plugin.common" version "3.2.9"
-    id "org.gretty" version "3.0.9"
-    id "io.spring.dependency-management" version "1.0.15.RELEASE"
 }
 
+def buildDirectory = project.layout.buildDirectory.get().asFile
+
 ext {
-    commonVersion = System.properties['commonVersion'] ?: '3.20.0-SNAPSHOT'
-    infraVersion = System.properties['infraVersion'] ?: '3.20.0-SNAPSHOT'
+    commonVersion = System.properties['commonVersion'] ?: '3.21.0-SNAPSHOT'
+    infraVersion = System.properties['infraVersion'] ?: '3.21.0-SNAPSHOT'
 
     rivtaStoreLogSchemasVersion = "2.0.1.1"
+    schemasContractVersion = "2.1.8.1"
 
     apacheCXFVersion = "3.6.2"
     camelVersion = "3.21.1"
     geronimoVersion = "1.1.1"
+    guavaVersion = "32.1.3-jre"
     javaxJwsApiVersion = "1.1"
     jaxb2Version = "0.13.1"
 
@@ -24,17 +32,8 @@ ext {
 
 group = 'se.inera.intyg.logsender'
 version = System.properties['buildVersion'] ?: '0-SNAPSHOT'
-
 sourceCompatibility = 11
 targetCompatibility = 11
-
-task createVersionPropertyFile(type: VersionPropertyFileTask)
-
-uploadArchives.repositories.mavenDeployer {
-    repository(url: "https://nexus.drift.inera.se/repository/maven-releases/") {
-        authentication(userName: System.properties['ineraNexusUsername'], password: System.properties['ineraNexusPassword'])
-    }
-}
 
 gretty {
     def instance = System.properties['instance'] ?: '0'
@@ -53,7 +52,7 @@ gretty {
     serverConfigFile = "tomcat-gretty.xml"
 
     jvmArgs = [
-            "-Dcatalina.base=${buildDir}/catalina.base",
+            "-Dcatalina.base=${buildDirectory}/catalina.base",
             "-Dspring.profiles.active=dev,wc-loggtjanst-stub,testability-api,caching-enabled",
             "-Dapplication.dir=${applicationDir}",
             "-Dlogback.file=${applicationDir}/config/logback-dev.xml",
@@ -67,80 +66,62 @@ gretty {
     extraResourceBase 'build/apps/'
 }
 
-test {
-    useJUnitPlatform()
-    exclude '**/*IT*'
-    jvmArgs = gretty.jvmArgs
-}
+tasks.register('createVersionPropertyFile', VersionPropertyFileTask)
+tasks.register('tagRelease', TagReleaseTask)
 
-tasks.withType(War) {
+tasks.withType(War).configureEach {
     destinationDirectory = file("$rootDir/web/build/libs")
 }
 
-task camelTest(type: Test) {
+tasks.register('camelTest', Test) {
     useJUnitPlatform()
     outputs.upToDateWhen { false }
     include '**/*IT*'
     jvmArgs = gretty.jvmArgs
 }
 
-task tagRelease(type: TagReleaseTask)
-
-war.dependsOn createVersionPropertyFile
-
-dependencyManagement {
-    imports {
-        mavenBom "org.springframework.boot:spring-boot-dependencies:${springbootMavenBomVersion}"
+tasks.register('unzipBuildTools', Copy) {
+    into "${rootProject.layout.buildDirectory.get().asFile}/build-tools/"
+    from { zipTree(project.rootProject.buildscript.configurations.classpath.find { it.name.contains("se.inera.intyg.plugin.common") })
+            .matching { include "/spotbugs/**", "/git_hooks/**" }
     }
 }
 
-dependencies {
-    compile "se.riv.informationsecurity.auditing.log:informationsecurity-auditing-log-schemas:${rivtaStoreLogSchemasVersion}"
+tasks.register("applyGitHooks", Copy) {
+    dependsOn("unzipBuildTools")
+    def repository = IntygPluginKt.findGitRepository(project.rootProject.projectDir)
+    def commitMsg = rootProject.layout.buildDirectory.file("/build-tools/git_hooks/commit-msg").get().asFile
+    def preCommit = rootProject.layout.buildDirectory.file("/build-tools/git_hooks/pre-commit").get().asFile
+    def toDir = Paths.get(repository.directory.path, "hooks")
 
-    implementation "javax.jws:javax.jws-api:${javaxJwsApiVersion}"
-    implementation "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:${jaxb2Version}"
+    if (!Files.exists(toDir)) {
+        Files.createDirectory(toDir)
+    }
 
-    compile "se.inera.intyg.infra:log-messages:${infraVersion}"
-    compile "se.inera.intyg.infra:loggtjanst-stub:${infraVersion}"
-    compile "se.inera.intyg.infra:monitoring:${infraVersion}"
-    compile "se.inera.intyg.common:logging-util:${commonVersion}"
-    compile "se.inera.intyg.common:integration-util:${commonVersion}"
-
-    compile "com.sun.activation:jakarta.activation"
-    compile "jakarta.ws.rs:jakarta.ws.rs-api"
-    compile "org.glassfish.jaxb:jaxb-runtime"
-
-    compile "org.springframework:spring-web"
-    compile "org.springframework:spring-webmvc"
-    compile "org.springframework:spring-jms"
-
-    compile "org.apache.activemq:activemq-spring"
-    compile "org.apache.camel:camel-activemq:${camelVersion}"
-    compile "org.apache.camel:camel-core:${camelVersion}"
-    compile "org.apache.camel:camel-jms:${camelVersion}"
-    compile "org.apache.camel:camel-spring:${camelVersion}"
-    compile "org.apache.camel:camel-spring-xml:${camelVersion}"
-
-    compile "org.apache.cxf:cxf-rt-frontend-jaxws:${apacheCXFVersion}"
-    compile "org.apache.cxf:cxf-rt-transports-http:${apacheCXFVersion}"
-    compile "org.apache.cxf:cxf-rt-features-logging:${apacheCXFVersion}"
-
-    compileOnly "jakarta.servlet:jakarta.servlet-api"
-    compileOnly "org.apache.geronimo.specs:geronimo-jms_1.1_spec:${geronimoVersion}"
-
-    testCompile "org.apache.activemq:activemq-broker"
-    testCompile "org.apache.camel:camel-test-spring-junit5:${camelVersion}"
-    testCompile "org.awaitility:awaitility"
-    testCompile "org.junit.jupiter:junit-jupiter-api"
-    testCompile "org.mockito:mockito-junit-jupiter"
-    testCompile "org.springframework:spring-test"
-
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
-
-    gretty "org.apache.activemq:activemq-client"
-    gretty "org.apache.activemq:activemq-broker"
-    gretty "com.mysql:mysql-connector-j"
+    IntygPluginKt.copyFile(commitMsg, toDir)
+    IntygPluginKt.copyFile(preCommit, toDir)
 }
+
+if (project.hasProperty('codeQuality')) {
+    tasks.register('spotbugsIncludesAndExcludes') {
+        dependsOn ":unzipBuildTools"
+        def spotbugsToolDir = "${rootProject.layout.buildDirectory.get().asFile}/build-tools/spotbugs"
+        spotbugsMain {
+            includeFilter.set(file("${spotbugsToolDir}/spotbugsIncludeFilter.xml"))
+            excludeFilter.set(file("${spotbugsToolDir}/spotbugsExcludeFilter.xml"))
+        }
+    }
+
+    checkstyleMain.dependsOn createVersionPropertyFile
+    jacocoTestReport.mustRunAfter createVersionPropertyFile
+    spotbugsMain.dependsOn('spotbugsIncludesAndExcludes')
+    spotbugsTest.enabled(false)
+    dependencies { spotbugsSlf4j "org.slf4j:slf4j-simple" }
+}
+
+applyGitHooks.dependsOn(unzipBuildTools)
+compileTestJava.dependsOn createVersionPropertyFile
+war.dependsOn createVersionPropertyFile
 
 repositories {
     mavenLocal()
@@ -151,4 +132,61 @@ repositories {
             excludeGroupByRegex "se\\.inera.*"
         }
     }
+}
+
+test {
+    useJUnitPlatform()
+    exclude '**/*IT*'
+    jvmArgs = gretty.jvmArgs
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.boot:spring-boot-dependencies:${springbootMavenBomVersion}"
+    }
+}
+
+dependencies {
+    implementation "se.inera.intyg.schemas:schemas-contract:${schemasContractVersion}"
+    implementation "se.riv.informationsecurity.auditing.log:informationsecurity-auditing-log-schemas:${rivtaStoreLogSchemasVersion}"
+
+    implementation "se.inera.intyg.common:integration-util:${commonVersion}"
+    implementation "se.inera.intyg.common:logging-util:${commonVersion}"
+    implementation "se.inera.intyg.infra:log-messages:${infraVersion}"
+    implementation "se.inera.intyg.infra:loggtjanst-stub:${infraVersion}"
+    implementation "se.inera.intyg.infra:monitoring:${infraVersion}"
+
+    implementation "com.google.guava:guava:${guavaVersion}"
+    implementation "com.sun.activation:jakarta.activation"
+    implementation "org.apache.activemq:activemq-spring"
+    implementation "org.apache.camel:camel-activemq:${camelVersion}"
+    implementation "org.apache.camel:camel-core:${camelVersion}"
+    implementation "org.apache.cxf:cxf-rt-features-logging:${apacheCXFVersion}"
+    implementation "org.apache.cxf:cxf-rt-frontend-jaxws:${apacheCXFVersion}"
+    implementation "org.apache.cxf:cxf-rt-transports-http:${apacheCXFVersion}"
+    implementation "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:${jaxb2Version}"
+    implementation "org.springframework:spring-webmvc"
+    implementation "org.springframework:spring-jms"
+
+    compileOnly "jakarta.servlet:jakarta.servlet-api"
+    compileOnly "jakarta.ws.rs:jakarta.ws.rs-api"
+    compileOnly "org.apache.geronimo.specs:geronimo-jms_1.1_spec:${geronimoVersion}"
+
+    runtimeOnly "org.apache.camel:camel-jms:${camelVersion}"
+    runtimeOnly "org.apache.camel:camel-spring:${camelVersion}"
+    runtimeOnly "org.apache.camel:camel-spring-xml:${camelVersion}"
+    runtimeOnly "org.glassfish.jaxb:jaxb-runtime"
+
+    testImplementation "org.apache.activemq:activemq-broker"
+    testImplementation "org.apache.camel:camel-test-spring-junit5:${camelVersion}"
+    testImplementation "org.awaitility:awaitility"
+    testImplementation "org.junit.jupiter:junit-jupiter-api"
+    testImplementation "org.mockito:mockito-junit-jupiter"
+    testImplementation "org.springframework:spring-test"
+
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+
+    gretty "org.apache.activemq:activemq-client"
+    gretty "org.apache.activemq:activemq-broker"
+    gretty "com.mysql:mysql-connector-j"
 }
