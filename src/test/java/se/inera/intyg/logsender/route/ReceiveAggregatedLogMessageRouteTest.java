@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Inera AB (http://www.inera.se)
+ * Copyright (C) 2024 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -80,8 +80,8 @@ public class ReceiveAggregatedLogMessageRouteTest {
         MockEndpoint.resetMocks(camelContext);
 
         AdviceWithRouteBuilder.adviceWith(camelContext, "aggregatedJmsToSenderRoute", in ->
-                in.mockEndpointsAndSkip("direct:logMessageTemporaryErrorHandlerEndpoint",
-                    "bean:logMessageSendProcessor", "direct:logMessagePermanentErrorHandlerEndpoint"));
+            in.mockEndpointsAndSkip("direct:logMessageTemporaryErrorHandlerEndpoint",
+                "bean:logMessageSendProcessor", "direct:logMessagePermanentErrorHandlerEndpoint"));
     }
 
     @Test
