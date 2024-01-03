@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Inera AB (http://www.inera.se)
+ * Copyright (C) 2024 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -39,7 +39,7 @@ public class IntegrationTestBrokerService {
     private String testBrokerUrl;
 
     @Bean
-    public BrokerService integrationTestBrokerService () throws Exception {
+    public BrokerService integrationTestBrokerService() throws Exception {
         BrokerService brokerService = new BrokerService();
         brokerService.setPersistent(false);
         brokerService.setDeleteAllMessagesOnStartup(true);
