@@ -52,7 +52,7 @@ public class IntegrationTestJmsConfig {
     @Bean(name = "jms")
     public ActiveMQComponent integrationActiveMQComponent() {
         ActiveMQComponent activeMQComponent = new ActiveMQComponent();
-        activeMQComponent.setConnectionFactory((javax.jms.ConnectionFactory)cachingConnectionFactory());
+        activeMQComponent.setConnectionFactory(cachingConnectionFactory());
         activeMQComponent.setTransactionManager(jmsTransactionManager());
         activeMQComponent.setTransacted(true);
         activeMQComponent.setCacheLevelName("CACHE_CONSUMER");

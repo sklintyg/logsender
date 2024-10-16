@@ -53,7 +53,7 @@ public class LogSenderJmsConfig {
     @Bean(name = "jms")
     public ActiveMQComponent activeMQComponent() {
         ActiveMQComponent activeMQComponent = new ActiveMQComponent();
-        activeMQComponent.setConnectionFactory((javax.jms.ConnectionFactory)transactionAwareConnectionFactoryProxy());
+        activeMQComponent.setConnectionFactory(transactionAwareConnectionFactoryProxy());
         activeMQComponent.setConfiguration(jmsConfiguration());
         activeMQComponent.setTransacted(true);
         activeMQComponent.setCacheLevelName("CACHE_CONSUMER");
@@ -87,7 +87,7 @@ public class LogSenderJmsConfig {
 
     private JmsConfiguration jmsConfiguration() {
         JmsConfiguration jmsConfig = new JmsConfiguration();
-        jmsConfig.setConnectionFactory((javax.jms.ConnectionFactory)transactionAwareConnectionFactoryProxy());
+        jmsConfig.setConnectionFactory(transactionAwareConnectionFactoryProxy());
         jmsConfig.setErrorHandlerLoggingLevel(OFF);
         jmsConfig.setErrorHandlerLogStackTrace(false);
         jmsConfig.setDestinationResolver(jmsDestinationResolver());

@@ -18,7 +18,7 @@ ext {
     schemasContractVersion = "2.1.8.2"
 
     apacheCXFVersion = "4.0.5"
-    camelVersion = "3.21.1"
+    camelVersion = "4.8.0"
     geronimoVersion = "1.1.1"
     googleGuavaVersion = "33.0.0-jre"
     jakartaJwsApiVersion = "3.0.0"
@@ -67,7 +67,6 @@ gretty {
 
 
 tasks.withType(War).configureEach {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     destinationDirectory = file("$rootDir/web/build/libs")
 }
 
@@ -156,7 +155,7 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-api"
     testImplementation "org.mockito:mockito-junit-jupiter"
     testImplementation "org.springframework:spring-test"
-
+    testImplementation "jakarta.xml.bind:jakarta.xml.bind-api"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 
     gretty "org.apache.activemq:activemq-client"
