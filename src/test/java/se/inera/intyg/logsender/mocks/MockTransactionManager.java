@@ -18,18 +18,11 @@
  */
 package se.inera.intyg.logsender.mocks;
 
-import jakarta.annotation.Nonnull;
-import org.springframework.context.annotation.Primary;
-import org.springframework.lang.NonNullApi;
 import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionException;
-import org.springframework.transaction.TransactionManager;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.AbstractPlatformTransactionManager;
-import org.springframework.transaction.support.DefaultTransactionStatus;
 
 public class MockTransactionManager implements PlatformTransactionManager {
 
