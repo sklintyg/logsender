@@ -18,7 +18,7 @@
  */
 package se.inera.intyg.logsender.testconfig;
 
-import javax.jms.Queue;
+import jakarta.jms.Queue;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

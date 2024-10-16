@@ -18,7 +18,7 @@
  */
 package se.inera.intyg.logsender.mocks;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import org.springframework.context.annotation.Primary;
 import org.springframework.lang.NonNullApi;
 import org.springframework.lang.Nullable;

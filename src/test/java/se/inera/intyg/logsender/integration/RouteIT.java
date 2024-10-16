@@ -24,8 +24,8 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.concurrent.TimeUnit;
 
-import javax.jms.JMSException;
-import javax.jms.Queue;
+import jakarta.jms.JMSException;
+import jakarta.jms.Queue;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.test.spring.junit5.CamelSpringTest;

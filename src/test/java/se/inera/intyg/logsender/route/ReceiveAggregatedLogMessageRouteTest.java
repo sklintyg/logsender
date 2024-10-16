@@ -23,7 +23,8 @@ import static org.apache.camel.component.mock.MockEndpoint.assertIsSatisfied;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Collections;
-import javax.xml.ws.WebServiceException;
+import jakarta.xml.ws.WebServiceException;
+import org.apache.camel.builder.AdviceWith;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.test.spring.junit5.CamelSpringTest;
 import org.junit.jupiter.api.Test;
@@ -79,7 +80,7 @@ public class ReceiveAggregatedLogMessageRouteTest {
     public void setup() throws Exception {
         MockEndpoint.resetMocks(camelContext);
 
-        AdviceWithRouteBuilder.adviceWith(camelContext, "aggregatedJmsToSenderRoute", in ->
+        AdviceWith.adviceWith(camelContext, "aggregatedJmsToSenderRoute", in ->
             in.mockEndpointsAndSkip("direct:logMessageTemporaryErrorHandlerEndpoint",
                 "bean:logMessageSendProcessor", "direct:logMessagePermanentErrorHandlerEndpoint"));
     }

@@ -18,9 +18,9 @@
  */
 package se.inera.intyg.logsender.webconfig;
 
-import javax.annotation.Nonnull;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletRegistration;
+import jakarta.annotation.Nonnull;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletRegistration;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
