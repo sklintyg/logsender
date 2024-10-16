@@ -14,7 +14,7 @@ ext {
     commonVersion = System.properties['commonVersion'] ?: '4.0.0-SNAPSHOT'
     infraVersion = System.properties['infraVersion'] ?: '4.0.0-SNAPSHOT'
 
-    rivtaStoreLogSchemasVersion = "2.0.1.1"
+    rivtaStoreLogSchemasVersion = "2.0.1.2"
     schemasContractVersion = "2.1.8.2"
 
     apacheCXFVersion = "4.0.5"
