@@ -1,6 +1,6 @@
 plugins {
-    id "io.spring.dependency-management" version "1.1.3"
-    id "org.gretty" version "3.0.9"
+    id "io.spring.dependency-management" version "1.1.6"
+    id "org.gretty" version "4.1.5"
     id 'idea'
     id 'war'
     id 'org.sonarqube' version '5.1.0.4882'
@@ -11,28 +11,28 @@ plugins {
 def buildDirectory = project.layout.buildDirectory.get().asFile
 
 ext {
-    commonVersion = System.properties['commonVersion'] ?: '3.21.0-SNAPSHOT'
-    infraVersion = System.properties['infraVersion'] ?: '3.21.0-SNAPSHOT'
+    commonVersion = System.properties['commonVersion'] ?: '4.0.0-SNAPSHOT'
+    infraVersion = System.properties['infraVersion'] ?: '4.0.0-SNAPSHOT'
 
     rivtaStoreLogSchemasVersion = "2.0.1.1"
-    schemasContractVersion = "2.1.8.1"
+    schemasContractVersion = "2.1.8.2"
 
-    apacheCXFVersion = "3.6.2"
-    camelVersion = "3.21.1"
+    apacheCXFVersion = "4.0.5"
+    camelVersion = "4.8.0"
     geronimoVersion = "1.1.1"
-    guavaVersion = "32.1.3-jre"
-    javaxJwsApiVersion = "1.1"
-    jaxb2Version = "0.13.1"
+    googleGuavaVersion = "3.0.0-jre"
+    jakartaJwsApiVersion = "3.0.0"
+    jaxb2Version = "3.0.0"
 
-    springbootMavenBomVersion = "2.7.17"
+    springbootMavenBomVersion = "3.3.4"
 
     nvdMirror = 'https://vulnz-nvd-mirror-devtest.intyg.nordicmedtest.se'
 }
 
 group = 'se.inera.intyg.logsender'
 version = System.properties['buildVersion'] ?: '0-SNAPSHOT'
-sourceCompatibility = 11
-targetCompatibility = 11
+sourceCompatibility = 21
+targetCompatibility = 21
 
 gretty {
     def instance = System.properties['instance'] ?: '0'
@@ -40,7 +40,7 @@ gretty {
     def useInternalHttpPort = 8110 + (instance as Integer)
     def applicationDir = "${projectDir}/devops/dev"
 
-    servletContainer = 'tomcat9'
+    servletContainer = 'tomcat10'
     contextPath = '/'
 
     integrationTestTask = null
@@ -137,7 +137,7 @@ dependencies {
     implementation "org.apache.cxf:cxf-rt-features-logging:${apacheCXFVersion}"
     implementation "org.apache.cxf:cxf-rt-frontend-jaxws:${apacheCXFVersion}"
     implementation "org.apache.cxf:cxf-rt-transports-http:${apacheCXFVersion}"
-    implementation "org.jvnet.jaxb2_commons:jaxb2-basics-runtime:${jaxb2Version}"
+    implementation "codes.rafael.jaxb2_commons:jaxb2-basics:${jaxb2Version}"
     implementation "org.springframework:spring-webmvc"
     implementation "org.springframework:spring-jms"
 
