@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.xml.ws.WebServiceException;
+import jakarta.xml.ws.WebServiceException;
 
 import se.inera.intyg.infra.logmessages.ActivityType;
 import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
