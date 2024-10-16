@@ -20,7 +20,7 @@ ext {
     apacheCXFVersion = "4.0.5"
     camelVersion = "4.8.0"
     geronimoVersion = "1.1.1"
-    googleGuavaVersion = "3.0.0-jre"
+    googleGuavaVersion = "33.0.0-jre"
     jakartaJwsApiVersion = "3.0.0"
     jaxb2Version = "3.0.0"
 
@@ -130,7 +130,6 @@ dependencies {
     implementation "se.inera.intyg.infra:monitoring:${infraVersion}"
 
     implementation "com.google.guava:guava:${googleGuavaVersion}"
-    implementation "com.sun.activation:jakarta.activation"
     implementation "org.apache.activemq:activemq-spring"
     implementation "org.apache.camel:camel-activemq:${camelVersion}"
     implementation "org.apache.camel:camel-core:${camelVersion}"
