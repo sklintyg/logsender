@@ -18,7 +18,7 @@ ext {
     schemasContractVersion = "2.1.8.2"
 
     apacheCXFVersion = "4.0.5"
-    camelVersion = "4.8.0"
+    camelVersion = "3.21.1"
     geronimoVersion = "1.1.1"
     googleGuavaVersion = "33.0.0-jre"
     jakartaJwsApiVersion = "3.0.0"
@@ -67,6 +67,7 @@ gretty {
 
 
 tasks.withType(War).configureEach {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     destinationDirectory = file("$rootDir/web/build/libs")
 }
 
