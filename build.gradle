@@ -23,6 +23,7 @@ ext {
     googleGuavaVersion = "33.0.0-jre"
     jakartaJwsApiVersion = "3.0.0"
     jaxb2Version = "3.0.0"
+    logbackEcsEncoderVersion = "1.6.0"
 
     springbootMavenBomVersion = "3.3.4"
 
@@ -54,7 +55,7 @@ gretty {
             "-Dcatalina.base=${buildDirectory}/catalina.base",
             "-Dspring.profiles.active=dev,wc-loggtjanst-stub,testability-api,caching-enabled",
             "-Dapplication.dir=${applicationDir}",
-            "-Dlogback.file=${applicationDir}/config/logback-dev.xml",
+            "-Dlogback.file=${applicationDir}/config/logback-spring.xml",
             "-Djava.awt.headless=true",
             "-Dfile.encoding=UTF-8",
             "-Ddev.config.file=${applicationDir}/config/application-dev.properties",
@@ -120,6 +121,7 @@ dependencyManagement {
 }
 
 dependencies {
+    implementation "co.elastic.logging:logback-ecs-encoder:${logbackEcsEncoderVersion}"
     implementation "se.inera.intyg.schemas:schemas-contract:${schemasContractVersion}"
     implementation "se.riv.informationsecurity.auditing.log:informationsecurity-auditing-log-schemas:${rivtaStoreLogSchemasVersion}"
 
@@ -139,10 +141,13 @@ dependencies {
     implementation "codes.rafael.jaxb2_commons:jaxb2-basics:${jaxb2Version}"
     implementation "org.springframework:spring-webmvc"
     implementation "org.springframework:spring-jms"
+    implementation "ch.qos.logback:logback-classic"
+    implementation "org.aspectj:aspectjweaver"
 
     compileOnly "jakarta.servlet:jakarta.servlet-api"
     compileOnly "jakarta.ws.rs:jakarta.ws.rs-api"
     compileOnly "org.apache.geronimo.specs:geronimo-jms_1.1_spec:${geronimoVersion}"
+    compileOnly 'org.projectlombok:lombok'
 
     runtimeOnly "org.apache.camel:camel-jms:${camelVersion}"
     runtimeOnly "org.apache.camel:camel-spring:${camelVersion}"
@@ -157,6 +162,8 @@ dependencies {
     testImplementation "org.springframework:spring-test"
     testImplementation "jakarta.xml.bind:jakarta.xml.bind-api"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+
+    annotationProcessor 'org.projectlombok:lombok'
 
     gretty "org.apache.activemq:activemq-client"
     gretty "org.apache.activemq:activemq-broker"

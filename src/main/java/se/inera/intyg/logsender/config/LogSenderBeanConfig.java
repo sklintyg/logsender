@@ -28,13 +28,16 @@ import se.inera.intyg.logsender.routes.LogSenderRouteBuilder;
 import se.inera.intyg.logsender.service.LogMessageAggregationProcessor;
 import se.inera.intyg.logsender.service.LogMessageSendProcessor;
 import se.inera.intyg.logsender.service.LogMessageSplitProcessor;
+import se.inera.intyg.logsender.service.SoapIntegrationService;
+import se.inera.intyg.logsender.service.SoapIntegrationServiceImpl;
+import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
 
 @Configuration
 public class LogSenderBeanConfig {
 
     @Bean
-    public LogSenderClient logSenderClient() {
-        return new LogSenderClientImpl();
+    public LogSenderClient logSenderClient(SoapIntegrationService soapIntegrationService) {
+        return new LogSenderClientImpl(soapIntegrationService);
     }
 
     @Bean
@@ -60,5 +63,10 @@ public class LogSenderBeanConfig {
     @Bean
     public LogSenderRouteBuilder logSenderRouteBuilder() {
         return new LogSenderRouteBuilder();
+    }
+
+    @Bean
+    public SoapIntegrationService soapIntegrationService(StoreLogResponderInterface storeLogResponderInterface) {
+        return new SoapIntegrationServiceImpl(storeLogResponderInterface);
     }
 }
