@@ -28,7 +28,7 @@ import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogType
 
 @Service
 @RequiredArgsConstructor
-public class SoapIntegrationServiceImpl implements SoapIntegrationService{
+public class SoapIntegrationServiceImpl implements SoapIntegrationService {
 
   private final StoreLogResponderInterface storeLogResponder;
 
