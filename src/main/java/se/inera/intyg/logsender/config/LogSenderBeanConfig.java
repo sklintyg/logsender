@@ -47,7 +47,8 @@ public class LogSenderBeanConfig {
     }
 
     @Bean
-    public LogMessageSendProcessor logMessageSendProcessor(LogSenderClient logSenderClient, LogTypeFactory logTypeFactory, MdcHelper mdcHelper) {
+    public LogMessageSendProcessor logMessageSendProcessor(LogSenderClient logSenderClient,
+        LogTypeFactory logTypeFactory, MdcHelper mdcHelper) {
         return new LogMessageSendProcessor(logSenderClient, logTypeFactory, mdcHelper);
     }
 
@@ -72,7 +73,7 @@ public class LogSenderBeanConfig {
     }
 
     @Bean
-    public MdcHelper mdcHelper(){
+    public MdcHelper mdcHelper() {
         return new MdcHelper();
     }
 }
