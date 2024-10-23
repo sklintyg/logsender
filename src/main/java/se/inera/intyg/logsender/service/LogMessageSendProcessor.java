@@ -22,9 +22,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.xml.ws.WebServiceException;
 import java.io.IOException;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import se.inera.intyg.common.util.integration.json.CustomObjectMapper;
 import se.inera.intyg.infra.logmessages.PdlLogMessage;
 import se.inera.intyg.logsender.client.LogSenderClient;
@@ -42,19 +42,18 @@ import se.riv.informationsecurity.auditing.log.v2.ResultType;
 /**
  * Created by eriklupander on 2015-05-21.
  */
+@RequiredArgsConstructor
 public class LogMessageSendProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(LogMessageSendProcessor.class);
 
-    @Autowired
-    private LogSenderClient logSenderClient;
+    private final LogSenderClient logSenderClient;
 
-    @Autowired
-    private LogTypeFactory logTypeFactory;
+    private final LogTypeFactory logTypeFactory;
 
     private final ObjectMapper objectMapper = new CustomObjectMapper();
 
-    private final MdcHelper mdcHelper = new MdcHelper();
+    private final MdcHelper mdcHelper;
 
     /**
      * Note use of Camel "boxing" of the body.
@@ -74,7 +73,7 @@ public class LogMessageSendProcessor {
 
             List<LogType> logMessages = groupedList.stream()
                 .map(this::jsonToPdlLogMessage)
-                .map(alm -> logTypeFactory.convert(alm))
+                .map(logTypeFactory::convert)
                 .toList();
 
             StoreLogResponseType response = logSenderClient.sendLogMessage(logMessages);

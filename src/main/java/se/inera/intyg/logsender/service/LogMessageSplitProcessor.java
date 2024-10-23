@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.apache.camel.Body;
 import org.apache.camel.Message;
 import org.apache.camel.impl.DefaultCamelContext;
@@ -46,13 +47,14 @@ import se.inera.intyg.logsender.logging.MdcLogConstants;
  *
  * Created by eriklupander on 2016-03-16.
  */
+@RequiredArgsConstructor
 public class LogMessageSplitProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(LogMessageSplitProcessor.class);
 
     private final ObjectMapper objectMapper = new CustomObjectMapper();
 
-    private final MdcHelper mdcHelper = new MdcHelper();
+    private final MdcHelper mdcHelper;
 
     /**
      * If a PdlLogMessage contains more than one resource, it is split into (n resources) number of new PdlLogMessages with one Resource

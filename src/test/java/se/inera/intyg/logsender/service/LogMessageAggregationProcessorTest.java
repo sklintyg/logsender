@@ -24,34 +24,45 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import se.inera.intyg.common.util.integration.json.CustomObjectMapper;
 import se.inera.intyg.infra.logmessages.ActivityType;
 import se.inera.intyg.logsender.exception.PermanentException;
 import se.inera.intyg.logsender.helper.TestDataHelper;
+import se.inera.intyg.logsender.logging.MdcHelper;
 
 /**
  * Created by eriklupander on 2016-03-08.
  */
 
 @ExtendWith(MockitoExtension.class)
-public class LogMessageAggregationProcessorTest {
+class LogMessageAggregationProcessorTest {
 
-    private LogMessageAggregationProcessor testee = new LogMessageAggregationProcessor();
+    @Mock
+    MdcHelper mdcHelper;
 
-    private ObjectMapper objectMapper = new CustomObjectMapper();
+    @InjectMocks
+    private LogMessageAggregationProcessor testee;
+
+    private final ObjectMapper objectMapper = new CustomObjectMapper();
+
+    @BeforeEach
+    void setUp() {
+        when(mdcHelper.spanId()).thenReturn("spanId");
+        when(mdcHelper.traceId()).thenReturn("traceId");
+    }
 
     @Test
-    public void testOkGroupedExchange() throws Exception {
+    void testOkGroupedExchange() throws Exception {
         String body = testee.process(buildGroupedExchange(1, 1));
         List<?> output = objectMapper.readValue(body, ArrayList.class);
         assertEquals(1, output.size());
@@ -62,14 +73,14 @@ public class LogMessageAggregationProcessorTest {
      * it is valid.
      */
     @Test
-    public void testGroupedExchangeWithMultipleResources() throws Exception {
+    void testGroupedExchangeWithMultipleResources() throws Exception {
         String body = testee.process(buildGroupedExchange(3, 5));
         List<?> output = objectMapper.readValue(body, ArrayList.class);
         assertEquals(3, output.size());
     }
 
     @Test
-    public void testEmptyGroupedExchange() {
+    void testEmptyGroupedExchange() {
         assertThrows(PermanentException.class, () ->
             testee.process(buildGroupedExchange(0, 1)));
     }

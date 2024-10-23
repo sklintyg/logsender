@@ -1,8 +1,6 @@
 package se.inera.intyg.logsender.logging;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.nio.CharBuffer;
-import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 import org.springframework.stereotype.Component;
@@ -10,24 +8,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class MdcHelper {
 
-  public static final String LOG_TRACE_ID_HEADER = "x-trace-id";
-  public static final String LOG_SESSION_ID_HEADER = "x-session-id";
   private static final int LENGTH_LIMIT = 8;
   private static final char[] BASE62CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".toCharArray();
-
-  public String sessionId(HttpServletRequest http) {
-    return Optional.ofNullable(
-            http.getHeader(LOG_SESSION_ID_HEADER)
-        )
-        .orElse("-");
-  }
-
-  public String traceId(HttpServletRequest http) {
-    return Optional.ofNullable(
-            http.getHeader(LOG_TRACE_ID_HEADER)
-        )
-        .orElse(generateId());
-  }
 
   public String traceId() {
     return generateId();

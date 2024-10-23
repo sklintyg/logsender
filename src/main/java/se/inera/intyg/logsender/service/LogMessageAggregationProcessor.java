@@ -21,6 +21,7 @@ package se.inera.intyg.logsender.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.apache.camel.Exchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,13 +43,14 @@ import se.inera.intyg.logsender.logging.MdcLogConstants;
  *
  * Created by eriklupander on 2016-02-29.
  */
+@RequiredArgsConstructor
 public class LogMessageAggregationProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(LogMessageAggregationProcessor.class);
 
     private final ObjectMapper objectMapper = new CustomObjectMapper();
 
-    private final MdcHelper mdcHelper = new MdcHelper();
+    private final MdcHelper mdcHelper;
 
     /**
      * Transforms the contents of the grouped exchange into a list of {@link PdlLogMessage}.

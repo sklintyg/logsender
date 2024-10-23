@@ -20,39 +20,55 @@ package se.inera.intyg.logsender.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
+import java.util.List;
+import org.apache.camel.Message;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.support.DefaultMessage;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import java.util.List;
-
-import org.apache.camel.Message;
-
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import se.inera.intyg.infra.logmessages.ActivityType;
 import se.inera.intyg.logsender.exception.PermanentException;
 import se.inera.intyg.logsender.helper.TestDataHelper;
+import se.inera.intyg.logsender.logging.MdcHelper;
 
 /**
  * Created by eriklupander on 2016-03-16.
  */
-public class LogMessageSplitProcessorTest {
+@ExtendWith(MockitoExtension.class)
+class LogMessageSplitProcessorTest {
 
-    private LogMessageSplitProcessor testee = new LogMessageSplitProcessor();
+    @Mock
+    MdcHelper mdcHelper;
+
+    @InjectMocks
+    private LogMessageSplitProcessor testee;
+
+    @BeforeEach
+    void setUp() {
+        when(mdcHelper.spanId()).thenReturn("spanId");
+        when(mdcHelper.traceId()).thenReturn("traceId");
+    }
 
     @Test
-    public void testSingleResource() throws Exception {
+    void testSingleResource() throws Exception {
         List<Message> messages = testee.process(buildMessage(1));
         assertEquals(1, messages.size());
     }
 
     @Test
-    public void testMultipleResources() throws Exception {
+    void testMultipleResources() throws Exception {
         List<Message> messages = testee.process(buildMessage(3));
         assertEquals(3, messages.size());
     }
 
     @Test
-    public void testNoResource() {
+    void testNoResource() {
         assertThrows(PermanentException.class, () ->
             testee.process(buildMessage(0)));
     }
