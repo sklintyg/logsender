@@ -53,7 +53,7 @@ gretty {
 
     jvmArgs = [
             "-Dcatalina.base=${buildDirectory}/catalina.base",
-            "-Dspring.profiles.active=dev,wc-loggtjanst-stub,testability-api,caching-enabled",
+            "-Dspring.profiles.active=dev,wc-loggtjanst-stub,caching-enabled",
             "-Dapplication.dir=${applicationDir}",
             "-Dlogback.file=${applicationDir}/config/logback-spring.xml",
             "-Djava.awt.headless=true",
