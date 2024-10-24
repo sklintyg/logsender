@@ -18,18 +18,13 @@
  */
 package se.inera.intyg.logsender.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.xml.ws.WebServiceException;
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import jakarta.xml.ws.WebServiceException;
-
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import se.inera.intyg.common.util.integration.json.CustomObjectMapper;
 import se.inera.intyg.infra.logmessages.PdlLogMessage;
 import se.inera.intyg.logsender.client.LogSenderClient;
@@ -37,6 +32,9 @@ import se.inera.intyg.logsender.converter.LogTypeFactory;
 import se.inera.intyg.logsender.exception.BatchValidationException;
 import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
 import se.inera.intyg.logsender.exception.TemporaryException;
+import se.inera.intyg.logsender.logging.MdcCloseableMap;
+import se.inera.intyg.logsender.logging.MdcHelper;
+import se.inera.intyg.logsender.logging.MdcLogConstants;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
 import se.riv.informationsecurity.auditing.log.v2.LogType;
 import se.riv.informationsecurity.auditing.log.v2.ResultType;
@@ -44,17 +42,18 @@ import se.riv.informationsecurity.auditing.log.v2.ResultType;
 /**
  * Created by eriklupander on 2015-05-21.
  */
+@RequiredArgsConstructor
 public class LogMessageSendProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(LogMessageSendProcessor.class);
 
-    @Autowired
-    private LogSenderClient logSenderClient;
+    private final LogSenderClient logSenderClient;
 
-    @Autowired
-    private LogTypeFactory logTypeFactory;
+    private final LogTypeFactory logTypeFactory;
 
-    private ObjectMapper objectMapper = new CustomObjectMapper();
+    private final ObjectMapper objectMapper = new CustomObjectMapper();
+
+    private final MdcHelper mdcHelper;
 
     /**
      * Note use of Camel "boxing" of the body.
@@ -65,27 +64,30 @@ public class LogMessageSendProcessor {
      */
     public void process(String groupedLogEntries) throws IOException, BatchValidationException, TemporaryException {
 
-        try {
-
+        try (MdcCloseableMap mdc = MdcCloseableMap.builder()
+            .put(MdcLogConstants.TRACE_ID_KEY, mdcHelper.traceId())
+            .put(MdcLogConstants.SPAN_ID_KEY, mdcHelper.spanId())
+            .build()
+        ) {
             List<String> groupedList = objectMapper.readValue(groupedLogEntries, List.class);
 
             List<LogType> logMessages = groupedList.stream()
                 .map(this::jsonToPdlLogMessage)
-                .map(alm -> logTypeFactory.convert(alm))
-                .collect(Collectors.toList());
+                .map(logTypeFactory::convert)
+                .toList();
 
             StoreLogResponseType response = logSenderClient.sendLogMessage(logMessages);
 
             final ResultType result = response.getResult();
             final String resultText = result.getResultText();
+            final var resultCodeValue = result.getResultCode().value();
 
             switch (result.getResultCode()) {
                 case OK:
                     break;
-                case ERROR:
-                case VALIDATION_ERROR:
+                case ERROR, VALIDATION_ERROR:
                     LOG.error("Loggtjänsten rejected PDL message batch with {}, batch will be moved to DLQ. Result text: '{}'",
-                        result.getResultCode().value(), resultText);
+                        resultCodeValue, resultText);
                     throw new BatchValidationException(
                         "Loggtjänsten rejected PDL message batch with error: " + resultText + ". Batch will be moved directly to DLQ.");
                 case INFO:
@@ -96,14 +98,16 @@ public class LogMessageSendProcessor {
             }
 
         } catch (IllegalArgumentException e) {
-            LOG.error(e.getMessage() + ". Moving batch to DLQ.");
-            throw new BatchValidationException("Unparsable Log message: " + e.getMessage());
+            LOG.error("Moving batch to DLQ.");
+            throw new BatchValidationException("Unparsable Log message: " + e);
+
         } catch (LoggtjanstExecutionException e) {
-            LOG.warn("Call to send log message caused a LoggtjanstExecutionException: {}. Will retry", e.getMessage());
-            throw new TemporaryException(e.getMessage());
+            LOG.warn("Call to send log message caused a LoggtjanstExecutionException. Will retry.");
+            throw new TemporaryException(e);
+
         } catch (WebServiceException e) {
-            LOG.warn("Call to send log message caused an error: {}. Will retry", e.getMessage());
-            throw new TemporaryException(e.getMessage());
+            LOG.warn("Call to send log message caused an error. Will retry.");
+            throw new TemporaryException(e);
         }
     }
 
@@ -111,7 +115,7 @@ public class LogMessageSendProcessor {
         try {
             return objectMapper.readValue(body, PdlLogMessage.class);
         } catch (IOException e) {
-            throw new IllegalArgumentException("Could not parse PdlLogMessage from log message JSON: " + e.getMessage());
+            throw new IllegalArgumentException("Could not parse PdlLogMessage from log message JSON: " + e);
         }
     }
 }

@@ -24,17 +24,21 @@ import se.inera.intyg.logsender.client.LogSenderClient;
 import se.inera.intyg.logsender.client.LogSenderClientImpl;
 import se.inera.intyg.logsender.converter.LogTypeFactory;
 import se.inera.intyg.logsender.converter.LogTypeFactoryImpl;
+import se.inera.intyg.logsender.logging.MdcHelper;
 import se.inera.intyg.logsender.routes.LogSenderRouteBuilder;
 import se.inera.intyg.logsender.service.LogMessageAggregationProcessor;
 import se.inera.intyg.logsender.service.LogMessageSendProcessor;
 import se.inera.intyg.logsender.service.LogMessageSplitProcessor;
+import se.inera.intyg.logsender.service.SoapIntegrationService;
+import se.inera.intyg.logsender.service.SoapIntegrationServiceImpl;
+import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
 
 @Configuration
 public class LogSenderBeanConfig {
 
     @Bean
-    public LogSenderClient logSenderClient() {
-        return new LogSenderClientImpl();
+    public LogSenderClient logSenderClient(SoapIntegrationService soapIntegrationService) {
+        return new LogSenderClientImpl(soapIntegrationService);
     }
 
     @Bean
@@ -43,22 +47,33 @@ public class LogSenderBeanConfig {
     }
 
     @Bean
-    public LogMessageSendProcessor logMessageSendProcessor() {
-        return new LogMessageSendProcessor();
+    public LogMessageSendProcessor logMessageSendProcessor(LogSenderClient logSenderClient,
+        LogTypeFactory logTypeFactory, MdcHelper mdcHelper) {
+        return new LogMessageSendProcessor(logSenderClient, logTypeFactory, mdcHelper);
     }
 
     @Bean
-    public LogMessageAggregationProcessor logMessageAggregationProcessor() {
-        return new LogMessageAggregationProcessor();
+    public LogMessageAggregationProcessor logMessageAggregationProcessor(MdcHelper mdcHelper) {
+        return new LogMessageAggregationProcessor(mdcHelper);
     }
 
     @Bean
-    public LogMessageSplitProcessor logMessageSplitProcessor() {
-        return new LogMessageSplitProcessor();
+    public LogMessageSplitProcessor logMessageSplitProcessor(MdcHelper mdcHelper) {
+        return new LogMessageSplitProcessor(mdcHelper);
     }
 
     @Bean
     public LogSenderRouteBuilder logSenderRouteBuilder() {
         return new LogSenderRouteBuilder();
+    }
+
+    @Bean
+    public SoapIntegrationService soapIntegrationService(StoreLogResponderInterface storeLogResponderInterface) {
+        return new SoapIntegrationServiceImpl(storeLogResponderInterface);
+    }
+
+    @Bean
+    public MdcHelper mdcHelper() {
+        return new MdcHelper();
     }
 }

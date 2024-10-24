@@ -18,19 +18,19 @@
  */
 package se.inera.intyg.logsender.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
-import java.util.stream.Collectors;
-
+import lombok.RequiredArgsConstructor;
 import org.apache.camel.Exchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import se.inera.intyg.common.util.integration.json.CustomObjectMapper;
 import se.inera.intyg.infra.logmessages.PdlLogMessage;
 import se.inera.intyg.logsender.exception.PermanentException;
+import se.inera.intyg.logsender.logging.MdcCloseableMap;
+import se.inera.intyg.logsender.logging.MdcHelper;
+import se.inera.intyg.logsender.logging.MdcLogConstants;
 
 /**
  * Accepts a Camel Exchange that must contain a {@link Exchange#GROUPED_EXCHANGE} of (n) log messages that should be sent in a batch to the
@@ -43,11 +43,14 @@ import se.inera.intyg.logsender.exception.PermanentException;
  *
  * Created by eriklupander on 2016-02-29.
  */
+@RequiredArgsConstructor
 public class LogMessageAggregationProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(LogMessageAggregationProcessor.class);
 
-    private ObjectMapper objectMapper = new CustomObjectMapper();
+    private final ObjectMapper objectMapper = new CustomObjectMapper();
+
+    private final MdcHelper mdcHelper;
 
     /**
      * Transforms the contents of the grouped exchange into a list of {@link PdlLogMessage}.
@@ -57,18 +60,23 @@ public class LogMessageAggregationProcessor {
      * @throws PermanentException If the exchange could not be read or did not contain any grouped exchanges, just ignore.
      */
     public String process(Exchange exchange) throws PermanentException, JsonProcessingException {
+        try (MdcCloseableMap mdc = MdcCloseableMap.builder()
+            .put(MdcLogConstants.TRACE_ID_KEY, mdcHelper.traceId())
+            .put(MdcLogConstants.SPAN_ID_KEY, mdcHelper.spanId())
+            .build()
+        ) {
+            List<Exchange> grouped = exchange.getIn().getBody(List.class);
 
-        List<Exchange> grouped = exchange.getIn().getBody(List.class);
+            if (grouped == null || grouped.isEmpty()) {
+                LOG.info("No aggregated log messages, this is normal if camel aggregator has a batch timeout. Doing nothing.");
+                throw new PermanentException("No aggregated messages, no reason to retry");
+            }
 
-        if (grouped == null || grouped.isEmpty()) {
-            LOG.info("No aggregated log messages, this is normal if camel aggregator has a batch timeout. Doing nothing.");
-            throw new PermanentException("No aggregated messages, no reason to retry");
+            List<String> aggregatedList = grouped.stream()
+                .map(oneExchange -> (String) oneExchange.getIn().getBody())
+                .toList();
+
+            return objectMapper.writeValueAsString(aggregatedList);
         }
-
-        List<String> aggregatedList = grouped.stream()
-            .map(oneExchange -> (String) oneExchange.getIn().getBody())
-            .collect(Collectors.toList());
-
-        return objectMapper.writeValueAsString(aggregatedList);
     }
 }

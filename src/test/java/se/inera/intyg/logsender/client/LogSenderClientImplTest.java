@@ -27,27 +27,20 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import jakarta.xml.ws.WebServiceException;
 import java.util.ArrayList;
 import java.util.List;
-
-import jakarta.xml.ws.WebServiceException;
-
 import org.junit.jupiter.api.Test;
-
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
+import se.inera.intyg.logsender.service.SoapIntegrationServiceImpl;
 import se.inera.intyg.logsender.testconfig.UnitTestConfig;
-import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogType;
 import se.riv.informationsecurity.auditing.log.v2.LogType;
@@ -58,57 +51,55 @@ import se.riv.informationsecurity.auditing.log.v2.ResultType;
  * Created by eriklupander on 2016-03-08.
  */
 
-@ExtendWith(SpringExtension.class)
 @ExtendWith(MockitoExtension.class)
 @TestPropertySource(locations = {"classpath:logsender/unit-test.properties"})
 @ContextConfiguration(classes = {UnitTestConfig.class}, loader = AnnotationConfigContextLoader.class)
 class LogSenderClientImplTest {
 
     @Mock
-    StoreLogResponderInterface storeLogResponderInterface;
+    SoapIntegrationServiceImpl soapIntegrationService;
 
-    @Autowired
     @InjectMocks
-    private LogSenderClient testee;
+    private LogSenderClientImpl testee;
 
     @Test
-    public void testSendOk() {
-        when(storeLogResponderInterface.storeLog(anyString(), any(StoreLogType.class))).thenReturn(buildOkResponse());
+    void testSendOk() {
+        when(soapIntegrationService.storeLog(any(), any(StoreLogType.class))).thenReturn(buildOkResponse());
         StoreLogResponseType response = testee.sendLogMessage(buildLogEntries());
         assertNotNull(response);
         assertEquals(ResultCodeType.OK, response.getResult().getResultCode());
     }
 
     @Test
-    public void testSendError() {
-        when(storeLogResponderInterface.storeLog(anyString(), any(StoreLogType.class))).thenReturn(buildErrorResponse());
+    void testSendError() {
+        when(soapIntegrationService.storeLog(any(), any(StoreLogType.class))).thenReturn(buildErrorResponse());
         StoreLogResponseType response = testee.sendLogMessage(buildLogEntries());
         assertNotNull(response);
         assertEquals(ResultCodeType.ERROR, response.getResult().getResultCode());
     }
 
     @Test
-    public void testSendWithNullListCausesNoSend() {
+    void testSendWithNullListCausesNoSend() {
         StoreLogResponseType response = testee.sendLogMessage(null);
         assertNotNull(response);
         assertEquals(ResultCodeType.INFO, response.getResult().getResultCode());
         assertNotNull(response.getResult().getResultText());
-        verify(storeLogResponderInterface, times(0)).storeLog(anyString(), any(StoreLogType.class));
+        verify(soapIntegrationService, times(0)).storeLog(anyString(), any(StoreLogType.class));
     }
 
     @Test
-    public void testSendWithEmptyLogEntriesListCausesNoSend() {
+    void testSendWithEmptyLogEntriesListCausesNoSend() {
         StoreLogResponseType response = testee.sendLogMessage(new ArrayList<>());
         assertNotNull(response);
         assertEquals(ResultCodeType.INFO, response.getResult().getResultCode());
         assertNotNull(response.getResult().getResultText());
-        verify(storeLogResponderInterface, times(0)).storeLog(anyString(), any(StoreLogType.class));
+        verify(soapIntegrationService, times(0)).storeLog(anyString(), any(StoreLogType.class));
     }
 
     @Test
-    public void testWebServiceExceptionCausesLoggtjanstExecutionException() {
+    void testWebServiceExceptionCausesLoggtjanstExecutionException() {
         assertThrows(LoggtjanstExecutionException.class, () -> {
-            when(storeLogResponderInterface.storeLog(anyString(), any(StoreLogType.class))).thenThrow(new WebServiceException("error"));
+            when(soapIntegrationService.storeLog(any(), any(StoreLogType.class))).thenThrow(new WebServiceException("error"));
             testee.sendLogMessage(buildLogEntries());
         });
     }

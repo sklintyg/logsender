@@ -18,17 +18,15 @@
  */
 package se.inera.intyg.logsender.client;
 
+import jakarta.xml.ws.WebServiceException;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import jakarta.xml.ws.WebServiceException;
-
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-
 import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
+import se.inera.intyg.logsender.service.SoapIntegrationService;
 import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogType;
@@ -43,6 +41,7 @@ import se.riv.informationsecurity.auditing.log.v2.ResultType;
  *
  * Created by eriklupander on 2016-02-29.
  */
+@RequiredArgsConstructor
 public class LogSenderClientImpl implements LogSenderClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(LogSenderClientImpl.class);
@@ -50,8 +49,7 @@ public class LogSenderClientImpl implements LogSenderClient {
     @Value("${loggtjanst.logicalAddress}")
     private String logicalAddress;
 
-    @Autowired
-    private StoreLogResponderInterface storeLogClient;
+    private final SoapIntegrationService soapIntegrationService;
 
     @Override
     public StoreLogResponseType sendLogMessage(List<LogType> logEntries) {
@@ -69,13 +67,11 @@ public class LogSenderClientImpl implements LogSenderClient {
         request.getLog().addAll(logEntries);
 
         try {
-            StoreLogResponseType response = storeLogClient.storeLog(logicalAddress, request);
-            if (response.getResult().getResultCode() == ResultCodeType.OK) {
-                if (LOG.isDebugEnabled()) {
+            StoreLogResponseType response = soapIntegrationService.storeLog(logicalAddress, request);
+            if (response.getResult().getResultCode() == ResultCodeType.OK && (LOG.isDebugEnabled())) {
                     LOG.debug("Successfully sent {} PDL log entries for ID's: {}", logEntries.size(), logEntries.stream()
                         .map(LogType::getLogId)
                         .collect(Collectors.joining(", ")));
-                }
             }
             return response;
         } catch (WebServiceException e) {
