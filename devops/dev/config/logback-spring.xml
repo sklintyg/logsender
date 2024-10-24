@@ -22,6 +22,8 @@
 
 	<include resource="logback/logback-spring-base.xml"/>
 
+	<logger name="org.apache.cxf.services.StoreLogResponderInterface.REQ_OUT" level="WARN" />
+
 	<root level="INFO">
 		<appender-ref ref="CONSOLE"/>
 	</root>
