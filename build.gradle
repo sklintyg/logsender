@@ -143,6 +143,7 @@ dependencies {
     implementation "org.springframework:spring-jms"
     implementation "ch.qos.logback:logback-classic"
     implementation "org.aspectj:aspectjweaver"
+    implementation "org.apache.activemq:activemq-spring"
 
     compileOnly "jakarta.servlet:jakarta.servlet-api"
     compileOnly "jakarta.ws.rs:jakarta.ws.rs-api"
@@ -165,8 +166,6 @@ dependencies {
 
     annotationProcessor 'org.projectlombok:lombok'
 
-    gretty "org.apache.activemq:activemq-client"
-    gretty "org.apache.activemq:activemq-broker"
     gretty "com.mysql:mysql-connector-j"
 }
 
@@ -184,4 +183,3 @@ dependencyCheck {
     nvd.setDatafeedUrl(nvdMirror)
     analyzers.setAssemblyEnabled(false)
 }
-
