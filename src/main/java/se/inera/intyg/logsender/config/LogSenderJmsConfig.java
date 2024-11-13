@@ -20,7 +20,9 @@ package se.inera.intyg.logsender.config;
 
 import static org.apache.camel.LoggingLevel.OFF;
 
+import jakarta.jms.ConnectionFactory;
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.pool.PooledConnectionFactory;
 import org.apache.camel.CamelContext;
 import org.apache.camel.component.activemq.ActiveMQComponent;
 import org.apache.camel.component.jms.JmsConfiguration;
@@ -63,9 +65,7 @@ public class LogSenderJmsConfig {
 
     @Bean
     public JmsTransactionManager jmsTransactionManager() {
-        JmsTransactionManager jmsTransactionManager = new JmsTransactionManager();
-        jmsTransactionManager.setConnectionFactory(transactionAwareConnectionFactoryProxy());
-        return jmsTransactionManager;
+        return new JmsTransactionManager(transactionAwareConnectionFactoryProxy());
     }
 
     @Bean
@@ -77,12 +77,8 @@ public class LogSenderJmsConfig {
         return cachingConnectionFactory;
     }
 
-    private ActiveMQConnectionFactory connectionFactory() {
-        ActiveMQConnectionFactory jmsFactory = new ActiveMQConnectionFactory();
-        jmsFactory.setUserName(activemqBrokerUsername);
-        jmsFactory.setPassword(activemqBrokerPassword);
-        jmsFactory.setBrokerURL(activemqBrokerUrl);
-        return jmsFactory;
+    private ConnectionFactory connectionFactory() {
+        return new PooledConnectionFactory(new ActiveMQConnectionFactory(activemqBrokerUsername, activemqBrokerPassword, activemqBrokerUrl));
     }
 
     private JmsConfiguration jmsConfiguration() {
