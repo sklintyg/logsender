@@ -20,25 +20,16 @@ package se.inera.intyg.logsender.config;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.spring.SpringBus;
+import org.apache.cxf.transport.servlet.CXFServlet;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportResource;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.context.support.ResourceBundleMessageSource;
 
 @Configuration
-@PropertySource("classpath:application.properties")
-@PropertySource(ignoreResourceNotFound = true, value = "file:${dev.config.file}")
 @Import({LogSenderBeanConfig.class, LogSenderJmsConfig.class, LogSenderWsConfig.class})
-@ImportResource(locations = {"classpath:camel-context.xml", "classpath:basic-cache-config.xml", "classpath:/loggtjanst-stub-context.xml"})
 public class LogSenderAppConfig {
-
-    @Bean
-    public static PropertySourcesPlaceholderConfigurer propertyConfig() {
-        return new PropertySourcesPlaceholderConfigurer();
-    }
 
     @Bean
     public ResourceBundleMessageSource messageSource() {
@@ -51,5 +42,14 @@ public class LogSenderAppConfig {
     @Bean(name = Bus.DEFAULT_BUS_ID)
     public Bus cxf() {
         return new SpringBus();
+    }
+
+    @Bean
+    public ServletRegistrationBean<CXFServlet> cxfServletRegistration() {
+        ServletRegistrationBean<CXFServlet> registration =
+            new ServletRegistrationBean<>(new CXFServlet(), "/*");
+        registration.setLoadOnStartup(1);
+        registration.setName("ws");
+        return registration;
     }
 }

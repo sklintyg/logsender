@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Inera AB (http://www.inera.se)
+ * Copyright (C) 2025 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -16,15 +16,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.inera.intyg.logsender.converter;
+package se.inera.intyg.logsender.model;
 
-import se.inera.intyg.logsender.model.PdlLogMessage;
-import se.riv.informationsecurity.auditing.log.v2.LogType;
+public enum ActivityPurpose {
 
-/**
- * Created by eriklupander on 2016-02-29.
- */
-public interface LogTypeFactory {
+    CARE_TREATMENT("Vård och behandling");
 
-    LogType convert(PdlLogMessage source);
+    private final String type;
+
+    ActivityPurpose(String type) {
+        this.type = type;
+    }
+
+    public String getType() {
+        return type;
+    }
 }

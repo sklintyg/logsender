@@ -20,10 +20,10 @@ package se.inera.intyg.logsender.converter;
 
 import java.util.List;
 import org.springframework.stereotype.Service;
-import se.inera.intyg.infra.logmessages.Enhet;
-import se.inera.intyg.infra.logmessages.Patient;
-import se.inera.intyg.infra.logmessages.PdlLogMessage;
-import se.inera.intyg.infra.logmessages.PdlResource;
+import se.inera.intyg.logsender.model.Enhet;
+import se.inera.intyg.logsender.model.Patient;
+import se.inera.intyg.logsender.model.PdlLogMessage;
+import se.inera.intyg.logsender.model.PdlResource;
 import se.inera.intyg.schemas.contract.Personnummer;
 import se.riv.informationsecurity.auditing.log.v2.ActivityType;
 import se.riv.informationsecurity.auditing.log.v2.CareProviderType;

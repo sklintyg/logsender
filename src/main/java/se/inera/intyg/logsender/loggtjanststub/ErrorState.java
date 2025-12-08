@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Inera AB (http://www.inera.se)
+ * Copyright (C) 2025 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -16,15 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.inera.intyg.logsender.converter;
-
-import se.inera.intyg.logsender.model.PdlLogMessage;
-import se.riv.informationsecurity.auditing.log.v2.LogType;
+package se.inera.intyg.logsender.loggtjanststub;
 
 /**
- * Created by eriklupander on 2016-02-29.
+ * Created by eriklupander on 2016-03-24.
  */
-public interface LogTypeFactory {
-
-    LogType convert(PdlLogMessage source);
+public enum ErrorState {
+    NONE, ERROR, VALIDATION
 }

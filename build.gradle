@@ -1,8 +1,8 @@
 plugins {
-    id "io.spring.dependency-management" version "1.1.6"
-    id "org.gretty" version "4.1.5"
+    id 'java'
+    id 'org.springframework.boot' version '3.5.8'
+    id "io.spring.dependency-management" version "1.1.7"
     id 'idea'
-    id 'war'
     id 'org.sonarqube' version '5.1.0.4882'
     id "org.owasp.dependencycheck" version "10.0.4"
     id 'jacoco'
@@ -11,21 +11,18 @@ plugins {
 def buildDirectory = project.layout.buildDirectory.get().asFile
 
 ext {
-    commonVersion = System.properties['commonVersion'] ?: '4.0.0-SNAPSHOT'
-    infraVersion = System.properties['infraVersion'] ?: '4.0.0-SNAPSHOT'
-
     rivtaStoreLogSchemasVersion = "2.0.1.2"
     schemasContractVersion = "2.1.8.2"
 
     apacheCXFVersion = "4.0.5"
     camelVersion = "4.8.0"
+    camelSpringBootVersion = "4.8.0"
     geronimoVersion = "1.1.1"
     googleGuavaVersion = "33.0.0-jre"
     jakartaJwsApiVersion = "3.0.0"
     jaxb2Version = "3.0.0"
     logbackEcsEncoderVersion = "1.6.0"
 
-    springbootMavenBomVersion = "3.3.4"
 
     nvdMirror = 'https://vulnz-nvd-mirror-devtest.intyg.nordicmedtest.se'
 }
@@ -35,47 +32,20 @@ version = System.properties['buildVersion'] ?: '0-SNAPSHOT'
 sourceCompatibility = 21
 targetCompatibility = 21
 
-gretty {
-    def instance = System.properties['instance'] ?: '0'
-    def useHttpPort = 8010 + (instance as Integer)
-    def useInternalHttpPort = 8110 + (instance as Integer)
-    def applicationDir = "${projectDir}/devops/dev"
-
-    servletContainer = 'tomcat10'
-    contextPath = '/'
-
-    integrationTestTask = null
-    scanInterval = 0
-    debugPort = 8810 + (instance as Integer)
-    portPropertiesFileName = "gretty_ports_${instance}.properties"
-    debugSuspend = false
-    serverConfigFile = "tomcat-gretty.xml"
-
-    jvmArgs = [
-            "-Dcatalina.base=${buildDirectory}/catalina.base",
-            "-Dspring.profiles.active=dev,wc-loggtjanst-stub,caching-enabled",
-            "-Dapplication.dir=${applicationDir}",
-            "-Dlogback.file=${applicationDir}/config/logback-spring.xml",
-            "-Djava.awt.headless=true",
-            "-Dfile.encoding=UTF-8",
-            "-Ddev.config.file=${applicationDir}/config/application-dev.properties",
-            "-Ddev.http.port=${useHttpPort}",
-            "-Ddev.http.port.internal=${useInternalHttpPort}"
-    ]
-
-    extraResourceBase 'build/apps/'
+// Spring Boot JAR packaging configuration
+bootJar {
+    enabled = true
+    archiveFileName = 'logsender.jar'
 }
 
-
-tasks.withType(War).configureEach {
-    destinationDirectory = file("$rootDir/web/build/libs")
+jar {
+    enabled = false
 }
 
 tasks.register('camelTest', Test) {
     useJUnitPlatform()
     outputs.upToDateWhen { false }
     include '**/*IT*'
-    jvmArgs = gretty.jvmArgs
 }
 
 
@@ -111,62 +81,58 @@ jacocoTestReport {
 test {
     useJUnitPlatform()
     exclude '**/*IT*'
-    jvmArgs = gretty.jvmArgs
 }
 
 dependencyManagement {
     imports {
-        mavenBom "org.springframework.boot:spring-boot-dependencies:${springbootMavenBomVersion}"
+        mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+        mavenBom "org.apache.camel.springboot:camel-spring-boot-bom:${camelSpringBootVersion}"
     }
 }
 
 dependencies {
+    // Spring Boot Starters
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // Camel Spring Boot
+    implementation "org.apache.camel.springboot:camel-spring-boot-starter:${camelSpringBootVersion}"
+    implementation "org.apache.camel.springboot:camel-activemq-starter:${camelSpringBootVersion}"
+    implementation "org.apache.camel.springboot:camel-jms-starter:${camelSpringBootVersion}"
+
+    // Existing dependencies (keep)
     implementation "co.elastic.logging:logback-ecs-encoder:${logbackEcsEncoderVersion}"
     implementation "se.inera.intyg.schemas:schemas-contract:${schemasContractVersion}"
     implementation "se.riv.informationsecurity.auditing.log:informationsecurity-auditing-log-schemas:${rivtaStoreLogSchemasVersion}"
 
-    implementation "se.inera.intyg.common:integration-util:${commonVersion}"
-    implementation "se.inera.intyg.common:logging-util:${commonVersion}"
-    implementation "se.inera.intyg.infra:log-messages:${infraVersion}"
-    implementation "se.inera.intyg.infra:loggtjanst-stub:${infraVersion}"
-    implementation "se.inera.intyg.infra:monitoring:${infraVersion}"
-
     implementation "com.google.guava:guava:${googleGuavaVersion}"
     implementation "org.apache.activemq:activemq-spring"
-    implementation "org.apache.camel:camel-activemq:${camelVersion}"
-    implementation "org.apache.camel:camel-core:${camelVersion}"
     implementation "org.apache.cxf:cxf-rt-features-logging:${apacheCXFVersion}"
     implementation "org.apache.cxf:cxf-rt-frontend-jaxws:${apacheCXFVersion}"
+    implementation "org.apache.cxf:cxf-rt-frontend-jaxrs:${apacheCXFVersion}"
     implementation "org.apache.cxf:cxf-rt-transports-http:${apacheCXFVersion}"
+    implementation "org.apache.cxf:cxf-rt-rs-service-description:${apacheCXFVersion}"
+    implementation "com.fasterxml.jackson.jakarta.rs:jackson-jakarta-rs-json-provider"
+    implementation "jakarta.ws.rs:jakarta.ws.rs-api:3.1.0"
     implementation "codes.rafael.jaxb2_commons:jaxb2-basics:${jaxb2Version}"
-    implementation "org.springframework:spring-webmvc"
-    implementation "org.springframework:spring-jms"
     implementation "ch.qos.logback:logback-classic"
-    implementation "org.aspectj:aspectjweaver"
-    implementation "org.apache.activemq:activemq-spring"
 
     compileOnly "jakarta.servlet:jakarta.servlet-api"
-    compileOnly "jakarta.ws.rs:jakarta.ws.rs-api"
     compileOnly "org.apache.geronimo.specs:geronimo-jms_1.1_spec:${geronimoVersion}"
     compileOnly 'org.projectlombok:lombok'
 
-    runtimeOnly "org.apache.camel:camel-jms:${camelVersion}"
-    runtimeOnly "org.apache.camel:camel-spring:${camelVersion}"
-    runtimeOnly "org.apache.camel:camel-spring-xml:${camelVersion}"
     runtimeOnly "org.glassfish.jaxb:jaxb-runtime"
 
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation "org.apache.activemq:activemq-broker"
-    testImplementation "org.apache.camel:camel-test-spring-junit5:${camelVersion}"
+    testImplementation "org.apache.camel:camel-test-spring-junit5:${camelSpringBootVersion}"
     testImplementation "org.awaitility:awaitility"
-    testImplementation "org.junit.jupiter:junit-jupiter-api"
-    testImplementation "org.mockito:mockito-junit-jupiter"
-    testImplementation "org.springframework:spring-test"
     testImplementation "jakarta.xml.bind:jakarta.xml.bind-api"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 
     annotationProcessor 'org.projectlombok:lombok'
-
-    gretty "com.mysql:mysql-connector-j"
+    testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 sonar {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Inera AB (http://www.inera.se)
+ * Copyright (C) 2025 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -16,15 +16,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.inera.intyg.logsender.converter;
+package se.inera.intyg.logsender;
 
-import se.inera.intyg.logsender.model.PdlLogMessage;
-import se.riv.informationsecurity.auditing.log.v2.LogType;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Created by eriklupander on 2016-02-29.
+ * Spring Boot main application class for Logsender.
+ *
+ * Logsender is responsible for aggregating and sending PDL log messages
+ * to the national logging service using Apache Camel for message routing.
  */
-public interface LogTypeFactory {
+@SpringBootApplication
+public class LogsenderApplication {
 
-    LogType convert(PdlLogMessage source);
+    public static void main(String[] args) {
+        SpringApplication.run(LogsenderApplication.class, args);
+    }
 }
+

@@ -25,8 +25,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.inera.intyg.common.util.integration.json.CustomObjectMapper;
-import se.inera.intyg.infra.logmessages.PdlLogMessage;
+import se.inera.intyg.logsender.model.PdlLogMessage;
 import se.inera.intyg.logsender.client.LogSenderClient;
 import se.inera.intyg.logsender.converter.LogTypeFactory;
 import se.inera.intyg.logsender.exception.BatchValidationException;
@@ -51,7 +50,7 @@ public class LogMessageSendProcessor {
 
     private final LogTypeFactory logTypeFactory;
 
-    private final ObjectMapper objectMapper = new CustomObjectMapper();
+    private final ObjectMapper objectMapper;
 
     private final MdcHelper mdcHelper;
 

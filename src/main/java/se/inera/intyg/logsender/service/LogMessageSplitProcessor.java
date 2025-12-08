@@ -30,9 +30,8 @@ import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.support.DefaultMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.inera.intyg.common.util.integration.json.CustomObjectMapper;
-import se.inera.intyg.infra.logmessages.PdlLogMessage;
-import se.inera.intyg.infra.logmessages.PdlResource;
+import se.inera.intyg.logsender.model.PdlLogMessage;
+import se.inera.intyg.logsender.model.PdlResource;
 import se.inera.intyg.logsender.exception.PermanentException;
 import se.inera.intyg.logsender.logging.MdcCloseableMap;
 import se.inera.intyg.logsender.logging.MdcHelper;
@@ -52,7 +51,7 @@ public class LogMessageSplitProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(LogMessageSplitProcessor.class);
 
-    private final ObjectMapper objectMapper = new CustomObjectMapper();
+    private final ObjectMapper objectMapper;
 
     private final MdcHelper mdcHelper;
 

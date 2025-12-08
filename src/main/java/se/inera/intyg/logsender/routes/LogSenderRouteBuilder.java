@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
-import se.inera.intyg.infra.logmessages.PdlLogMessage;
+import se.inera.intyg.logsender.model.PdlLogMessage;
 import se.inera.intyg.logsender.exception.BatchValidationException;
 import se.inera.intyg.logsender.exception.TemporaryException;
 

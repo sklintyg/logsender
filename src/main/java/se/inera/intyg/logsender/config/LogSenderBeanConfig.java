@@ -18,6 +18,8 @@
  */
 package se.inera.intyg.logsender.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import se.inera.intyg.logsender.client.LogSenderClient;
@@ -37,6 +39,13 @@ import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogRes
 public class LogSenderBeanConfig {
 
     @Bean
+    public ObjectMapper objectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        return objectMapper;
+    }
+
+    @Bean
     public LogSenderClient logSenderClient(SoapIntegrationService soapIntegrationService) {
         return new LogSenderClientImpl(soapIntegrationService);
     }
@@ -48,18 +57,18 @@ public class LogSenderBeanConfig {
 
     @Bean
     public LogMessageSendProcessor logMessageSendProcessor(LogSenderClient logSenderClient,
-        LogTypeFactory logTypeFactory, MdcHelper mdcHelper) {
-        return new LogMessageSendProcessor(logSenderClient, logTypeFactory, mdcHelper);
+        LogTypeFactory logTypeFactory, ObjectMapper objectMapper, MdcHelper mdcHelper) {
+        return new LogMessageSendProcessor(logSenderClient, logTypeFactory, objectMapper, mdcHelper);
     }
 
     @Bean
-    public LogMessageAggregationProcessor logMessageAggregationProcessor(MdcHelper mdcHelper) {
-        return new LogMessageAggregationProcessor(mdcHelper);
+    public LogMessageAggregationProcessor logMessageAggregationProcessor(ObjectMapper objectMapper, MdcHelper mdcHelper) {
+        return new LogMessageAggregationProcessor(objectMapper, mdcHelper);
     }
 
     @Bean
-    public LogMessageSplitProcessor logMessageSplitProcessor(MdcHelper mdcHelper) {
-        return new LogMessageSplitProcessor(mdcHelper);
+    public LogMessageSplitProcessor logMessageSplitProcessor(ObjectMapper objectMapper, MdcHelper mdcHelper) {
+        return new LogMessageSplitProcessor(objectMapper, mdcHelper);
     }
 
     @Bean
