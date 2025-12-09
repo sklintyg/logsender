@@ -20,46 +20,52 @@ package se.inera.intyg.logsender.testconfig;
 
 import jakarta.jms.Queue;
 import org.apache.activemq.command.ActiveMQQueue;
+import org.apache.camel.spring.boot.CamelAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.PropertySource;
 import se.inera.intyg.logsender.client.mock.MockLogSenderClientImpl;
 import se.inera.intyg.logsender.config.LogSenderBeanConfig;
 import se.inera.intyg.logsender.config.LogsenderProperties;
+import se.inera.intyg.logsender.routes.LogSenderRouteBuilder;
 
 @Lazy
 @Configuration
 @EnableConfigurationProperties(LogsenderProperties.class)
-@Import({LogSenderBeanConfig.class, IntegrationTestJmsConfig.class, IntegrationTestBrokerService.class})
-@PropertySource({"classpath:logsender/integration-test.properties"})
+@Import({
+    LogSenderBeanConfig.class,
+    CamelAutoConfiguration.class,
+    LogSenderRouteBuilder.class,
+    IntegrationTestJmsConfig.class,
+    IntegrationTestBrokerService.class
+})
 public class IntegrationTestConfig {
 
-    @Bean
-    public MockLogSenderClientImpl mockSendCertificateServiceClient() {
-        return new MockLogSenderClientImpl();
-    }
+  @Bean
+  public MockLogSenderClientImpl mockSendCertificateServiceClient() {
+    return new MockLogSenderClientImpl();
+  }
 
-    @Bean
-    public Queue newLogMessageQueue() {
-        ActiveMQQueue newLogMessageQueue = new ActiveMQQueue();
-        newLogMessageQueue.setPhysicalName("newLogMessageQueue");
-        return newLogMessageQueue;
-    }
+  @Bean
+  public Queue newLogMessageQueue() {
+    ActiveMQQueue newLogMessageQueue = new ActiveMQQueue();
+    newLogMessageQueue.setPhysicalName("newLogMessageQueue");
+    return newLogMessageQueue;
+  }
 
-    @Bean
-    public Queue newAggregatedLogMessageQueue() {
-        ActiveMQQueue newAggregatedLogMessageQueue = new ActiveMQQueue();
-        newAggregatedLogMessageQueue.setPhysicalName("newAggregatedLogMessageQueue");
-        return newAggregatedLogMessageQueue;
-    }
+  @Bean
+  public Queue newAggregatedLogMessageQueue() {
+    ActiveMQQueue newAggregatedLogMessageQueue = new ActiveMQQueue();
+    newAggregatedLogMessageQueue.setPhysicalName("newAggregatedLogMessageQueue");
+    return newAggregatedLogMessageQueue;
+  }
 
-    @Bean
-    public Queue newAggregatedLogMessageDLQ() {
-        ActiveMQQueue newAggregatedLogMessageDLQ = new ActiveMQQueue();
-        newAggregatedLogMessageDLQ.setPhysicalName("DLQ.newAggregatedLogMessageQueue");
-        return newAggregatedLogMessageDLQ;
-    }
+  @Bean
+  public Queue newAggregatedLogMessageDLQ() {
+    ActiveMQQueue newAggregatedLogMessageDLQ = new ActiveMQQueue();
+    newAggregatedLogMessageDLQ.setPhysicalName("DLQ.newAggregatedLogMessageQueue");
+    return newAggregatedLogMessageDLQ;
+  }
 }

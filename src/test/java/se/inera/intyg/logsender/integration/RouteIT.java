@@ -26,12 +26,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.jms.JMSException;
 import jakarta.jms.Queue;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.concurrent.TimeUnit;
 import org.apache.camel.CamelContext;
+import org.apache.camel.test.spring.junit5.CamelSpringBootTest;
 import org.apache.camel.test.spring.junit5.UseAdviceWith;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,7 +46,6 @@ import org.springframework.jms.core.BrowserCallback;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import se.inera.intyg.logsender.client.mock.MockLogSenderClientImpl;
 import se.inera.intyg.logsender.helper.TestDataHelper;
 import se.inera.intyg.logsender.helper.ValueInclude;
@@ -52,10 +53,10 @@ import se.inera.intyg.logsender.model.ActivityType;
 import se.inera.intyg.logsender.model.PdlLogMessage;
 import se.inera.intyg.logsender.testconfig.IntegrationTestConfig;
 
+@CamelSpringBootTest
 @UseAdviceWith
-@SpringBootTest(classes = IntegrationTestConfig.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
-@TestPropertySource({"classpath:logsender/integration-test.properties"})
+@SpringBootTest(classes = IntegrationTestConfig.class, webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@ActiveProfiles("integration-test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class RouteIT {
 
@@ -199,7 +200,8 @@ public class RouteIT {
         PdlLogMessage pdlLogMessage = TestDataHelper.buildBasePdlLogMessage(ActivityType.READ,
             1, ValueInclude.INCLUDE, ValueInclude.INCLUDE);
         pdlLogMessage.setSystemId("invalid");
-        return session.createTextMessage(new ObjectMapper().writeValueAsString(pdlLogMessage));
+        return session.createTextMessage(new ObjectMapper().registerModule(new JavaTimeModule())
+            .writeValueAsString(pdlLogMessage));
       } catch (JMSException | JsonProcessingException e) {
         throw new RuntimeException(e);
       }
