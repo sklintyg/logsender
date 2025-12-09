@@ -46,8 +46,8 @@ public class LogSenderBeanConfig {
     }
 
     @Bean
-    public LogSenderClient logSenderClient(SoapIntegrationService soapIntegrationService) {
-        return new LogSenderClientImpl(soapIntegrationService);
+    public LogSenderClient logSenderClient(LogsenderProperties properties, SoapIntegrationService soapIntegrationService) {
+        return new LogSenderClientImpl(properties, soapIntegrationService);
     }
 
     @Bean

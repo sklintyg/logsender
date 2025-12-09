@@ -18,14 +18,16 @@
  */
 package se.inera.intyg.logsender.routes;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.processor.aggregate.GroupedExchangeAggregationStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import se.inera.intyg.logsender.config.LogsenderProperties;
 import se.inera.intyg.logsender.model.PdlLogMessage;
 import se.inera.intyg.logsender.exception.BatchValidationException;
 import se.inera.intyg.logsender.exception.TemporaryException;
@@ -36,24 +38,13 @@ import se.inera.intyg.logsender.exception.TemporaryException;
  * @author eriklupander
  */
 @Component
+@RequiredArgsConstructor
+@Slf4j
 public class LogSenderRouteBuilder extends RouteBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(LogSenderRouteBuilder.class);
 
-    @Value("${logsender.bulkSize}")
-    private String batchSize;
-
-    @Value("${receiveLogMessageEndpointUri}")
-    private String receiveLogMessageEndpointUri;
-
-    @Value("${receiveAggregatedLogMessageEndpointUri}")
-    private String newAggregatedLogMessageQueue;
-
-    @Value("${receiveAggregatedLogMessageDLQUri}")
-    private String newAggregatedLogMessageDLQ;
-
-    @Value("${logsender.bulkTimeout}")
-    private Long batchAggregationTimeout;
+    private final LogsenderProperties properties;
 
     /*
      * This route depends on the MQ provider (currently ActiveMQ) for redelivery. Any temporary exception thrown
@@ -72,19 +63,19 @@ public class LogSenderRouteBuilder extends RouteBuilder {
         // Then the route Aggregates (n) messages together and passes them to a custom bean which will transform the
         // content into a single list of PdlLogMessage.
         // The bean:logMessageAggregationProcessor outputs a List of PdlLogMessage which is passed to a JMS queue.
-        from(receiveLogMessageEndpointUri).routeId("aggregatorRoute")
+        from(properties.getQueue().getReceiveLogMessageEndpoint()).routeId("aggregatorRoute")
             .split().method("logMessageSplitProcessor")
             .aggregate(new GroupedExchangeAggregationStrategy())
             .constant(true)
-            .completionInterval(batchAggregationTimeout)
-            .completionPredicate(header("CamelAggregatedSize").isEqualTo(Integer.parseInt(batchSize)))
+            .completionInterval(properties.getAggregation().getBulkTimeout())
+            .completionPredicate(header("CamelAggregatedSize").isEqualTo(properties.getAggregation().getBulkSize()))
             .to("bean:logMessageAggregationProcessor")
-            .to(newAggregatedLogMessageQueue)
+            .to(properties.getQueue().getReceiveAggregatedLogMessageEndpoint())
             .stop();
 
         // 2. In a transaction, reads from jms/AggregatedLogSenderQueue and uses custom bean:logMessageProcessor
         // to convert into ehr:logstore format and send. Exception handling delegates resends to AMQ.
-        from(newAggregatedLogMessageQueue).routeId("aggregatedJmsToSenderRoute")
+        from(properties.getQueue().getReceiveAggregatedLogMessageEndpoint()).routeId("aggregatedJmsToSenderRoute")
             .onException(TemporaryException.class).to("direct:logMessageTemporaryErrorHandlerEndpoint").end()
             .onException(BatchValidationException.class).handled(true).to("direct:logMessageBatchValidationErrorHandlerEndpoint").end()
             .onException(Exception.class).handled(true).to("direct:logMessagePermanentErrorHandlerEndpoint").end()
@@ -102,7 +93,7 @@ public class LogSenderRouteBuilder extends RouteBuilder {
             .log(LoggingLevel.ERROR, LOG,
                 simple("ENTER - Batch validation exception for LogMessage batch: ${exception.message}\n ${exception.stacktrace}")
                     .toString())
-            .to(newAggregatedLogMessageDLQ)
+            .to(properties.getQueue().getReceiveAggregatedLogMessageDlq())
             .stop();
 
         from("direct:logMessageTemporaryErrorHandlerEndpoint").routeId("temporaryErrorLogging")

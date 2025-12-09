@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import se.inera.intyg.logsender.config.LogsenderProperties;
 import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
 import se.inera.intyg.logsender.service.SoapIntegrationService;
 import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
@@ -46,9 +46,7 @@ public class LogSenderClientImpl implements LogSenderClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(LogSenderClientImpl.class);
 
-    @Value("${loggtjanst.logicalAddress}")
-    private String logicalAddress;
-
+    private final LogsenderProperties properties;
     private final SoapIntegrationService soapIntegrationService;
 
     @Override
@@ -67,7 +65,10 @@ public class LogSenderClientImpl implements LogSenderClient {
         request.getLog().addAll(logEntries);
 
         try {
-            StoreLogResponseType response = soapIntegrationService.storeLog(logicalAddress, request);
+            StoreLogResponseType response = soapIntegrationService.storeLog(
+                properties.getLoggtjanst().getLogicalAddress(),
+                request
+            );
             if (response.getResult().getResultCode() == ResultCodeType.OK && (LOG.isDebugEnabled())) {
                     LOG.debug("Successfully sent {} PDL log entries for ID's: {}", logEntries.size(), logEntries.stream()
                         .map(LogType::getLogId)

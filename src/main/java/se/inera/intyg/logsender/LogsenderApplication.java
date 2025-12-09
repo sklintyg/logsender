@@ -20,6 +20,8 @@ package se.inera.intyg.logsender;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import se.inera.intyg.logsender.config.LogsenderProperties;
 
 /**
  * Spring Boot main application class for Logsender.
@@ -28,6 +30,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * to the national logging service using Apache Camel for message routing.
  */
 @SpringBootApplication
+@EnableConfigurationProperties(LogsenderProperties.class)
 public class LogsenderApplication {
 
     public static void main(String[] args) {

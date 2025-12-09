@@ -24,6 +24,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.MDC;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -40,13 +42,10 @@ import java.io.IOException;
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
+@RequiredArgsConstructor
 public class MdcLoggingFilter implements Filter {
 
     private final MdcHelper mdcHelper;
-
-    public MdcLoggingFilter(MdcHelper mdcHelper) {
-        this.mdcHelper = mdcHelper;
-    }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)

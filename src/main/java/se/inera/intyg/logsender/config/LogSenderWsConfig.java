@@ -26,7 +26,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Arrays;
-import java.util.Objects;
 import jakarta.annotation.Resource;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -45,7 +44,7 @@ import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transport.http.HttpConduitConfig;
 import org.apache.cxf.transports.http.configuration.ConnectionType;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -53,17 +52,13 @@ import org.springframework.core.env.Environment;
 import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
 
 @Configuration
+@RequiredArgsConstructor
 public class LogSenderWsConfig {
 
     @Resource
     private Environment env;
 
-    @Value("${sakerhetstjanst.ws.certificate.type}")
-    private String keyStoreType;
-    @Value("${sakerhetstjanst.ws.truststore.type}")
-    private String trustStoreType;
-    @Value("${loggtjanst.endpoint.url}")
-    private String loggTjanstEndpointUrl;
+    private final LogsenderProperties properties;
 
     private static final int LOG_MESSAGE_SIZE = 1024;
 
@@ -82,7 +77,7 @@ public class LogSenderWsConfig {
     private JaxWsProxyFactoryBean createJaxWsProxyFactoryBean() {
         JAXWSSpringClientProxyFactoryBean jaxWsProxyFactoryBean = new JAXWSSpringClientProxyFactoryBean();
         jaxWsProxyFactoryBean.setServiceClass(StoreLogResponderInterface.class);
-        jaxWsProxyFactoryBean.setAddress(loggTjanstEndpointUrl);
+        jaxWsProxyFactoryBean.setAddress(properties.getLoggtjanst().getEndpointUrl());
         jaxWsProxyFactoryBean.getFeatures().add(loggingFeature());
         return jaxWsProxyFactoryBean;
     }
@@ -131,9 +126,9 @@ public class LogSenderWsConfig {
 
     private KeyManager[] setupKeyManagers() throws KeyStoreException, IOException, UnrecoverableKeyException,
         NoSuchAlgorithmException, CertificateException {
-        final String keyStoreFile = Objects.requireNonNull(env.getProperty("sakerhetstjanst.ws.certificate.file"));
-        final char[] keyStorePassword = Objects.requireNonNull(env.getProperty("sakerhetstjanst.ws.certificate.password")).toCharArray();
-        final KeyStore keyStore = KeyStore.getInstance(keyStoreType);
+        final String keyStoreFile = properties.getCertificate().getFile();
+        final char[] keyStorePassword = properties.getCertificate().getPassword().toCharArray();
+        final KeyStore keyStore = KeyStore.getInstance(properties.getCertificate().getType());
         try (FileInputStream keyStoreInputStream = new FileInputStream(keyStoreFile)) {
             keyStore.load(keyStoreInputStream, keyStorePassword);
         }
@@ -144,10 +139,9 @@ public class LogSenderWsConfig {
 
     private TrustManager[] setupTrustManagers() throws KeyStoreException, IOException, CertificateException,
         NoSuchAlgorithmException {
-        final String trustStoreFile = Objects.requireNonNull(env.getProperty("sakerhetstjanst.ws.truststore.file"));
-        final char[] trustStorePassword =
-            Objects.requireNonNull(env.getProperty("sakerhetstjanst.ws.truststore.password")).toCharArray();
-        final KeyStore trustStore = KeyStore.getInstance(trustStoreType);
+        final String trustStoreFile = properties.getCertificate().getTruststoreFile();
+        final char[] trustStorePassword = properties.getCertificate().getTruststorePassword().toCharArray();
+        final KeyStore trustStore = KeyStore.getInstance(properties.getCertificate().getTruststoreType());
         try (FileInputStream trustStoreInputStream = new FileInputStream(trustStoreFile)) {
             trustStore.load(trustStoreInputStream, trustStorePassword);
         }
