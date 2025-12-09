@@ -18,12 +18,13 @@
  */
 package se.inera.intyg.logsender.client;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -31,117 +32,124 @@ import jakarta.xml.ws.WebServiceException;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import se.inera.intyg.logsender.config.LogsenderProperties;
+import se.inera.intyg.logsender.config.LogsenderProperties.Loggtjanst;
 import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
-import se.inera.intyg.logsender.service.SoapIntegrationService;
+import se.inera.intyg.logsender.service.SoapIntegrationServiceImpl;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogType;
 import se.riv.informationsecurity.auditing.log.v2.LogType;
 import se.riv.informationsecurity.auditing.log.v2.ResultCodeType;
 import se.riv.informationsecurity.auditing.log.v2.ResultType;
 
-/**
- * Created by eriklupander on 2016-03-08.
- */
-
 @ExtendWith(MockitoExtension.class)
 class LogSenderClientImplTest {
 
-    @Mock
-    private LogsenderProperties properties;
+  @Mock
+  private SoapIntegrationServiceImpl soapIntegrationService;
 
-    @Mock
-    private LogsenderProperties.Loggtjanst loggtjanst;
+  @Mock
+  private LogsenderProperties properties;
 
-    @Mock
-    private SoapIntegrationService soapIntegrationService;
+  @InjectMocks
+  private LogSenderClientImpl logSenderClient;
 
-    private LogSenderClientImpl testee;
+  @Nested
+  class MockedTests {
 
     @BeforeEach
-    void setUp() {
-
-        testee = new LogSenderClientImpl(properties, soapIntegrationService);
+    void setup() {
+      when(properties.getLoggtjanst()).thenReturn(new Loggtjanst());
     }
 
     @Test
     void testSendOk() {
-        when(properties.getLoggtjanst()).thenReturn(loggtjanst);
-        when(loggtjanst.getLogicalAddress()).thenReturn("TEST-LOGICAL-ADDRESS");
-        when(soapIntegrationService.storeLog(any(), any(StoreLogType.class))).thenReturn(buildOkResponse());
+      when(soapIntegrationService.storeLog(any(), any(StoreLogType.class))).thenReturn(
+          buildOkResponse());
+      final var response = logSenderClient.sendLogMessage(buildLogEntries());
 
-        StoreLogResponseType response = testee.sendLogMessage(buildLogEntries());
-        assertNotNull(response);
-        assertEquals(ResultCodeType.OK, response.getResult().getResultCode());
+      assertAll(
+          () -> assertNotNull(response),
+          () -> assertEquals(ResultCodeType.OK, response.getResult().getResultCode())
+      );
     }
 
     @Test
     void testSendError() {
-        when(properties.getLoggtjanst()).thenReturn(loggtjanst);
-        when(loggtjanst.getLogicalAddress()).thenReturn("TEST-LOGICAL-ADDRESS");
-        when(soapIntegrationService.storeLog(any(), any(StoreLogType.class))).thenReturn(buildErrorResponse());
+      when(soapIntegrationService.storeLog(any(), any(StoreLogType.class))).thenReturn(
+          buildErrorResponse());
+      final var response = logSenderClient.sendLogMessage(buildLogEntries());
 
-        StoreLogResponseType response = testee.sendLogMessage(buildLogEntries());
-        assertNotNull(response);
-        assertEquals(ResultCodeType.ERROR, response.getResult().getResultCode());
-    }
-
-    @Test
-    void testSendWithNullListCausesNoSend() {
-        StoreLogResponseType response = testee.sendLogMessage(null);
-        assertNotNull(response);
-        assertEquals(ResultCodeType.INFO, response.getResult().getResultCode());
-        assertNotNull(response.getResult().getResultText());
-        verify(soapIntegrationService, times(0)).storeLog(anyString(), any(StoreLogType.class));
-    }
-
-    @Test
-    void testSendWithEmptyLogEntriesListCausesNoSend() {
-        StoreLogResponseType response = testee.sendLogMessage(new ArrayList<>());
-        assertNotNull(response);
-        assertEquals(ResultCodeType.INFO, response.getResult().getResultCode());
-        assertNotNull(response.getResult().getResultText());
-        verify(soapIntegrationService, times(0)).storeLog(anyString(), any(StoreLogType.class));
+      assertAll(
+          () -> assertNotNull(response),
+          () -> assertEquals(ResultCodeType.ERROR, response.getResult().getResultCode())
+      );
     }
 
     @Test
     void testWebServiceExceptionCausesLoggtjanstExecutionException() {
-        when(properties.getLoggtjanst()).thenReturn(loggtjanst);
-        when(loggtjanst.getLogicalAddress()).thenReturn("TEST-LOGICAL-ADDRESS");
+      when(soapIntegrationService.storeLog(any(), any(StoreLogType.class))).thenThrow(
+          new WebServiceException("error"));
 
-        assertThrows(LoggtjanstExecutionException.class, () -> {
-            when(soapIntegrationService.storeLog(any(), any(StoreLogType.class))).thenThrow(new WebServiceException("error"));
-            testee.sendLogMessage(buildLogEntries());
-        });
+      final var logEntries = buildLogEntries();
+      assertThrows(LoggtjanstExecutionException.class,
+          () -> logSenderClient.sendLogMessage(logEntries));
     }
+  }
 
-    private StoreLogResponseType buildOkResponse() {
-        StoreLogResponseType resp = new StoreLogResponseType();
-        ResultType resultType = new ResultType();
-        resultType.setResultCode(ResultCodeType.OK);
-        resp.setResult(resultType);
-        return resp;
-    }
+  @Test
+  void testSendWithNullListCausesNoSend() {
+    final var response = logSenderClient.sendLogMessage(null);
 
-    private StoreLogResponseType buildErrorResponse() {
-        StoreLogResponseType resp = new StoreLogResponseType();
-        ResultType resultType = new ResultType();
-        resultType.setResultCode(ResultCodeType.ERROR);
-        resp.setResult(resultType);
-        return resp;
-    }
+    verify(soapIntegrationService, never()).storeLog(anyString(), any(StoreLogType.class));
+    assertAll(
+        () -> assertNotNull(response),
+        () -> assertEquals(ResultCodeType.INFO, response.getResult().getResultCode()),
+        () -> assertNotNull(response.getResult().getResultText())
+    );
+  }
 
-    private List<LogType> buildLogEntries() {
-        List<LogType> logEntries = new ArrayList<>();
-        logEntries.add(buildLogEntry());
-        return logEntries;
-    }
+  @Test
+  void testSendWithEmptyLogEntriesListCausesNoSend() {
+    final var response = logSenderClient.sendLogMessage(new ArrayList<>());
 
-    private LogType buildLogEntry() {
-        return new LogType();
-    }
+    verify(soapIntegrationService, never()).storeLog(anyString(), any(StoreLogType.class));
+    assertAll(
+        () -> assertNotNull(response),
+        () -> assertEquals(ResultCodeType.INFO, response.getResult().getResultCode()),
+        () -> assertNotNull(response.getResult().getResultText())
+    );
+  }
+
+  private StoreLogResponseType buildOkResponse() {
+    final var resp = new StoreLogResponseType();
+    final var resultType = new ResultType();
+    resultType.setResultCode(ResultCodeType.OK);
+    resp.setResult(resultType);
+    return resp;
+  }
+
+  private StoreLogResponseType buildErrorResponse() {
+    final var resp = new StoreLogResponseType();
+    final var resultType = new ResultType();
+    resultType.setResultCode(ResultCodeType.ERROR);
+    resp.setResult(resultType);
+    return resp;
+  }
+
+  private List<LogType> buildLogEntries() {
+    final var logEntries = new ArrayList<LogType>();
+    logEntries.add(buildLogEntry());
+    return logEntries;
+  }
+
+  private LogType buildLogEntry() {
+    return new LogType();
+  }
 }

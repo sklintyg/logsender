@@ -56,9 +56,14 @@ repositories {
 }
 
 configurations {
+    mockitoAgent
     compileOnly {
         extendsFrom annotationProcessor
     }
+}
+
+dependencies {
+    mockitoAgent("org.mockito:mockito-core") { transitive = false }
 }
 
 jacocoTestReport {
@@ -82,7 +87,10 @@ jacocoTestReport {
 test {
     useJUnitPlatform()
     exclude '**/*IT*'
-    jvmArgs '-Xshare:off'
+    jvmArgs += [
+            "-javaagent:${configurations.mockitoAgent.asPath}",
+            '-Xshare:off'
+    ]
 }
 
 tasks.register('camelTest', Test) {
@@ -95,7 +103,6 @@ tasks.register('camelTest', Test) {
 dependencyManagement {
     imports {
         mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
-        mavenBom "org.apache.camel.springboot:camel-spring-boot-bom:${camelSpringBootVersion}"
         mavenBom "se.inera.intyg.bom:platform:${intygBomVersion}"
     }
 }
@@ -114,7 +121,6 @@ dependencies {
     implementation "org.apache.camel.springboot:camel-jms-starter:${camelSpringBootVersion}"
 
     // Existing dependencies (keep)
-    implementation "co.elastic.logging:logback-ecs-encoder:${logbackEcsEncoderVersion}"
     implementation "se.inera.intyg.schemas:schemas-contract:${schemasContractVersion}"
     implementation "se.riv.informationsecurity.auditing.log:informationsecurity-auditing-log-schemas:${rivtaStoreLogSchemasVersion}"
 
@@ -126,7 +132,7 @@ dependencies {
     implementation "org.apache.cxf:cxf-rt-transports-http:${apacheCXFVersion}"
     implementation "org.apache.cxf:cxf-rt-rs-service-description:${apacheCXFVersion}"
     implementation "com.fasterxml.jackson.jakarta.rs:jackson-jakarta-rs-json-provider"
-    implementation "jakarta.ws.rs:jakarta.ws.rs-api:3.1.0"
+    implementation "jakarta.ws.rs:jakarta.ws.rs-api"
     implementation "codes.rafael.jaxb2_commons:jaxb2-basics:${jaxb2Version}"
     implementation "ch.qos.logback:logback-classic"
 
@@ -179,7 +185,7 @@ tasks.register("appRunDebug") {
     doFirst {
         bootRun.configure {
             jvmArgs = [
-                    "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=18080"]
+                    "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8110"]
         }
     }
     finalizedBy("bootRun")
