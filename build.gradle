@@ -6,11 +6,12 @@ plugins {
     id 'org.sonarqube' version '5.1.0.4882'
     id "org.owasp.dependencycheck" version "10.0.4"
     id 'jacoco'
+    id 'application'
 }
 
-def buildDirectory = project.layout.buildDirectory.get().asFile
-
 ext {
+    intygBomVersion = System.properties['intygBomVersion'] ?: '0.0.1-SNAPSHOT'
+
     rivtaStoreLogSchemasVersion = "2.0.1.2"
     schemasContractVersion = "2.1.8.2"
 
@@ -23,14 +24,20 @@ ext {
     jaxb2Version = "3.0.0"
     logbackEcsEncoderVersion = "1.6.0"
 
-
     nvdMirror = 'https://vulnz-nvd-mirror-devtest.intyg.nordicmedtest.se'
+}
+
+application {
+    mainClass = 'se.inera.intyg.logsender.LogsenderApplication'
 }
 
 group = 'se.inera.intyg.logsender'
 version = System.properties['buildVersion'] ?: '0-SNAPSHOT'
-sourceCompatibility = 21
-targetCompatibility = 21
+
+java {
+    sourceCompatibility = 21
+    targetCompatibility = 21
+}
 
 // Spring Boot JAR packaging configuration
 bootJar {
@@ -42,21 +49,15 @@ jar {
     enabled = false
 }
 
-tasks.register('camelTest', Test) {
-    useJUnitPlatform()
-    outputs.upToDateWhen { false }
-    include '**/*IT*'
-}
-
-
 repositories {
     mavenLocal()
     maven { url "https://nexus.drift.inera.se/repository/it-public/" }
-    mavenCentral {
-        content {
-            // this repository contains everything BUT artifacts with group starting with "se.inera"
-            excludeGroupByRegex "se\\.inera.*"
-        }
+    mavenCentral()
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
     }
 }
 
@@ -81,12 +82,21 @@ jacocoTestReport {
 test {
     useJUnitPlatform()
     exclude '**/*IT*'
+    jvmArgs '-Xshare:off'
+}
+
+tasks.register('camelTest', Test) {
+    useJUnitPlatform()
+    outputs.upToDateWhen { false }
+    include '**/*IT*'
+    jvmArgs '-Xshare:off'
 }
 
 dependencyManagement {
     imports {
         mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
         mavenBom "org.apache.camel.springboot:camel-spring-boot-bom:${camelSpringBootVersion}"
+        mavenBom "se.inera.intyg.bom:platform:${intygBomVersion}"
     }
 }
 
@@ -145,7 +155,36 @@ sonar {
 }
 
 dependencyCheck {
-    formats = List.of("HTML", "JSON")
+    formats = ['HTML', 'JSON']
     nvd.setDatafeedUrl(nvdMirror)
     analyzers.setAssemblyEnabled(false)
+    analyzers.setNodeEnabled(false)
+    analyzers.setCentralEnabled(false)
+    analyzers.ossIndex.setUsername(project.properties.get('ossIndexUsername'))
+    analyzers.ossIndex.setPassword(project.properties.get('ossIndexPassword'))
+}
+
+// Spring Boot run configuration
+def applicationDir = "${rootProject.projectDir}/devops/dev"
+
+bootRun {
+    systemProperty("application.dir", "${applicationDir}")
+    systemProperty("spring.profiles.active", "dev")
+    systemProperty("spring.config.additional-location", "file:${applicationDir}/config/")
+}
+
+tasks.register("appRunDebug") {
+    println("######## Running logsender in Debug mode ########")
+    doFirst {
+        bootRun.configure {
+            jvmArgs = [
+                    "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=18080"]
+        }
+    }
+    finalizedBy("bootRun")
+}
+
+tasks.register("appRun") {
+    println("######## Running logsender in normal mode ########")
+    finalizedBy("bootRun")
 }

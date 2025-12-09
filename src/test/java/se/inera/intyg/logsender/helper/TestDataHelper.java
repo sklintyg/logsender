@@ -23,14 +23,14 @@ import java.time.LocalDateTime;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import se.inera.intyg.common.util.integration.json.CustomObjectMapper;
-import se.inera.intyg.infra.logmessages.ActivityPurpose;
-import se.inera.intyg.infra.logmessages.ActivityType;
-import se.inera.intyg.infra.logmessages.Enhet;
-import se.inera.intyg.infra.logmessages.Patient;
-import se.inera.intyg.infra.logmessages.PdlLogMessage;
-import se.inera.intyg.infra.logmessages.PdlResource;
-import se.inera.intyg.infra.logmessages.ResourceType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import se.inera.intyg.logsender.model.ActivityPurpose;
+import se.inera.intyg.logsender.model.ActivityType;
+import se.inera.intyg.logsender.model.Enhet;
+import se.inera.intyg.logsender.model.Patient;
+import se.inera.intyg.logsender.model.PdlLogMessage;
+import se.inera.intyg.logsender.model.PdlResource;
+import se.inera.intyg.logsender.model.ResourceType;
 
 /**
  * Utility for creating test data for unit- and integration tests.
@@ -39,7 +39,7 @@ import se.inera.intyg.infra.logmessages.ResourceType;
  */
 public class TestDataHelper {
 
-    private static final ObjectMapper objectMapper = new CustomObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static PdlLogMessage buildBasePdlLogMessage(ActivityType activityType) {
         return buildBasePdlLogMessage(activityType, 1, ValueInclude.INCLUDE, ValueInclude.INCLUDE);

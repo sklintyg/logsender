@@ -48,7 +48,7 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
 
 import com.google.common.collect.ImmutableMap;
 
-import se.inera.intyg.infra.logmessages.ActivityType;
+import se.inera.intyg.logsender.model.ActivityType;
 import se.inera.intyg.logsender.exception.PermanentException;
 import se.inera.intyg.logsender.exception.TemporaryException;
 import se.inera.intyg.logsender.helper.TestDataHelper;

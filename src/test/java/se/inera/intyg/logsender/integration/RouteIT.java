@@ -47,9 +47,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
-import se.inera.intyg.common.util.integration.json.CustomObjectMapper;
-import se.inera.intyg.infra.logmessages.ActivityType;
-import se.inera.intyg.infra.logmessages.PdlLogMessage;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import se.inera.intyg.logsender.model.ActivityType;
+import se.inera.intyg.logsender.model.PdlLogMessage;
 import se.inera.intyg.logsender.client.mock.MockLogSenderClientImpl;
 import se.inera.intyg.logsender.helper.TestDataHelper;
 import se.inera.intyg.logsender.testconfig.IntegrationTestConfig;
@@ -215,7 +215,7 @@ public class RouteIT {
                 PdlLogMessage pdlLogMessage = TestDataHelper.buildBasePdlLogMessage(ActivityType.READ,
                     1, ValueInclude.INCLUDE, ValueInclude.INCLUDE);
                 pdlLogMessage.setSystemId("invalid");
-                return session.createTextMessage(new CustomObjectMapper().writeValueAsString(pdlLogMessage));
+                return session.createTextMessage(new ObjectMapper().writeValueAsString(pdlLogMessage));
             } catch (JMSException | JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
@@ -287,13 +287,13 @@ public class RouteIT {
 
     private String buildPdlLogMessageWithInvalidResourceJson() throws IOException {
         String bodyOfSix = TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ, 6);
-        ObjectNode jsonNode = (ObjectNode) new CustomObjectMapper().readTree(bodyOfSix);
+        ObjectNode jsonNode = (ObjectNode) new ObjectMapper().readTree(bodyOfSix);
         ArrayNode pdlResourceList = (ArrayNode) jsonNode.get("pdlResourceList");
 
         JsonNode invalidJsonNode = new TextNode("Some text that doesn't belong here");
         ObjectNode resourceNode = (ObjectNode) pdlResourceList.get(2);
         resourceNode.set("resourceOwner", invalidJsonNode);
 
-        return new CustomObjectMapper().writeValueAsString(jsonNode);
+        return new ObjectMapper().writeValueAsString(jsonNode);
     }
 }

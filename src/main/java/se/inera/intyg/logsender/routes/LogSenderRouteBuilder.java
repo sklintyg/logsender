@@ -24,6 +24,7 @@ import org.apache.camel.processor.aggregate.GroupedExchangeAggregationStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import se.inera.intyg.logsender.model.PdlLogMessage;
 import se.inera.intyg.logsender.exception.BatchValidationException;
@@ -34,12 +35,16 @@ import se.inera.intyg.logsender.exception.TemporaryException;
  *
  * @author eriklupander
  */
+@Component
 public class LogSenderRouteBuilder extends RouteBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(LogSenderRouteBuilder.class);
 
     @Value("${logsender.bulkSize}")
     private String batchSize;
+
+    @Value("${receiveLogMessageEndpointUri}")
+    private String receiveLogMessageEndpointUri;
 
     @Value("${receiveAggregatedLogMessageEndpointUri}")
     private String newAggregatedLogMessageQueue;
@@ -67,7 +72,7 @@ public class LogSenderRouteBuilder extends RouteBuilder {
         // Then the route Aggregates (n) messages together and passes them to a custom bean which will transform the
         // content into a single list of PdlLogMessage.
         // The bean:logMessageAggregationProcessor outputs a List of PdlLogMessage which is passed to a JMS queue.
-        from("receiveLogMessageEndpoint").routeId("aggregatorRoute")
+        from(receiveLogMessageEndpointUri).routeId("aggregatorRoute")
             .split().method("logMessageSplitProcessor")
             .aggregate(new GroupedExchangeAggregationStrategy())
             .constant(true)
@@ -79,7 +84,7 @@ public class LogSenderRouteBuilder extends RouteBuilder {
 
         // 2. In a transaction, reads from jms/AggregatedLogSenderQueue and uses custom bean:logMessageProcessor
         // to convert into ehr:logstore format and send. Exception handling delegates resends to AMQ.
-        from("receiveAggregatedLogMessageEndpoint").routeId("aggregatedJmsToSenderRoute")
+        from(newAggregatedLogMessageQueue).routeId("aggregatedJmsToSenderRoute")
             .onException(TemporaryException.class).to("direct:logMessageTemporaryErrorHandlerEndpoint").end()
             .onException(BatchValidationException.class).handled(true).to("direct:logMessageBatchValidationErrorHandlerEndpoint").end()
             .onException(Exception.class).handled(true).to("direct:logMessagePermanentErrorHandlerEndpoint").end()

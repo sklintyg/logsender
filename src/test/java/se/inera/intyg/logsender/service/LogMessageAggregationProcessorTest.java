@@ -34,8 +34,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import se.inera.intyg.common.util.integration.json.CustomObjectMapper;
-import se.inera.intyg.infra.logmessages.ActivityType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import se.inera.intyg.logsender.model.ActivityType;
 import se.inera.intyg.logsender.exception.PermanentException;
 import se.inera.intyg.logsender.helper.TestDataHelper;
 import se.inera.intyg.logsender.logging.MdcHelper;
@@ -53,7 +53,7 @@ class LogMessageAggregationProcessorTest {
     @InjectMocks
     private LogMessageAggregationProcessor testee;
 
-    private final ObjectMapper objectMapper = new CustomObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void setUp() {

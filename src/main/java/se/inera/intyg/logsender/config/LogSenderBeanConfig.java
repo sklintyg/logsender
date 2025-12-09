@@ -71,10 +71,6 @@ public class LogSenderBeanConfig {
         return new LogMessageSplitProcessor(objectMapper, mdcHelper);
     }
 
-    @Bean
-    public LogSenderRouteBuilder logSenderRouteBuilder() {
-        return new LogSenderRouteBuilder();
-    }
 
     @Bean
     public SoapIntegrationService soapIntegrationService(StoreLogResponderInterface storeLogResponderInterface) {

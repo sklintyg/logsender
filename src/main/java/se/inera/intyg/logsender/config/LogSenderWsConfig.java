@@ -48,6 +48,7 @@ import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
 
@@ -67,6 +68,7 @@ public class LogSenderWsConfig {
     private static final int LOG_MESSAGE_SIZE = 1024;
 
     @Bean
+    @Profile("!dev & !wc-all-stubs & !wc-loggtjanst-stub")
     @SchemaValidation(type = SchemaValidationType.BOTH)
     public StoreLogResponderInterface storeLogClient() throws UnrecoverableKeyException,
         CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {

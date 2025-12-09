@@ -35,8 +35,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import se.inera.intyg.common.util.integration.json.CustomObjectMapper;
-import se.inera.intyg.infra.logmessages.ActivityType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import se.inera.intyg.logsender.model.ActivityType;
 import se.inera.intyg.logsender.client.LogSenderClient;
 import se.inera.intyg.logsender.converter.LogTypeFactoryImpl;
 import se.inera.intyg.logsender.exception.BatchValidationException;
@@ -66,7 +66,7 @@ class LogMessageSendProcessorTest {
     @InjectMocks
     private LogMessageSendProcessor testee;
 
-    private final ObjectMapper objectMapper = new CustomObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void setUp() {

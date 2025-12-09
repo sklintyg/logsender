@@ -37,7 +37,7 @@ import org.springframework.test.context.TestPropertySource;
 
 import com.google.common.collect.ImmutableMap;
 
-import se.inera.intyg.infra.logmessages.ActivityType;
+import se.inera.intyg.logsender.model.ActivityType;
 import se.inera.intyg.logsender.helper.TestDataHelper;
 import se.inera.intyg.logsender.testconfig.UnitTestConfig;
 

@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import jakarta.xml.ws.WebServiceException;
 
-import se.inera.intyg.infra.logmessages.ActivityType;
+import se.inera.intyg.logsender.model.ActivityType;
 import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogType;
