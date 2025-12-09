@@ -27,7 +27,6 @@ import se.inera.intyg.logsender.client.LogSenderClientImpl;
 import se.inera.intyg.logsender.converter.LogTypeFactory;
 import se.inera.intyg.logsender.converter.LogTypeFactoryImpl;
 import se.inera.intyg.logsender.logging.MdcHelper;
-import se.inera.intyg.logsender.routes.LogSenderRouteBuilder;
 import se.inera.intyg.logsender.service.LogMessageAggregationProcessor;
 import se.inera.intyg.logsender.service.LogMessageSendProcessor;
 import se.inera.intyg.logsender.service.LogMessageSplitProcessor;
@@ -38,47 +37,51 @@ import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogRes
 @Configuration
 public class LogSenderBeanConfig {
 
-    @Bean
-    public ObjectMapper objectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        return objectMapper;
-    }
+  @Bean
+  public ObjectMapper objectMapper() {
+    ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.registerModule(new JavaTimeModule());
+    return objectMapper;
+  }
 
-    @Bean
-    public LogSenderClient logSenderClient(LogsenderProperties properties, SoapIntegrationService soapIntegrationService) {
-        return new LogSenderClientImpl(properties, soapIntegrationService);
-    }
+  @Bean
+  public LogSenderClient logSenderClient(LogsenderProperties properties,
+      SoapIntegrationService soapIntegrationService) {
+    return new LogSenderClientImpl(properties, soapIntegrationService);
+  }
 
-    @Bean
-    public LogTypeFactory logTypeFactory() {
-        return new LogTypeFactoryImpl();
-    }
+  @Bean
+  public LogTypeFactory logTypeFactory() {
+    return new LogTypeFactoryImpl();
+  }
 
-    @Bean
-    public LogMessageSendProcessor logMessageSendProcessor(LogSenderClient logSenderClient,
-        LogTypeFactory logTypeFactory, ObjectMapper objectMapper, MdcHelper mdcHelper) {
-        return new LogMessageSendProcessor(logSenderClient, logTypeFactory, objectMapper, mdcHelper);
-    }
+  @Bean
+  public LogMessageSendProcessor logMessageSendProcessor(LogSenderClient logSenderClient,
+      LogTypeFactory logTypeFactory, ObjectMapper objectMapper, MdcHelper mdcHelper) {
+    return new LogMessageSendProcessor(logSenderClient, logTypeFactory, objectMapper, mdcHelper);
+  }
 
-    @Bean
-    public LogMessageAggregationProcessor logMessageAggregationProcessor(ObjectMapper objectMapper, MdcHelper mdcHelper) {
-        return new LogMessageAggregationProcessor(objectMapper, mdcHelper);
-    }
+  @Bean
+  public LogMessageAggregationProcessor logMessageAggregationProcessor(ObjectMapper objectMapper,
+      MdcHelper mdcHelper) {
+    return new LogMessageAggregationProcessor(objectMapper, mdcHelper);
+  }
 
-    @Bean
-    public LogMessageSplitProcessor logMessageSplitProcessor(ObjectMapper objectMapper, MdcHelper mdcHelper) {
-        return new LogMessageSplitProcessor(objectMapper, mdcHelper);
-    }
+  @Bean
+  public LogMessageSplitProcessor logMessageSplitProcessor(ObjectMapper objectMapper,
+      MdcHelper mdcHelper) {
+    return new LogMessageSplitProcessor(objectMapper, mdcHelper);
+  }
 
 
-    @Bean
-    public SoapIntegrationService soapIntegrationService(StoreLogResponderInterface storeLogResponderInterface) {
-        return new SoapIntegrationServiceImpl(storeLogResponderInterface);
-    }
+  @Bean
+  public SoapIntegrationService soapIntegrationService(
+      StoreLogResponderInterface storeLogResponderInterface) {
+    return new SoapIntegrationServiceImpl(storeLogResponderInterface);
+  }
 
-    @Bean
-    public MdcHelper mdcHelper() {
-        return new MdcHelper();
-    }
+  @Bean
+  public MdcHelper mdcHelper() {
+    return new MdcHelper();
+  }
 }

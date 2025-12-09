@@ -19,6 +19,7 @@
 package se.inera.intyg.logsender.config;
 
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
+import java.util.Collections;
 import org.apache.cxf.Bus;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxws.EndpointImpl;
@@ -31,102 +32,67 @@ import se.inera.intyg.logsender.loggtjanststub.StoreLogStubResponder;
 import se.inera.intyg.logsender.loggtjanststub.StubState;
 import se.inera.intyg.logsender.loggtjanststub.json.LogStoreObjectMapper;
 
-import java.util.Collections;
 
-/**
- * Spring Boot configuration for Loggtjanst stub endpoints.
- * Replaces loggtjanst-stub-context.xml with Java configuration.
- */
 @Configuration
 @Profile({"dev", "wc-all-stubs", "wc-loggtjanst-stub"})
 public class LoggtjanstStubConfig {
 
-    /**
-     * LogStore bean for storing log entries in Redis.
-     */
+  @Bean
+  public LogStore logStore() {
+    return new LogStore();
+  }
+
+  @Bean
+  public StubState stubState() {
+    return new StubState();
+  }
+
+  @Bean
+  public LogStoreObjectMapper logStoreObjectMapper() {
+    return new LogStoreObjectMapper();
+  }
+
+  @Bean
+  public StoreLogStubResponder storeLogStubResponder() {
+    return new StoreLogStubResponder();
+  }
+
+  @Bean
+  public EndpointImpl storeLogEndpoint(Bus cxfBus, StoreLogStubResponder storeLogStubResponder) {
+    EndpointImpl endpoint = new EndpointImpl(cxfBus, storeLogStubResponder);
+    endpoint.publish("/stubs/informationsecurity/auditing/log/StoreLog/v2/rivtabp21");
+    return endpoint;
+  }
+
+  @Configuration
+  @Profile({"dev", "testability-api"})
+  public static class TestabilityApiConfig {
+
     @Bean
-    public LogStore logStore() {
-        return new LogStore();
+    public LoggtjanstStubRestApi loggtjanstStubRestApi() {
+      return new LoggtjanstStubRestApi();
     }
 
-    /**
-     * StubState bean for controlling stub behavior.
-     */
     @Bean
-    public StubState stubState() {
-        return new StubState();
+    public JacksonJsonProvider jacksonJsonProvider(LogStoreObjectMapper logStoreObjectMapper) {
+      JacksonJsonProvider provider = new JacksonJsonProvider();
+      provider.setMapper(logStoreObjectMapper);
+      return provider;
     }
 
-    /**
-     * Custom ObjectMapper for JSON serialization of log entries.
-     */
     @Bean
-    public LogStoreObjectMapper logStoreObjectMapper() {
-        return new LogStoreObjectMapper();
+    public JAXRSServerFactoryBean loggtjanstApiServer(Bus cxfBus,
+        LoggtjanstStubRestApi loggtjanstStubRestApi,
+        JacksonJsonProvider jacksonJsonProvider) {
+      JAXRSServerFactoryBean factory = new JAXRSServerFactoryBean();
+      factory.setBus(cxfBus);
+      factory.setAddress("/api/loggtjanst-api");
+      factory.setServiceBeans(Collections.singletonList(loggtjanstStubRestApi));
+      factory.setProviders(Collections.singletonList(jacksonJsonProvider));
+      factory.setExtensionMappings(Collections.singletonMap("json", "application/json"));
+      factory.create();
+      return factory;
     }
-
-    /**
-     * StoreLogStubResponder bean - implements the SOAP service interface.
-     */
-    @Bean
-    public StoreLogStubResponder storeLogStubResponder() {
-        return new StoreLogStubResponder();
-    }
-
-    /**
-     * CXF SOAP endpoint for StoreLog service.
-     * Publishes the SOAP endpoint at /stubs/informationsecurity/auditing/log/StoreLog/v2/rivtabp21
-     */
-    @Bean
-    public EndpointImpl storeLogEndpoint(Bus cxfBus, StoreLogStubResponder storeLogStubResponder) {
-        EndpointImpl endpoint = new EndpointImpl(cxfBus, storeLogStubResponder);
-        endpoint.publish("/stubs/informationsecurity/auditing/log/StoreLog/v2/rivtabp21");
-        return endpoint;
-    }
-
-    /**
-     * REST API configuration for testability endpoints.
-     * Only active with dev or testability-api profiles.
-     */
-    @Configuration
-    @Profile({"dev", "testability-api"})
-    public static class TestabilityApiConfig {
-
-        /**
-         * LoggtjanstStubRestApi bean for REST API access to log entries.
-         */
-        @Bean
-        public LoggtjanstStubRestApi loggtjanstStubRestApi() {
-            return new LoggtjanstStubRestApi();
-        }
-
-        /**
-         * Jackson JSON provider configured with LogStoreObjectMapper.
-         */
-        @Bean
-        public JacksonJsonProvider jacksonJsonProvider(LogStoreObjectMapper logStoreObjectMapper) {
-            JacksonJsonProvider provider = new JacksonJsonProvider();
-            provider.setMapper(logStoreObjectMapper);
-            return provider;
-        }
-
-        /**
-         * JAX-RS server for REST API endpoints.
-         * Publishes REST API at /api/loggtjanst-api
-         */
-        @Bean
-        public JAXRSServerFactoryBean loggtjanstApiServer(Bus cxfBus,
-                                                          LoggtjanstStubRestApi loggtjanstStubRestApi,
-                                                          JacksonJsonProvider jacksonJsonProvider) {
-            JAXRSServerFactoryBean factory = new JAXRSServerFactoryBean();
-            factory.setBus(cxfBus);
-            factory.setAddress("/api/loggtjanst-api");
-            factory.setServiceBeans(Collections.singletonList(loggtjanstStubRestApi));
-            factory.setProviders(Collections.singletonList(jacksonJsonProvider));
-            factory.setExtensionMappings(Collections.singletonMap("json", "application/json"));
-            factory.create();
-            return factory;
-        }
-    }
+  }
 }
 

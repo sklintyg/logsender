@@ -21,286 +21,87 @@ package se.inera.intyg.logsender.config;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
-/**
- * Type-safe configuration properties for logsender application.
- * Replaces multiple @Value annotations with centralized, validated configuration.
- *
- * Properties are loaded from application.properties with prefix "logsender".
- */
+@Setter
+@Getter
 @ConfigurationProperties(prefix = "logsender")
 @Validated
 public class LogsenderProperties {
 
-    /**
-     * Message aggregation configuration.
-     */
-    private Aggregation aggregation = new Aggregation();
+  private Aggregation aggregation = new Aggregation();
 
-    /**
-     * JMS queue configuration.
-     */
-    private Queue queue = new Queue();
+  private Queue queue = new Queue();
 
-    /**
-     * Loggtjänst endpoint configuration.
-     */
-    private Loggtjanst loggtjanst = new Loggtjanst();
+  private Loggtjanst loggtjanst = new Loggtjanst();
 
-    /**
-     * Certificate configuration for SOAP communication.
-     */
-    private Certificate certificate = new Certificate();
+  private Certificate certificate = new Certificate();
 
-    public Aggregation getAggregation() {
-        return aggregation;
-    }
+  @Setter
+  @Getter
+  public static class Aggregation {
 
-    public void setAggregation(Aggregation aggregation) {
-        this.aggregation = aggregation;
-    }
+    @NotNull
+    @Min(1)
+    private Integer bulkSize;
 
-    public Queue getQueue() {
-        return queue;
-    }
+    @NotNull
+    @Min(1000)
+    private Long bulkTimeout;
 
-    public void setQueue(Queue queue) {
-        this.queue = queue;
-    }
+  }
 
-    public Loggtjanst getLoggtjanst() {
-        return loggtjanst;
-    }
 
-    public void setLoggtjanst(Loggtjanst loggtjanst) {
-        this.loggtjanst = loggtjanst;
-    }
+  @Setter
+  @Getter
+  public static class Queue {
 
-    public Certificate getCertificate() {
-        return certificate;
-    }
+    @NotBlank
+    private String receiveLogMessageEndpoint;
 
-    public void setCertificate(Certificate certificate) {
-        this.certificate = certificate;
-    }
+    @NotBlank
+    private String receiveAggregatedLogMessageEndpoint;
 
-    /**
-     * Message aggregation settings.
-     */
-    public static class Aggregation {
+    @NotBlank
+    private String receiveAggregatedLogMessageDlq;
 
-        /**
-         * Number of messages to aggregate into a single batch.
-         */
-        @NotNull
-        @Min(1)
-        private Integer bulkSize;
+  }
 
-        /**
-         * Maximum time in milliseconds to wait before sending a batch.
-         */
-        @NotNull
-        @Min(1000)
-        private Long bulkTimeout;
+  @Setter
+  @Getter
+  public static class Loggtjanst {
 
-        public Integer getBulkSize() {
-            return bulkSize;
-        }
+    @NotBlank
+    private String logicalAddress;
 
-        public void setBulkSize(Integer bulkSize) {
-            this.bulkSize = bulkSize;
-        }
+    @NotBlank
+    private String endpointUrl;
 
-        public Long getBulkTimeout() {
-            return bulkTimeout;
-        }
+  }
 
-        public void setBulkTimeout(Long bulkTimeout) {
-            this.bulkTimeout = bulkTimeout;
-        }
-    }
+  @Setter
+  @Getter
+  public static class Certificate {
 
-    /**
-     * JMS queue endpoint URIs.
-     */
-    public static class Queue {
+    private String file;
 
-        /**
-         * Queue URI for receiving individual log messages.
-         */
-        @NotBlank
-        private String receiveLogMessageEndpoint;
+    @NotBlank
+    private String type;
 
-        /**
-         * Queue URI for receiving aggregated log messages.
-         */
-        @NotBlank
-        private String receiveAggregatedLogMessageEndpoint;
+    private String truststoreFile;
 
-        /**
-         * Dead letter queue URI for failed aggregated messages.
-         */
-        @NotBlank
-        private String receiveAggregatedLogMessageDlq;
+    @NotBlank
+    private String truststoreType;
 
-        public String getReceiveLogMessageEndpoint() {
-            return receiveLogMessageEndpoint;
-        }
+    private String password;
 
-        public void setReceiveLogMessageEndpoint(String receiveLogMessageEndpoint) {
-            this.receiveLogMessageEndpoint = receiveLogMessageEndpoint;
-        }
+    private String keyManagerPassword;
 
-        public String getReceiveAggregatedLogMessageEndpoint() {
-            return receiveAggregatedLogMessageEndpoint;
-        }
+    private String truststorePassword;
 
-        public void setReceiveAggregatedLogMessageEndpoint(String receiveAggregatedLogMessageEndpoint) {
-            this.receiveAggregatedLogMessageEndpoint = receiveAggregatedLogMessageEndpoint;
-        }
-
-        public String getReceiveAggregatedLogMessageDlq() {
-            return receiveAggregatedLogMessageDlq;
-        }
-
-        public void setReceiveAggregatedLogMessageDlq(String receiveAggregatedLogMessageDlq) {
-            this.receiveAggregatedLogMessageDlq = receiveAggregatedLogMessageDlq;
-        }
-    }
-
-    /**
-     * Loggtjänst SOAP service configuration.
-     */
-    public static class Loggtjanst {
-
-        /**
-         * Logical address for the logging service.
-         */
-        @NotBlank
-        private String logicalAddress;
-
-        /**
-         * SOAP endpoint URL for the logging service.
-         */
-        @NotBlank
-        private String endpointUrl;
-
-        public String getLogicalAddress() {
-            return logicalAddress;
-        }
-
-        public void setLogicalAddress(String logicalAddress) {
-            this.logicalAddress = logicalAddress;
-        }
-
-        public String getEndpointUrl() {
-            return endpointUrl;
-        }
-
-        public void setEndpointUrl(String endpointUrl) {
-            this.endpointUrl = endpointUrl;
-        }
-    }
-
-    /**
-     * Certificate and truststore configuration for secure SOAP communication.
-     */
-    public static class Certificate {
-
-        /**
-         * Path to the certificate keystore file.
-         */
-        private String file;
-
-        /**
-         * Type of the keystore (JKS, PKCS12, etc).
-         */
-        @NotBlank
-        private String type;
-
-        /**
-         * Path to the truststore file.
-         */
-        private String truststoreFile;
-
-        /**
-         * Type of the truststore.
-         */
-        @NotBlank
-        private String truststoreType;
-
-        /**
-         * Password for the certificate keystore.
-         */
-        private String password;
-
-        /**
-         * Password for the key manager.
-         */
-        private String keyManagerPassword;
-
-        /**
-         * Password for the truststore.
-         */
-        private String truststorePassword;
-
-        public String getFile() {
-            return file;
-        }
-
-        public void setFile(String file) {
-            this.file = file;
-        }
-
-        public String getType() {
-            return type;
-        }
-
-        public void setType(String type) {
-            this.type = type;
-        }
-
-        public String getTruststoreFile() {
-            return truststoreFile;
-        }
-
-        public void setTruststoreFile(String truststoreFile) {
-            this.truststoreFile = truststoreFile;
-        }
-
-        public String getTruststoreType() {
-            return truststoreType;
-        }
-
-        public void setTruststoreType(String truststoreType) {
-            this.truststoreType = truststoreType;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public void setPassword(String password) {
-            this.password = password;
-        }
-
-        public String getKeyManagerPassword() {
-            return keyManagerPassword;
-        }
-
-        public void setKeyManagerPassword(String keyManagerPassword) {
-            this.keyManagerPassword = keyManagerPassword;
-        }
-
-        public String getTruststorePassword() {
-            return truststorePassword;
-        }
-
-        public void setTruststorePassword(String truststorePassword) {
-            this.truststorePassword = truststorePassword;
-        }
-    }
+  }
 }
 

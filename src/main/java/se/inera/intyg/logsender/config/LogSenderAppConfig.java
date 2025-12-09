@@ -31,25 +31,25 @@ import org.springframework.context.support.ResourceBundleMessageSource;
 @Import({LogSenderBeanConfig.class, LogSenderJmsConfig.class, LogSenderWsConfig.class})
 public class LogSenderAppConfig {
 
-    @Bean
-    public ResourceBundleMessageSource messageSource() {
-        ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-        messageSource.setDefaultEncoding("UTF-8");
-        messageSource.setBasenames("version");
-        return messageSource;
-    }
+  @Bean
+  public ResourceBundleMessageSource messageSource() {
+    ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+    messageSource.setDefaultEncoding("UTF-8");
+    messageSource.setBasenames("version");
+    return messageSource;
+  }
 
-    @Bean(name = Bus.DEFAULT_BUS_ID)
-    public Bus cxf() {
-        return new SpringBus();
-    }
+  @Bean(name = Bus.DEFAULT_BUS_ID)
+  public Bus cxf() {
+    return new SpringBus();
+  }
 
-    @Bean
-    public ServletRegistrationBean<CXFServlet> cxfServletRegistration() {
-        ServletRegistrationBean<CXFServlet> registration =
-            new ServletRegistrationBean<>(new CXFServlet(), "/*");
-        registration.setLoadOnStartup(1);
-        registration.setName("ws");
-        return registration;
-    }
+  @Bean
+  public ServletRegistrationBean<CXFServlet> cxfServletRegistration() {
+    ServletRegistrationBean<CXFServlet> registration =
+        new ServletRegistrationBean<>(new CXFServlet(), "/*");
+    registration.setLoadOnStartup(1);
+    registration.setName("ws");
+    return registration;
+  }
 }

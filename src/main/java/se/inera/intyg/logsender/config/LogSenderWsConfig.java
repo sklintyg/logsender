@@ -18,6 +18,7 @@
  */
 package se.inera.intyg.logsender.config;
 
+import jakarta.annotation.Resource;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.KeyStore;
@@ -26,11 +27,11 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Arrays;
-import jakarta.annotation.Resource;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
+import lombok.RequiredArgsConstructor;
 import org.apache.cxf.annotations.SchemaValidation;
 import org.apache.cxf.annotations.SchemaValidation.SchemaValidationType;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
@@ -44,7 +45,6 @@ import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transport.http.HttpConduitConfig;
 import org.apache.cxf.transports.http.configuration.ConnectionType;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -55,111 +55,117 @@ import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogRes
 @RequiredArgsConstructor
 public class LogSenderWsConfig {
 
-    @Resource
-    private Environment env;
+  private static final int LOG_MESSAGE_SIZE = 1024;
+  private final LogsenderProperties properties;
+  @Resource
+  private Environment env;
 
-    private final LogsenderProperties properties;
+  @Bean
+  @Profile("!dev & !wc-all-stubs & !wc-loggtjanst-stub")
+  @SchemaValidation(type = SchemaValidationType.BOTH)
+  public StoreLogResponderInterface storeLogClient() throws UnrecoverableKeyException,
+      CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
+    JaxWsProxyFactoryBean jaxWsProxyFactoryBean = createJaxWsProxyFactoryBean();
+    StoreLogResponderInterface storeLogClient =
+        (StoreLogResponderInterface) jaxWsProxyFactoryBean.create();
+    setClient(storeLogClient);
+    return storeLogClient;
+  }
 
-    private static final int LOG_MESSAGE_SIZE = 1024;
+  private JaxWsProxyFactoryBean createJaxWsProxyFactoryBean() {
+    JAXWSSpringClientProxyFactoryBean jaxWsProxyFactoryBean = new JAXWSSpringClientProxyFactoryBean();
+    jaxWsProxyFactoryBean.setServiceClass(StoreLogResponderInterface.class);
+    jaxWsProxyFactoryBean.setAddress(properties.getLoggtjanst().getEndpointUrl());
+    jaxWsProxyFactoryBean.getFeatures().add(loggingFeature());
+    return jaxWsProxyFactoryBean;
+  }
 
-    @Bean
-    @Profile("!dev & !wc-all-stubs & !wc-loggtjanst-stub")
-    @SchemaValidation(type = SchemaValidationType.BOTH)
-    public StoreLogResponderInterface storeLogClient() throws UnrecoverableKeyException,
-        CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
-        JaxWsProxyFactoryBean jaxWsProxyFactoryBean = createJaxWsProxyFactoryBean();
-        StoreLogResponderInterface storeLogClient =
-            (StoreLogResponderInterface) jaxWsProxyFactoryBean.create();
-        setClient(storeLogClient);
-        return storeLogClient;
+  private LoggingFeature loggingFeature() {
+    LoggingFeature loggingFeature = new LoggingFeature();
+    loggingFeature.setLimit(LOG_MESSAGE_SIZE * LOG_MESSAGE_SIZE);
+    loggingFeature.setPrettyLogging(true);
+    return loggingFeature;
+  }
+
+  private void setClient(StoreLogResponderInterface storeLogClient)
+      throws UnrecoverableKeyException,
+      CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
+    Client client = ClientProxy.getClient(storeLogClient);
+    if (!Arrays.asList(this.env.getActiveProfiles()).contains("dev")) {
+      HTTPConduit httpConduit = (HTTPConduit) client.getConduit();
+      configureTlsParameters().apply(httpConduit);
     }
+  }
 
-    private JaxWsProxyFactoryBean createJaxWsProxyFactoryBean() {
-        JAXWSSpringClientProxyFactoryBean jaxWsProxyFactoryBean = new JAXWSSpringClientProxyFactoryBean();
-        jaxWsProxyFactoryBean.setServiceClass(StoreLogResponderInterface.class);
-        jaxWsProxyFactoryBean.setAddress(properties.getLoggtjanst().getEndpointUrl());
-        jaxWsProxyFactoryBean.getFeatures().add(loggingFeature());
-        return jaxWsProxyFactoryBean;
-    }
+  private HttpConduitConfig configureTlsParameters()
+      throws UnrecoverableKeyException, CertificateException,
+      NoSuchAlgorithmException, KeyStoreException, IOException {
+    HttpConduitConfig config = new HttpConduitConfig();
+    config.setClientPolicy(setupHTTPClientPolicy());
+    config.setTlsClientParameters(setupTLSClientParameters());
+    return config;
+  }
 
-    private LoggingFeature loggingFeature() {
-        LoggingFeature loggingFeature = new LoggingFeature();
-        loggingFeature.setLimit(LOG_MESSAGE_SIZE * LOG_MESSAGE_SIZE);
-        loggingFeature.setPrettyLogging(true);
-        return loggingFeature;
-    }
+  private HTTPClientPolicy setupHTTPClientPolicy() {
+    HTTPClientPolicy httpClientPolicy = new HTTPClientPolicy();
+    httpClientPolicy.setAllowChunking(false);
+    httpClientPolicy.setAutoRedirect(true);
+    httpClientPolicy.setConnection(ConnectionType.KEEP_ALIVE);
+    return httpClientPolicy;
+  }
 
-    private void setClient(StoreLogResponderInterface storeLogClient) throws UnrecoverableKeyException,
-        CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
-        Client client = ClientProxy.getClient(storeLogClient);
-        if (!Arrays.asList(this.env.getActiveProfiles()).contains("dev")) {
-            HTTPConduit httpConduit = (HTTPConduit) client.getConduit();
-            configureTlsParameters().apply(httpConduit);
-        }
-    }
+  private TLSClientParameters setupTLSClientParameters() throws KeyStoreException, IOException,
+      NoSuchAlgorithmException, CertificateException, UnrecoverableKeyException {
+    TLSClientParameters tlsClientParameters = new TLSClientParameters();
+    tlsClientParameters.setDisableCNCheck(true);
+    tlsClientParameters.setCipherSuitesFilter(setupCipherSuitesFilter());
+    tlsClientParameters.setKeyManagers(setupKeyManagers());
+    tlsClientParameters.setTrustManagers(setupTrustManagers());
+    return tlsClientParameters;
+  }
 
-    private HttpConduitConfig configureTlsParameters() throws UnrecoverableKeyException, CertificateException,
-        NoSuchAlgorithmException, KeyStoreException, IOException {
-        HttpConduitConfig config = new HttpConduitConfig();
-        config.setClientPolicy(setupHTTPClientPolicy());
-        config.setTlsClientParameters(setupTLSClientParameters());
-        return config;
+  private KeyManager[] setupKeyManagers()
+      throws KeyStoreException, IOException, UnrecoverableKeyException,
+      NoSuchAlgorithmException, CertificateException {
+    final String keyStoreFile = properties.getCertificate().getFile();
+    final char[] keyStorePassword = properties.getCertificate().getPassword().toCharArray();
+    final KeyStore keyStore = KeyStore.getInstance(properties.getCertificate().getType());
+    try (FileInputStream keyStoreInputStream = new FileInputStream(keyStoreFile)) {
+      keyStore.load(keyStoreInputStream, keyStorePassword);
     }
+    KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(
+        KeyManagerFactory.getDefaultAlgorithm());
+    keyManagerFactory.init(keyStore, keyStorePassword);
+    return keyManagerFactory.getKeyManagers();
+  }
 
-    private HTTPClientPolicy setupHTTPClientPolicy() {
-        HTTPClientPolicy httpClientPolicy = new HTTPClientPolicy();
-        httpClientPolicy.setAllowChunking(false);
-        httpClientPolicy.setAutoRedirect(true);
-        httpClientPolicy.setConnection(ConnectionType.KEEP_ALIVE);
-        return httpClientPolicy;
+  private TrustManager[] setupTrustManagers()
+      throws KeyStoreException, IOException, CertificateException,
+      NoSuchAlgorithmException {
+    final String trustStoreFile = properties.getCertificate().getTruststoreFile();
+    final char[] trustStorePassword = properties.getCertificate().getTruststorePassword()
+        .toCharArray();
+    final KeyStore trustStore = KeyStore.getInstance(
+        properties.getCertificate().getTruststoreType());
+    try (FileInputStream trustStoreInputStream = new FileInputStream(trustStoreFile)) {
+      trustStore.load(trustStoreInputStream, trustStorePassword);
     }
+    TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(
+        TrustManagerFactory.getDefaultAlgorithm());
+    trustManagerFactory.init(trustStore);
+    return trustManagerFactory.getTrustManagers();
+  }
 
-    private TLSClientParameters setupTLSClientParameters() throws KeyStoreException, IOException,
-        NoSuchAlgorithmException, CertificateException, UnrecoverableKeyException {
-        TLSClientParameters tlsClientParameters = new TLSClientParameters();
-        tlsClientParameters.setDisableCNCheck(true);
-        tlsClientParameters.setCipherSuitesFilter(setupCipherSuitesFilter());
-        tlsClientParameters.setKeyManagers(setupKeyManagers());
-        tlsClientParameters.setTrustManagers(setupTrustManagers());
-        return tlsClientParameters;
-    }
-
-    private KeyManager[] setupKeyManagers() throws KeyStoreException, IOException, UnrecoverableKeyException,
-        NoSuchAlgorithmException, CertificateException {
-        final String keyStoreFile = properties.getCertificate().getFile();
-        final char[] keyStorePassword = properties.getCertificate().getPassword().toCharArray();
-        final KeyStore keyStore = KeyStore.getInstance(properties.getCertificate().getType());
-        try (FileInputStream keyStoreInputStream = new FileInputStream(keyStoreFile)) {
-            keyStore.load(keyStoreInputStream, keyStorePassword);
-        }
-        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        keyManagerFactory.init(keyStore, keyStorePassword);
-        return keyManagerFactory.getKeyManagers();
-    }
-
-    private TrustManager[] setupTrustManagers() throws KeyStoreException, IOException, CertificateException,
-        NoSuchAlgorithmException {
-        final String trustStoreFile = properties.getCertificate().getTruststoreFile();
-        final char[] trustStorePassword = properties.getCertificate().getTruststorePassword().toCharArray();
-        final KeyStore trustStore = KeyStore.getInstance(properties.getCertificate().getTruststoreType());
-        try (FileInputStream trustStoreInputStream = new FileInputStream(trustStoreFile)) {
-            trustStore.load(trustStoreInputStream, trustStorePassword);
-        }
-        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        trustManagerFactory.init(trustStore);
-        return trustManagerFactory.getTrustManagers();
-    }
-
-    private FiltersType setupCipherSuitesFilter() {
-        FiltersType cipherSuitesFilter = new FiltersType();
-        cipherSuitesFilter.getInclude().add(".*_EXPORT_.*");
-        cipherSuitesFilter.getInclude().add(".*_EXPORT1024_.*");
-        cipherSuitesFilter.getInclude().add(".*_WITH_AES_256_.*");
-        cipherSuitesFilter.getInclude().add(".*_WITH_AES_128_.*");
-        cipherSuitesFilter.getInclude().add(".*_WITH_3DES_.*");
-        cipherSuitesFilter.getInclude().add(".*_WITH_DES_.*");
-        cipherSuitesFilter.getInclude().add(".*_WITH_NULL_.*");
-        cipherSuitesFilter.getExclude().add(".*_DH_anon_.*");
-        return cipherSuitesFilter;
-    }
+  private FiltersType setupCipherSuitesFilter() {
+    FiltersType cipherSuitesFilter = new FiltersType();
+    cipherSuitesFilter.getInclude().add(".*_EXPORT_.*");
+    cipherSuitesFilter.getInclude().add(".*_EXPORT1024_.*");
+    cipherSuitesFilter.getInclude().add(".*_WITH_AES_256_.*");
+    cipherSuitesFilter.getInclude().add(".*_WITH_AES_128_.*");
+    cipherSuitesFilter.getInclude().add(".*_WITH_3DES_.*");
+    cipherSuitesFilter.getInclude().add(".*_WITH_DES_.*");
+    cipherSuitesFilter.getInclude().add(".*_WITH_NULL_.*");
+    cipherSuitesFilter.getExclude().add(".*_DH_anon_.*");
+    return cipherSuitesFilter;
+  }
 }
