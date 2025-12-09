@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import se.inera.intyg.logsender.config.LogsenderProperties;
 import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
 import se.inera.intyg.logsender.service.SoapIntegrationService;
@@ -37,9 +35,7 @@ import se.riv.informationsecurity.auditing.log.v2.ResultType;
 
 /**
  * Responsible for sending a list of {@link LogType} over the {@link StoreLogResponderInterface}.
- *
  * Typically, StoreLogResponderInterface is stubbed for dev and test, NTjP connected service used for demo, qa and prod.
- *
  * Created by eriklupander on 2016-02-29.
  */
 @Slf4j
