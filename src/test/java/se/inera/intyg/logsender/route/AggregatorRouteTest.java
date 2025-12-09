@@ -20,91 +20,98 @@ package se.inera.intyg.logsender.route;
 
 import static org.apache.camel.component.mock.MockEndpoint.assertIsSatisfied;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.camel.CamelContext;
 import org.apache.camel.EndpointInject;
-import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.AdviceWith;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.test.spring.junit5.CamelSpringTest;
-import org.junit.jupiter.api.Test;
+import org.apache.camel.test.spring.junit5.CamelSpringBootTest;
+import org.apache.camel.test.spring.junit5.UseAdviceWith;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-
-import com.google.common.collect.ImmutableMap;
-
-import se.inera.intyg.logsender.model.ActivityType;
+import org.springframework.test.context.ActiveProfiles;
 import se.inera.intyg.logsender.helper.TestDataHelper;
+import se.inera.intyg.logsender.model.ActivityType;
 import se.inera.intyg.logsender.testconfig.UnitTestConfig;
 
-@CamelSpringTest
-@TestPropertySource(locations = "classpath:logsender/unit-test.properties")
-@ContextConfiguration(classes = {UnitTestConfig.class})
+@CamelSpringBootTest
+@EnableAutoConfiguration
+@UseAdviceWith
+@SpringBootTest(classes = UnitTestConfig.class)
+@ActiveProfiles("test")
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class AggregatorRouteTest {
 
-    @Autowired
-    private CamelContext camelContext;
+  @Autowired
+  private CamelContext camelContext;
 
-    @Produce("direct://receiveLogMessageEndpoint")
-    protected ProducerTemplate producerTemplate;
+  @Autowired
+  private ProducerTemplate producerTemplate;
 
-    @EndpointInject("mock:bean:logMessageAggregationProcessor")
-    protected MockEndpoint logMessageAggregationProcessor;
+  @EndpointInject("mock:bean:logMessageAggregationProcessor")
+  private MockEndpoint logMessageAggregationProcessor;
 
-    @EndpointInject("mock:direct:receiveAggregatedLogMessageEndpoint")
-    protected MockEndpoint newAggregatedLogMessageQueue;
+  @EndpointInject("mock:direct:receiveAggregatedLogMessageEndpoint")
+  private MockEndpoint newAggregatedLogMessageQueue;
 
-    @EndpointInject("mock:direct:logMessagePermanentErrorHandlerEndpoint")
-    protected MockEndpoint logMessagePermanentErrorHandlerEndpoint;
+  @EndpointInject("mock:direct:logMessagePermanentErrorHandlerEndpoint")
+  private MockEndpoint logMessagePermanentErrorHandlerEndpoint;
 
-    @EndpointInject("mock:direct:logMessageTemporaryErrorHandlerEndpoint")
-    protected MockEndpoint logMessageTemporaryErrorHandlerEndpoint;
+  @EndpointInject("mock:direct:logMessageTemporaryErrorHandlerEndpoint")
+  private MockEndpoint logMessageTemporaryErrorHandlerEndpoint;
 
-    @BeforeEach
-    public void setup() throws Exception {
-        AdviceWith.adviceWith(camelContext, "aggregatorRoute", in ->
-            in.mockEndpointsAndSkip("bean:logMessageAggregationProcessor", "direct:receiveAggregatedLogMessageEndpoint",
-                "direct:logMessageTemporaryErrorHandlerEndpoint", "direct:logMessagePermanentErrorHandlerEndpoint"));
+  @BeforeEach
+  public void setup() throws Exception {
+    AdviceWith.adviceWith(camelContext, "aggregatorRoute", in ->
+        in.mockEndpointsAndSkip("bean:logMessageAggregationProcessor",
+            "direct:receiveAggregatedLogMessageEndpoint",
+            "direct:logMessageTemporaryErrorHandlerEndpoint",
+            "direct:logMessagePermanentErrorHandlerEndpoint"));
+    camelContext.start();
+  }
+
+  @Test
+  public void testNormalLogStoreRoute() throws InterruptedException {
+    logMessageAggregationProcessor.expectedMessageCount(1);
+    newAggregatedLogMessageQueue.expectedMessageCount(1);
+    logMessagePermanentErrorHandlerEndpoint.expectedMessageCount(0);
+    logMessageTemporaryErrorHandlerEndpoint.expectedMessageCount(0);
+
+    for (int a = 0; a < 5; a++) {
+      producerTemplate.sendBodyAndHeaders("direct:receiveLogMessageEndpoint",
+          TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ),
+          ImmutableMap.of());
     }
 
-    @Test
-    public void testNormalLogStoreRoute() throws InterruptedException {
-        logMessageAggregationProcessor.expectedMessageCount(1);
-        newAggregatedLogMessageQueue.expectedMessageCount(1);
-        logMessagePermanentErrorHandlerEndpoint.expectedMessageCount(0);
-        logMessageTemporaryErrorHandlerEndpoint.expectedMessageCount(0);
+    assertIsSatisfied(logMessageAggregationProcessor);
+    assertIsSatisfied(newAggregatedLogMessageQueue);
+    assertIsSatisfied(logMessagePermanentErrorHandlerEndpoint);
+    assertIsSatisfied(logMessageTemporaryErrorHandlerEndpoint);
+  }
 
-        for (int a = 0; a < 5; a++) {
-            producerTemplate
-                .sendBodyAndHeaders(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ), ImmutableMap.of());
-        }
+  @Test
+  public void testNoMessagesReceivedWhenMessageCountLessThanBatchSize()
+      throws InterruptedException {
+    logMessageAggregationProcessor.expectedMessageCount(0);
+    newAggregatedLogMessageQueue.expectedMessageCount(0);
+    logMessagePermanentErrorHandlerEndpoint.expectedMessageCount(0);
+    logMessageTemporaryErrorHandlerEndpoint.expectedMessageCount(0);
 
-        assertIsSatisfied(logMessageAggregationProcessor);
-        assertIsSatisfied(newAggregatedLogMessageQueue);
-        assertIsSatisfied(logMessagePermanentErrorHandlerEndpoint);
-        assertIsSatisfied(logMessageTemporaryErrorHandlerEndpoint);
+    for (int a = 0; a < 4; a++) {
+      producerTemplate.sendBodyAndHeaders("direct:receiveLogMessageEndpoint",
+          TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ),
+          ImmutableMap.of());
     }
 
-    @Test
-    public void testNoMessagesReceivedWhenMessageCountLessThanBatchSize() throws InterruptedException {
-        logMessageAggregationProcessor.expectedMessageCount(0);
-        newAggregatedLogMessageQueue.expectedMessageCount(0);
-        logMessagePermanentErrorHandlerEndpoint.expectedMessageCount(0);
-        logMessageTemporaryErrorHandlerEndpoint.expectedMessageCount(0);
-
-        for (int a = 0; a < 4; a++) {
-            producerTemplate
-                .sendBodyAndHeaders(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ), ImmutableMap.of());
-        }
-
-        assertIsSatisfied(logMessageAggregationProcessor);
-        assertIsSatisfied(newAggregatedLogMessageQueue);
-        assertIsSatisfied(logMessagePermanentErrorHandlerEndpoint);
-        assertIsSatisfied(logMessageTemporaryErrorHandlerEndpoint);
-    }
+    assertIsSatisfied(logMessageAggregationProcessor);
+    assertIsSatisfied(newAggregatedLogMessageQueue);
+    assertIsSatisfied(logMessagePermanentErrorHandlerEndpoint);
+    assertIsSatisfied(logMessageTemporaryErrorHandlerEndpoint);
+  }
 }

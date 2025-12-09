@@ -18,12 +18,10 @@
  */
 package se.inera.intyg.logsender.helper;
 
-import java.time.LocalDateTime;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.time.LocalDateTime;
 import se.inera.intyg.logsender.model.ActivityPurpose;
 import se.inera.intyg.logsender.model.ActivityType;
 import se.inera.intyg.logsender.model.Enhet;
@@ -32,93 +30,91 @@ import se.inera.intyg.logsender.model.PdlLogMessage;
 import se.inera.intyg.logsender.model.PdlResource;
 import se.inera.intyg.logsender.model.ResourceType;
 
-/**
- * Utility for creating test data for unit- and integration tests.
- *
- * Created by eriklupander on 2016-03-01.
- */
+
 public class TestDataHelper {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+  private static final ObjectMapper objectMapper = new ObjectMapper()
+      .registerModule(new JavaTimeModule());
 
-    public static PdlLogMessage buildBasePdlLogMessage(ActivityType activityType) {
-        return buildBasePdlLogMessage(activityType, 1, ValueInclude.INCLUDE, ValueInclude.INCLUDE);
+  public static PdlLogMessage buildBasePdlLogMessage(ActivityType activityType) {
+    return buildBasePdlLogMessage(activityType, 1, ValueInclude.INCLUDE, ValueInclude.INCLUDE);
+  }
+
+  public static PdlLogMessage buildBasePdlLogMessage(ActivityType activityType,
+      ValueInclude patientNameInclude,
+      ValueInclude userNameInclude) {
+    return buildBasePdlLogMessage(activityType, 1, patientNameInclude, userNameInclude);
+  }
+
+  public static String buildBasePdlLogMessageAsJson(ActivityType activityType) {
+    try {
+      return objectMapper.writeValueAsString(
+          buildBasePdlLogMessage(activityType, 1, ValueInclude.INCLUDE, ValueInclude.INCLUDE));
+    } catch (JsonProcessingException e) {
+      throw new IllegalArgumentException(
+          "Could not build test data log message, JSON could not be produced: " + e.getMessage());
+    }
+  }
+
+  public static String buildBasePdlLogMessageAsJson(ActivityType activityType,
+      int numberOfResources) {
+    try {
+      return objectMapper
+          .writeValueAsString(
+              buildBasePdlLogMessage(activityType, numberOfResources, ValueInclude.INCLUDE,
+                  ValueInclude.INCLUDE));
+    } catch (JsonProcessingException e) {
+      throw new IllegalArgumentException(
+          "Could not build test data log message, JSON could not be produced: " + e.getMessage());
+    }
+  }
+
+  public static PdlLogMessage buildBasePdlLogMessage(ActivityType activityType,
+      int numberOfResources,
+      ValueInclude patientNameInclude,
+      ValueInclude userNameInclude) {
+
+    PdlLogMessage pdlLogMessage = new PdlLogMessage();
+    pdlLogMessage.setUserId("user-123");
+    pdlLogMessage.setUserName(getUserName(userNameInclude));
+    pdlLogMessage.setSystemId("webcert");
+    pdlLogMessage.setSystemName("webcert");
+    pdlLogMessage.setUserCareUnit(buildEnhet());
+    pdlLogMessage.setActivityType(activityType);
+    pdlLogMessage.setTimestamp(LocalDateTime.now());
+    pdlLogMessage.setPurpose(ActivityPurpose.CARE_TREATMENT);
+
+    for (int a = 0; a < numberOfResources; a++) {
+      PdlResource pdlResource = new PdlResource();
+      pdlResource.setPatient(buildPatient(patientNameInclude));
+      pdlResource.setResourceOwner(buildEnhet());
+      pdlResource.setResourceType(ResourceType.RESOURCE_TYPE_INTYG.getResourceTypeName());
+      pdlLogMessage.getPdlResourceList().add(pdlResource);
     }
 
-    public static PdlLogMessage buildBasePdlLogMessage(ActivityType activityType, ValueInclude patientNameInclude,
-        ValueInclude userNameInclude) {
-        return buildBasePdlLogMessage(activityType, 1, patientNameInclude, userNameInclude);
-    }
+    return pdlLogMessage;
+  }
 
-    public static String buildBasePdlLogMessageAsJson(ActivityType activityType) {
-        try {
-            return objectMapper.writeValueAsString(buildBasePdlLogMessage(activityType, 1, ValueInclude.INCLUDE, ValueInclude.INCLUDE));
-        } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("Could not build test data log message, JSON could not be produced: " + e.getMessage());
-        }
-    }
+  private static Enhet buildEnhet() {
+    return new Enhet("enhet-1", "Enhet nr 1", "vardgivare-1", "Vårdgivare 1");
+  }
 
-    public static String buildBasePdlLogMessageAsJson(ActivityType activityType, int numberOfResources) {
-        try {
-            return objectMapper
-                .writeValueAsString(buildBasePdlLogMessage(activityType, numberOfResources, ValueInclude.INCLUDE, ValueInclude.INCLUDE));
-        } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("Could not build test data log message, JSON could not be produced: " + e.getMessage());
-        }
-    }
+  private static Patient buildPatient(ValueInclude patientNameInclude) {
+    String patientName = switch (patientNameInclude) {
+      case BLANK_WITH_SPACE -> " ";
+      case INCLUDE -> "Tolvan Tolvansson";
+      default -> null;
+    };
+    return new Patient("19121212-1212", patientName);
+  }
 
-    public static PdlLogMessage buildBasePdlLogMessage(ActivityType activityType,
-        int numberOfResources,
-        ValueInclude patientNameInclude,
-        ValueInclude userNameInclude) {
-
-        PdlLogMessage pdlLogMessage = new PdlLogMessage();
-        pdlLogMessage.setUserId("user-123");
-        pdlLogMessage.setUserName(getUserName(userNameInclude));
-        pdlLogMessage.setSystemId("webcert");
-        pdlLogMessage.setSystemName("webcert");
-        pdlLogMessage.setUserCareUnit(buildEnhet());
-        pdlLogMessage.setActivityType(activityType);
-        pdlLogMessage.setTimestamp(LocalDateTime.now());
-        pdlLogMessage.setPurpose(ActivityPurpose.CARE_TREATMENT);
-
-        for (int a = 0; a < numberOfResources; a++) {
-            PdlResource pdlResource = new PdlResource();
-            pdlResource.setPatient(buildPatient(patientNameInclude));
-            pdlResource.setResourceOwner(buildEnhet());
-            pdlResource.setResourceType(ResourceType.RESOURCE_TYPE_INTYG.getResourceTypeName());
-            pdlLogMessage.getPdlResourceList().add(pdlResource);
-        }
-
-        return pdlLogMessage;
-    }
-
-    private static Enhet buildEnhet() {
-        return new Enhet("enhet-1", "Enhet nr 1", "vardgivare-1", "Vårdgivare 1");
-    }
-
-    private static Patient buildPatient(ValueInclude patientNameInclude) {
-        String patientName = null;
-        switch (patientNameInclude) {
-            case BLANK_WITH_SPACE:
-                patientName = " ";
-                break;
-            case INCLUDE:
-                patientName = "Tolvan Tolvansson";
-        }
-        return new Patient("19121212-1212", patientName);
-    }
-
-    private static String getUserName(ValueInclude userNameInclude) {
-        String name = null;
-        switch (userNameInclude) {
-            case BLANK_WITH_SPACE:
-                name = " ";
-                break;
-            case INCLUDE:
-                name = "Stein Ivarsdottir";
-        }
-        return name;
-    }
+  private static String getUserName(ValueInclude userNameInclude) {
+    String name = switch (userNameInclude) {
+      case BLANK_WITH_SPACE -> " ";
+      case INCLUDE -> "Stein Ivarsdottir";
+      default -> null;
+    };
+    return name;
+  }
 
 }

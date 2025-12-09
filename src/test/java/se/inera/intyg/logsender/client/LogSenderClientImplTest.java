@@ -30,17 +30,14 @@ import static org.mockito.Mockito.when;
 import jakarta.xml.ws.WebServiceException;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.support.AnnotationConfigContextLoader;
+import se.inera.intyg.logsender.config.LogsenderProperties;
 import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
-import se.inera.intyg.logsender.service.SoapIntegrationServiceImpl;
-import se.inera.intyg.logsender.testconfig.UnitTestConfig;
+import se.inera.intyg.logsender.service.SoapIntegrationService;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogType;
 import se.riv.informationsecurity.auditing.log.v2.LogType;
@@ -52,19 +49,31 @@ import se.riv.informationsecurity.auditing.log.v2.ResultType;
  */
 
 @ExtendWith(MockitoExtension.class)
-@TestPropertySource(locations = {"classpath:logsender/unit-test.properties"})
-@ContextConfiguration(classes = {UnitTestConfig.class}, loader = AnnotationConfigContextLoader.class)
 class LogSenderClientImplTest {
 
     @Mock
-    SoapIntegrationServiceImpl soapIntegrationService;
+    private LogsenderProperties properties;
 
-    @InjectMocks
+    @Mock
+    private LogsenderProperties.Loggtjanst loggtjanst;
+
+    @Mock
+    private SoapIntegrationService soapIntegrationService;
+
     private LogSenderClientImpl testee;
+
+    @BeforeEach
+    void setUp() {
+
+        testee = new LogSenderClientImpl(properties, soapIntegrationService);
+    }
 
     @Test
     void testSendOk() {
+        when(properties.getLoggtjanst()).thenReturn(loggtjanst);
+        when(loggtjanst.getLogicalAddress()).thenReturn("TEST-LOGICAL-ADDRESS");
         when(soapIntegrationService.storeLog(any(), any(StoreLogType.class))).thenReturn(buildOkResponse());
+
         StoreLogResponseType response = testee.sendLogMessage(buildLogEntries());
         assertNotNull(response);
         assertEquals(ResultCodeType.OK, response.getResult().getResultCode());
@@ -72,7 +81,10 @@ class LogSenderClientImplTest {
 
     @Test
     void testSendError() {
+        when(properties.getLoggtjanst()).thenReturn(loggtjanst);
+        when(loggtjanst.getLogicalAddress()).thenReturn("TEST-LOGICAL-ADDRESS");
         when(soapIntegrationService.storeLog(any(), any(StoreLogType.class))).thenReturn(buildErrorResponse());
+
         StoreLogResponseType response = testee.sendLogMessage(buildLogEntries());
         assertNotNull(response);
         assertEquals(ResultCodeType.ERROR, response.getResult().getResultCode());
@@ -98,6 +110,9 @@ class LogSenderClientImplTest {
 
     @Test
     void testWebServiceExceptionCausesLoggtjanstExecutionException() {
+        when(properties.getLoggtjanst()).thenReturn(loggtjanst);
+        when(loggtjanst.getLogicalAddress()).thenReturn("TEST-LOGICAL-ADDRESS");
+
         assertThrows(LoggtjanstExecutionException.class, () -> {
             when(soapIntegrationService.storeLog(any(), any(StoreLogType.class))).thenThrow(new WebServiceException("error"));
             testee.sendLogMessage(buildLogEntries());

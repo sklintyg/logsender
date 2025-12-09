@@ -22,6 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.util.List;
 import org.apache.camel.Message;
 import org.apache.camel.impl.DefaultCamelContext;
@@ -29,57 +31,59 @@ import org.apache.camel.support.DefaultMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import se.inera.intyg.logsender.model.ActivityType;
 import se.inera.intyg.logsender.exception.PermanentException;
 import se.inera.intyg.logsender.helper.TestDataHelper;
 import se.inera.intyg.logsender.logging.MdcHelper;
+import se.inera.intyg.logsender.model.ActivityType;
 
-/**
- * Created by eriklupander on 2016-03-16.
- */
 @ExtendWith(MockitoExtension.class)
 class LogMessageSplitProcessorTest {
 
-    @Mock
-    MdcHelper mdcHelper;
+  @Mock
+  MdcHelper mdcHelper;
 
-    @InjectMocks
-    private LogMessageSplitProcessor testee;
+  private LogMessageSplitProcessor testee;
 
-    @BeforeEach
-    void setUp() {
-        when(mdcHelper.spanId()).thenReturn("spanId");
-        when(mdcHelper.traceId()).thenReturn("traceId");
-    }
+  @BeforeEach
+  void setUp() {
+    when(mdcHelper.spanId()).thenReturn("spanId");
+    when(mdcHelper.traceId()).thenReturn("traceId");
 
-    @Test
-    void testSingleResource() throws Exception {
-        List<Message> messages = testee.process(buildMessage(1));
-        assertEquals(1, messages.size());
-    }
+    // Create real ObjectMapper with JavaTimeModule
+    ObjectMapper objectMapper = new ObjectMapper()
+        .registerModule(new JavaTimeModule());
 
-    @Test
-    void testMultipleResources() throws Exception {
-        List<Message> messages = testee.process(buildMessage(3));
-        assertEquals(3, messages.size());
-    }
+    // Manually create instance with all dependencies
+    testee = new LogMessageSplitProcessor(objectMapper, mdcHelper);
+  }
 
-    @Test
-    void testNoResource() {
-        assertThrows(PermanentException.class, () ->
-            testee.process(buildMessage(0)));
-    }
+  @Test
+  void testSingleResource() throws Exception {
+    List<Message> messages = testee.process(buildMessage(1));
+    assertEquals(1, messages.size());
+  }
 
-    private Message buildMessage(int numberOfResources) {
-        DefaultMessage msg = new DefaultMessage(new DefaultCamelContext());
-        msg.setBody(buildBody(numberOfResources));
-        return msg;
-    }
+  @Test
+  void testMultipleResources() throws Exception {
+    List<Message> messages = testee.process(buildMessage(3));
+    assertEquals(3, messages.size());
+  }
 
-    private String buildBody(int numberOfResources) {
-        return TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ, numberOfResources);
-    }
+  @Test
+  void testNoResource() {
+    assertThrows(PermanentException.class, () ->
+        testee.process(buildMessage(0)));
+  }
+
+  private Message buildMessage(int numberOfResources) {
+    DefaultMessage msg = new DefaultMessage(new DefaultCamelContext());
+    msg.setBody(buildBody(numberOfResources));
+    return msg;
+  }
+
+  private String buildBody(int numberOfResources) {
+    return TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ, numberOfResources);
+  }
 }

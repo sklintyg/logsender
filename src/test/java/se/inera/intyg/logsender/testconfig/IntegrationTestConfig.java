@@ -20,20 +20,21 @@ package se.inera.intyg.logsender.testconfig;
 
 import jakarta.jms.Queue;
 import org.apache.activemq.command.ActiveMQQueue;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.PropertySource;
 import se.inera.intyg.logsender.client.mock.MockLogSenderClientImpl;
 import se.inera.intyg.logsender.config.LogSenderBeanConfig;
+import se.inera.intyg.logsender.config.LogsenderProperties;
 
 @Lazy
 @Configuration
+@EnableConfigurationProperties(LogsenderProperties.class)
 @Import({LogSenderBeanConfig.class, IntegrationTestJmsConfig.class, IntegrationTestBrokerService.class})
-@PropertySource({"classpath:application.properties", "classpath:logsender/integration-test.properties"})
-@ImportResource({"classpath:camel-context.xml", "classpath:/basic-cache-config.xml", "classpath:/loggtjanst-stub-context.xml"})
+@PropertySource({"classpath:logsender/integration-test.properties"})
 public class IntegrationTestConfig {
 
     @Bean
