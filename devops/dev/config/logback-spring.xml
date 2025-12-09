@@ -24,9 +24,17 @@
 
 	<logger name="org.apache.cxf.services.StoreLogResponderInterface.REQ_OUT" level="WARN" />
 
-	<root level="INFO">
-		<appender-ref ref="CONSOLE"/>
-	</root>
+  <springProfile name="dev">
+    <root level="INFO">
+      <appender-ref ref="CONSOLE"/>
+    </root>
+  </springProfile>
+
+  <springProfile name="!dev">
+    <root level="INFO">
+      <appender-ref ref="ECS_JSON_CONSOLE"/>
+    </root>
+  </springProfile>
 
 	<!-- Enable this to test ecs logging in json.
 	<root level="INFO">
