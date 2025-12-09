@@ -21,76 +21,44 @@ package se.inera.intyg.logsender.config;
 import static org.apache.camel.LoggingLevel.OFF;
 
 import jakarta.jms.ConnectionFactory;
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.pool.PooledConnectionFactory;
 import org.apache.camel.CamelContext;
 import org.apache.camel.component.activemq.ActiveMQComponent;
 import org.apache.camel.component.jms.JmsConfiguration;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jms.connection.JmsTransactionManager;
-import org.springframework.jms.connection.TransactionAwareConnectionFactoryProxy;
 import org.springframework.jms.support.destination.DynamicDestinationResolver;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
-@EnableTransactionManagement
 public class LogSenderJmsConfig {
 
-    @Value("${activemq.broker.username}")
-    private String activemqBrokerUsername;
+  @Autowired
+  private CamelContext camelContext;
 
-    @Value("${activemq.broker.password}")
-    private String activemqBrokerPassword;
+  @Autowired
+  private ConnectionFactory connectionFactory;
 
-    @Value("${activemq.broker.url}")
-    private String activemqBrokerUrl;
+  @Bean(name = "jms")
+  public ActiveMQComponent activeMQComponent() {
+    ActiveMQComponent activeMQComponent = new ActiveMQComponent();
+    activeMQComponent.setConnectionFactory(connectionFactory);
+    activeMQComponent.setConfiguration(jmsConfiguration());
+    activeMQComponent.setTransacted(true);
+    activeMQComponent.setCacheLevelName("CACHE_CONSUMER");
+    activeMQComponent.setCamelContext(camelContext);
+    return activeMQComponent;
+  }
 
-    @Autowired
-    CamelContext camelContext;
+  private JmsConfiguration jmsConfiguration() {
+    JmsConfiguration jmsConfig = new JmsConfiguration();
+    jmsConfig.setConnectionFactory(connectionFactory);
+    jmsConfig.setErrorHandlerLoggingLevel(OFF);
+    jmsConfig.setErrorHandlerLogStackTrace(false);
+    jmsConfig.setDestinationResolver(jmsDestinationResolver());
+    return jmsConfig;
+  }
 
-    @Bean(name = "jms")
-    public ActiveMQComponent activeMQComponent() {
-        ActiveMQComponent activeMQComponent = new ActiveMQComponent();
-        activeMQComponent.setConnectionFactory(transactionAwareConnectionFactoryProxy());
-        activeMQComponent.setConfiguration(jmsConfiguration());
-        activeMQComponent.setTransacted(true);
-        activeMQComponent.setCacheLevelName("CACHE_CONSUMER");
-        activeMQComponent.setCamelContext(camelContext);
-        return activeMQComponent;
-    }
-
-    @Bean
-    public JmsTransactionManager jmsTransactionManager() {
-        return new JmsTransactionManager(transactionAwareConnectionFactoryProxy());
-    }
-
-    @Bean
-    public TransactionAwareConnectionFactoryProxy transactionAwareConnectionFactoryProxy() {
-        TransactionAwareConnectionFactoryProxy cachingConnectionFactory
-            = new TransactionAwareConnectionFactoryProxy();
-        cachingConnectionFactory.setTargetConnectionFactory(connectionFactory());
-        cachingConnectionFactory.setSynchedLocalTransactionAllowed(true);
-        return cachingConnectionFactory;
-    }
-
-    private ConnectionFactory connectionFactory() {
-        return new PooledConnectionFactory(new ActiveMQConnectionFactory(activemqBrokerUsername, activemqBrokerPassword, activemqBrokerUrl));
-    }
-
-    private JmsConfiguration jmsConfiguration() {
-        JmsConfiguration jmsConfig = new JmsConfiguration();
-        jmsConfig.setConnectionFactory(transactionAwareConnectionFactoryProxy());
-        jmsConfig.setErrorHandlerLoggingLevel(OFF);
-        jmsConfig.setErrorHandlerLogStackTrace(false);
-        jmsConfig.setDestinationResolver(jmsDestinationResolver());
-        return jmsConfig;
-    }
-
-    private DynamicDestinationResolver jmsDestinationResolver() {
-        return new DynamicDestinationResolver();
-    }
+  private DynamicDestinationResolver jmsDestinationResolver() {
+    return new DynamicDestinationResolver();
+  }
 }
