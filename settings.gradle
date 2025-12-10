@@ -7,3 +7,6 @@ pluginManagement {
 }
 
 rootProject.name = 'logsender'
+
+include 'app'
+include 'integration-test'

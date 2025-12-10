@@ -1,11 +1,9 @@
 plugins {
-    id 'java'
-    id 'org.springframework.boot' version '3.5.8'
+    id 'org.springframework.boot' version '3.5.8' apply false
     id "io.spring.dependency-management" version "1.1.7"
-    id 'idea'
     id 'org.sonarqube' version '5.1.0.4882'
     id "org.owasp.dependencycheck" version "10.0.4"
-    id 'jacoco'
+    id 'test-report-aggregation'
     id 'application'
 }
 
@@ -27,130 +25,16 @@ ext {
     nvdMirror = 'https://vulnz-nvd-mirror-devtest.intyg.nordicmedtest.se'
 }
 
-application {
-    mainClass = 'se.inera.intyg.logsender.LogsenderApplication'
-}
-
 group = 'se.inera.intyg.logsender'
 version = System.properties['buildVersion'] ?: '0-SNAPSHOT'
 
-java {
-    sourceCompatibility = 21
-    targetCompatibility = 21
-}
 
-// Spring Boot JAR packaging configuration
-bootJar {
-    enabled = true
-    archiveFileName = 'logsender.jar'
-}
-
-jar {
-    enabled = false
-}
-
-repositories {
-    mavenLocal()
-    maven { url "https://nexus.drift.inera.se/repository/it-public/" }
-    mavenCentral()
-}
-
-configurations {
-    mockitoAgent
-    compileOnly {
-        extendsFrom annotationProcessor
+allprojects {
+    repositories {
+        mavenLocal()
+        maven { url "https://nexus.drift.inera.se/repository/it-public/" }
+        mavenCentral()
     }
-}
-
-dependencies {
-    mockitoAgent("org.mockito:mockito-core") { transitive = false }
-}
-
-jacocoTestReport {
-    dependsOn test
-
-    reports {
-        xml.required = true
-        html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
-    }
-
-    afterEvaluate {
-        classDirectories.setFrom(files(classDirectories.files.collect {
-            fileTree(dir: it, exclude: [
-                    "**/testability/**",
-                    "**/integrationtest/**"
-            ])
-        }))
-    }
-}
-
-test {
-    useJUnitPlatform()
-    exclude '**/*IT*'
-    jvmArgs += [
-            "-javaagent:${configurations.mockitoAgent.asPath}",
-            '-Xshare:off'
-    ]
-}
-
-tasks.register('camelTest', Test) {
-    useJUnitPlatform()
-    outputs.upToDateWhen { false }
-    include '**/*IT*'
-    jvmArgs '-Xshare:off'
-}
-
-dependencyManagement {
-    imports {
-        mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
-        mavenBom "se.inera.intyg.bom:platform:${intygBomVersion}"
-    }
-}
-
-dependencies {
-    // Spring Boot Starters
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'org.springframework.boot:spring-boot-starter-aop'
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-activemq'
-
-    // Camel Spring Boot
-    implementation "org.apache.camel.springboot:camel-spring-boot-starter:${camelSpringBootVersion}"
-    implementation "org.apache.camel.springboot:camel-activemq-starter:${camelSpringBootVersion}"
-    implementation "org.apache.camel.springboot:camel-jms-starter:${camelSpringBootVersion}"
-
-    // Existing dependencies (keep)
-    implementation "se.inera.intyg.schemas:schemas-contract:${schemasContractVersion}"
-    implementation "se.riv.informationsecurity.auditing.log:informationsecurity-auditing-log-schemas:${rivtaStoreLogSchemasVersion}"
-
-    implementation "com.google.guava:guava:${googleGuavaVersion}"
-    implementation "org.apache.activemq:activemq-spring"
-    implementation "org.apache.cxf:cxf-rt-features-logging:${apacheCXFVersion}"
-    implementation "org.apache.cxf:cxf-rt-frontend-jaxws:${apacheCXFVersion}"
-    implementation "org.apache.cxf:cxf-rt-frontend-jaxrs:${apacheCXFVersion}"
-    implementation "org.apache.cxf:cxf-rt-transports-http:${apacheCXFVersion}"
-    implementation "org.apache.cxf:cxf-rt-rs-service-description:${apacheCXFVersion}"
-    implementation "com.fasterxml.jackson.jakarta.rs:jackson-jakarta-rs-json-provider"
-    implementation "jakarta.ws.rs:jakarta.ws.rs-api"
-    implementation "codes.rafael.jaxb2_commons:jaxb2-basics:${jaxb2Version}"
-    implementation "ch.qos.logback:logback-classic"
-
-    compileOnly "jakarta.servlet:jakarta.servlet-api"
-    compileOnly "org.apache.geronimo.specs:geronimo-jms_1.1_spec:${geronimoVersion}"
-    compileOnly 'org.projectlombok:lombok'
-
-    runtimeOnly "org.glassfish.jaxb:jaxb-runtime"
-
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation "org.apache.activemq:activemq-broker"
-    testImplementation "org.apache.camel:camel-test-spring-junit5:${camelSpringBootVersion}"
-    testImplementation "org.awaitility:awaitility"
-    testImplementation "jakarta.xml.bind:jakarta.xml.bind-api"
-
-    annotationProcessor 'org.projectlombok:lombok'
-    testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 sonar {
@@ -172,27 +56,76 @@ dependencyCheck {
     analyzers.ossIndex.setPassword(project.properties.get('ossIndexPassword'))
 }
 
-// Spring Boot run configuration
-def applicationDir = "${rootProject.projectDir}/devops/dev"
 
-bootRun {
-    systemProperty("application.dir", "${applicationDir}")
-    systemProperty("spring.profiles.active", "dev")
-    systemProperty("spring.config.additional-location", "file:${applicationDir}/config/")
-}
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'jacoco'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
 
-tasks.register("appRunDebug") {
-    println("######## Running logsender in Debug mode ########")
-    doFirst {
-        bootRun.configure {
-            jvmArgs = [
-                    "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8110"]
+    java {
+        sourceCompatibility = 21
+        targetCompatibility = 21
+    }
+
+    configurations {
+        mockitoAgent
+        compileOnly {
+            extendsFrom annotationProcessor
         }
     }
-    finalizedBy("bootRun")
+
+    dependencies {
+        implementation platform("se.inera.intyg.bom:platform:${intygBomVersion}")
+        annotationProcessor platform("se.inera.intyg.bom:platform:${intygBomVersion}")
+        testImplementation platform("se.inera.intyg.bom:platform:${intygBomVersion}")
+        testAnnotationProcessor platform("se.inera.intyg.bom:platform:${intygBomVersion}")
+        mockitoAgent("org.mockito:mockito-core") { transitive = false }
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+            mavenBom "se.inera.intyg.bom:platform:${intygBomVersion}"
+        }
+    }
+
+    jacocoTestReport {
+        dependsOn test
+
+        reports {
+            xml.required = true
+            html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
+        }
+
+        afterEvaluate {
+            classDirectories.setFrom(files(classDirectories.files.collect {
+                fileTree(dir: it, exclude: [
+                        "**/testability/**",
+                        "**/integrationtest/**",
+                ])
+            }))
+        }
+    }
+
+    tasks.withType(Test).configureEach {
+        jvmArgs += [
+                "-javaagent:${configurations.mockitoAgent.asPath}",
+                '-Xshare:off'
+        ]
+    }
 }
 
-tasks.register("appRun") {
-    println("######## Running logsender in normal mode ########")
-    finalizedBy("bootRun")
+
+reporting {
+    reports {
+        integrationTestAggregateTestReport(AggregateTestReport) {
+            testSuiteName = 'integrationTest'
+        }
+    }
+
+    dependencies {
+        testReportAggregation project(':app')
+        testReportAggregation project(':integration-test')
+    }
 }
