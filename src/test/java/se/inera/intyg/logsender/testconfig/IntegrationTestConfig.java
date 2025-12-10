@@ -21,18 +21,18 @@ package se.inera.intyg.logsender.testconfig;
 import jakarta.jms.Queue;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.camel.spring.boot.CamelAutoConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Lazy;
 import se.inera.intyg.logsender.client.mock.MockLogSenderClientImpl;
 import se.inera.intyg.logsender.config.LogSenderBeanConfig;
 import se.inera.intyg.logsender.config.LogsenderProperties;
 import se.inera.intyg.logsender.routes.LogSenderRouteBuilder;
 
-@Lazy
 @Configuration
+@EnableAutoConfiguration
 @EnableConfigurationProperties(LogsenderProperties.class)
 @Import({
     LogSenderBeanConfig.class,

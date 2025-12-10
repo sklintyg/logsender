@@ -35,42 +35,42 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class IntegrationTestBrokerService {
 
-    @Value("${testBrokerUrl}")
-    private String testBrokerUrl;
+  @Value("${spring.activemq.broker-url}")
+  private String brokerUrl;
 
-    @Bean
-    public BrokerService integrationTestBrokerService() throws Exception {
-        BrokerService brokerService = new BrokerService();
-        brokerService.setPersistent(false);
-        brokerService.setDeleteAllMessagesOnStartup(true);
-        brokerService.setDestinationPolicy(getPolicyMap());
-        brokerService.setTransportConnectors(getTransportConnectors());
-        return brokerService;
-    }
+  @Bean
+  public BrokerService integrationTestBrokerService() throws Exception {
+    BrokerService brokerService = new BrokerService();
+    brokerService.setPersistent(false);
+    brokerService.setDeleteAllMessagesOnStartup(true);
+    brokerService.setDestinationPolicy(getPolicyMap());
+    brokerService.setTransportConnectors(getTransportConnectors());
+    return brokerService;
+  }
 
-    private PolicyMap getPolicyMap() {
-        PolicyMap policyMap = new PolicyMap();
-        policyMap.setPolicyEntries(getPolicyEntries());
-        return policyMap;
-    }
+  private PolicyMap getPolicyMap() {
+    PolicyMap policyMap = new PolicyMap();
+    policyMap.setPolicyEntries(getPolicyEntries());
+    return policyMap;
+  }
 
-    private List<PolicyEntry> getPolicyEntries() {
-        PolicyEntry policyEntry = new PolicyEntry();
-        policyEntry.setQueue("newAggregatedLogMessageQueue");
-        policyEntry.setDeadLetterStrategy(deadLetterStrategy());
-        return Collections.singletonList(policyEntry);
-    }
+  private List<PolicyEntry> getPolicyEntries() {
+    PolicyEntry policyEntry = new PolicyEntry();
+    policyEntry.setQueue("newAggregatedLogMessageQueue");
+    policyEntry.setDeadLetterStrategy(deadLetterStrategy());
+    return Collections.singletonList(policyEntry);
+  }
 
-    private DeadLetterStrategy deadLetterStrategy() {
-        IndividualDeadLetterStrategy iDeadLetterStrategy = new IndividualDeadLetterStrategy();
-        iDeadLetterStrategy.setQueuePrefix("DLQ.");
-        iDeadLetterStrategy.setUseQueueForQueueMessages(true);
-        return iDeadLetterStrategy;
-    }
+  private DeadLetterStrategy deadLetterStrategy() {
+    IndividualDeadLetterStrategy iDeadLetterStrategy = new IndividualDeadLetterStrategy();
+    iDeadLetterStrategy.setQueuePrefix("DLQ.");
+    iDeadLetterStrategy.setUseQueueForQueueMessages(true);
+    return iDeadLetterStrategy;
+  }
 
-    private List<TransportConnector> getTransportConnectors() throws URISyntaxException {
-        TransportConnector transportConnector = new TransportConnector();
-        transportConnector.setUri(new URI(testBrokerUrl));
-        return Collections.singletonList(transportConnector);
-    }
+  private List<TransportConnector> getTransportConnectors() throws URISyntaxException {
+    TransportConnector transportConnector = new TransportConnector();
+    transportConnector.setUri(new URI(brokerUrl));
+    return Collections.singletonList(transportConnector);
+  }
 }

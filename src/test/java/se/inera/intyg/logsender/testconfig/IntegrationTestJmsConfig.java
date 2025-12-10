@@ -34,75 +34,71 @@ import org.springframework.jms.core.JmsTemplate;
 @Configuration
 public class IntegrationTestJmsConfig {
 
-    @Value("${errorhandling.maxRedeliveries}")
-    private int maximumRedeliveries;
+  @Autowired
+  CamelContext camelContext;
+  @Value("${errorhandling.maxRedeliveries}")
+  private int maximumRedeliveries;
+  @Value("${errorhandling.maxRedeliveryDelay}")
+  private int maximumRedeliveryDelay;
+  @Value("${errorhandling.redeliveryDelay}")
+  private int initialRedeliveryDelay;
+  @Value("${spring.activemq.broker-url}")
+  private String testBrokerUrl;
 
-    @Value("${errorhandling.maxRedeliveryDelay}")
-    private int maximumRedeliveryDelay;
+  @Bean(name = "jms")
+  public ActiveMQComponent integrationActiveMQComponent() {
+    ActiveMQComponent activeMQComponent = new ActiveMQComponent();
+    activeMQComponent.setConnectionFactory(cachingConnectionFactory());
+    activeMQComponent.setTransactionManager(jmsTransactionManager());
+    activeMQComponent.setTransacted(true);
+    activeMQComponent.setCacheLevelName("CACHE_CONSUMER");
+    activeMQComponent.setCamelContext(camelContext);
+    return activeMQComponent;
+  }
 
-    @Value("${errorhandling.redeliveryDelay}")
-    private int initialRedeliveryDelay;
+  @Bean
+  public CachingConnectionFactory cachingConnectionFactory() {
+    CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory();
+    cachingConnectionFactory.setTargetConnectionFactory(jmsConnectionFactory());
+    return cachingConnectionFactory;
+  }
 
-    @Value("${testBrokerUrl}")
-    private String testBrokerUrl;
+  private JmsTransactionManager jmsTransactionManager() {
+    JmsTransactionManager jmsTransactionManager = new JmsTransactionManager();
+    jmsTransactionManager.setConnectionFactory(cachingConnectionFactory());
+    return jmsTransactionManager;
+  }
 
-    @Autowired
-    CamelContext camelContext;
+  private ActiveMQConnectionFactory jmsConnectionFactory() {
+    ActiveMQConnectionFactory jmsConnectionFactory = new ActiveMQConnectionFactory();
+    jmsConnectionFactory.setBrokerURL(testBrokerUrl);
+    jmsConnectionFactory.setRedeliveryPolicy(redeliveryPolicy());
+    jmsConnectionFactory.setNonBlockingRedelivery(true);
+    return jmsConnectionFactory;
+  }
 
-    @Bean(name = "jms")
-    public ActiveMQComponent integrationActiveMQComponent() {
-        ActiveMQComponent activeMQComponent = new ActiveMQComponent();
-        activeMQComponent.setConnectionFactory(cachingConnectionFactory());
-        activeMQComponent.setTransactionManager(jmsTransactionManager());
-        activeMQComponent.setTransacted(true);
-        activeMQComponent.setCacheLevelName("CACHE_CONSUMER");
-        activeMQComponent.setCamelContext(camelContext);
-        return activeMQComponent;
-    }
+  private RedeliveryPolicy redeliveryPolicy() {
+    RedeliveryPolicy redeliveryPolicy = new RedeliveryPolicy();
+    redeliveryPolicy.setMaximumRedeliveries(maximumRedeliveries);
+    redeliveryPolicy.setMaximumRedeliveryDelay(maximumRedeliveryDelay);
+    redeliveryPolicy.setInitialRedeliveryDelay(initialRedeliveryDelay);
+    redeliveryPolicy.setUseExponentialBackOff(true);
+    redeliveryPolicy.setBackOffMultiplier(2);
+    return redeliveryPolicy;
+  }
 
-    @Bean
-    public CachingConnectionFactory cachingConnectionFactory() {
-        CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory();
-        cachingConnectionFactory.setTargetConnectionFactory(jmsConnectionFactory());
-        return cachingConnectionFactory;
-    }
+  @Bean
+  public JmsTemplate jmsTemplate() {
+    JmsTemplate jmsTemplate = new JmsTemplate();
+    jmsTemplate.setConnectionFactory(cachingConnectionFactory());
+    return jmsTemplate;
+  }
 
-    private JmsTransactionManager jmsTransactionManager() {
-        JmsTransactionManager jmsTransactionManager = new JmsTransactionManager();
-        jmsTransactionManager.setConnectionFactory(cachingConnectionFactory());
-        return jmsTransactionManager;
-    }
-
-    private ActiveMQConnectionFactory jmsConnectionFactory() {
-        ActiveMQConnectionFactory jmsConnectionFactory = new ActiveMQConnectionFactory();
-        jmsConnectionFactory.setBrokerURL(testBrokerUrl);
-        jmsConnectionFactory.setRedeliveryPolicy(redeliveryPolicy());
-        jmsConnectionFactory.setNonBlockingRedelivery(true);
-        return jmsConnectionFactory;
-    }
-
-    private RedeliveryPolicy redeliveryPolicy() {
-        RedeliveryPolicy redeliveryPolicy = new RedeliveryPolicy();
-        redeliveryPolicy.setMaximumRedeliveries(maximumRedeliveries);
-        redeliveryPolicy.setMaximumRedeliveryDelay(maximumRedeliveryDelay);
-        redeliveryPolicy.setInitialRedeliveryDelay(initialRedeliveryDelay);
-        redeliveryPolicy.setUseExponentialBackOff(true);
-        redeliveryPolicy.setBackOffMultiplier(2);
-        return redeliveryPolicy;
-    }
-
-    @Bean
-    public JmsTemplate jmsTemplate() {
-        JmsTemplate jmsTemplate = new JmsTemplate();
-        jmsTemplate.setConnectionFactory(cachingConnectionFactory());
-        return jmsTemplate;
-    }
-
-    @Bean
-    public SpringTransactionPolicy policy() {
-        SpringTransactionPolicy policy = new SpringTransactionPolicy();
-        policy.setTransactionManager(jmsTransactionManager());
-        policy.setPropagationBehaviorName("PROPAGATION_REQUIRED");
-        return policy;
-    }
+  @Bean
+  public SpringTransactionPolicy policy() {
+    SpringTransactionPolicy policy = new SpringTransactionPolicy();
+    policy.setTransactionManager(jmsTransactionManager());
+    policy.setPropagationBehaviorName("PROPAGATION_REQUIRED");
+    return policy;
+  }
 }
