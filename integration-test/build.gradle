@@ -17,14 +17,14 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok'
 
     // Camel dependencies for testing
-    testImplementation "org.apache.camel.springboot:camel-spring-boot-starter:${camelSpringBootVersion}"
-    testImplementation "org.apache.camel.springboot:camel-activemq-starter:${camelSpringBootVersion}"
-    testImplementation "org.apache.camel:camel-test-spring-junit5:${camelSpringBootVersion}"
+    testImplementation "org.apache.camel.springboot:camel-spring-boot-starter"
+    testImplementation "org.apache.camel.springboot:camel-activemq-starter"
+    testImplementation "org.apache.camel:camel-test-spring-junit5"
 
     testImplementation "se.riv.informationsecurity.auditing.log:informationsecurity-auditing-log-schemas:${rivtaStoreLogSchemasVersion}"
 
     testImplementation "jakarta.xml.bind:jakarta.xml.bind-api"
-    testImplementation "jakarta.jws:jakarta.jws-api:${jakartaJwsApiVersion}"
+    testImplementation "jakarta.jws:jakarta.jws-api"
 
     // ActiveMQ dependencies for testing
     testImplementation "org.apache.activemq:activemq-broker"

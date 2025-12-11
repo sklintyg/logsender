@@ -1,38 +1,33 @@
 plugins {
-    id 'org.springframework.boot' version '3.5.8' apply false
-    id "io.spring.dependency-management" version "1.1.7"
-    id 'org.sonarqube' version '5.1.0.4882'
-    id "org.owasp.dependencycheck" version "10.0.4"
+    alias(libs.plugins.org.springframework.boot)
+    alias(libs.plugins.org.sonarqube)
+    alias(libs.plugins.org.owasp.dependencycheck)
+    alias(libs.plugins.com.github.ben.manes.versions)
     id 'test-report-aggregation'
     id 'application'
 }
 
 ext {
     intygBomVersion = System.properties['intygBomVersion'] ?: '0.0.1-SNAPSHOT'
-
     rivtaStoreLogSchemasVersion = "2.0.1.2"
     schemasContractVersion = "2.1.8.2"
-
-    apacheCXFVersion = "4.0.5"
-    camelVersion = "4.8.0"
-    camelSpringBootVersion = "4.8.0"
-    geronimoVersion = "1.1.1"
-    googleGuavaVersion = "33.0.0-jre"
-    jakartaJwsApiVersion = "3.0.0"
-    jaxb2Version = "3.0.0"
-    logbackEcsEncoderVersion = "1.6.0"
-
     nvdMirror = 'https://vulnz-nvd-mirror-devtest.intyg.nordicmedtest.se'
+}
+
+application {
+    mainClass = 'se.inera.intyg.logsender.LogsenderApplication'
 }
 
 group = 'se.inera.intyg.logsender'
 version = System.properties['buildVersion'] ?: '0-SNAPSHOT'
 
+apply from: 'gradle/configureIntygBom.gradle'
 
 allprojects {
+    apply plugin: 'java'
     repositories {
         mavenLocal()
-        maven { url "https://nexus.drift.inera.se/repository/it-public/" }
+        maven { url = "https://nexus.drift.inera.se/repository/it-public/" }
         mavenCentral()
     }
 }
@@ -61,15 +56,13 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'jacoco'
     apply plugin: 'org.springframework.boot'
-    apply plugin: 'io.spring.dependency-management'
 
     java {
-        sourceCompatibility = 21
-        targetCompatibility = 21
+        sourceCompatibility = javaVersion
+        targetCompatibility = javaVersion
     }
 
     configurations {
-        mockitoAgent
         compileOnly {
             extendsFrom annotationProcessor
         }
@@ -80,14 +73,6 @@ subprojects {
         annotationProcessor platform("se.inera.intyg.bom:platform:${intygBomVersion}")
         testImplementation platform("se.inera.intyg.bom:platform:${intygBomVersion}")
         testAnnotationProcessor platform("se.inera.intyg.bom:platform:${intygBomVersion}")
-        mockitoAgent("org.mockito:mockito-core") { transitive = false }
-    }
-
-    dependencyManagement {
-        imports {
-            mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
-            mavenBom "se.inera.intyg.bom:platform:${intygBomVersion}"
-        }
     }
 
     jacocoTestReport {
@@ -107,15 +92,7 @@ subprojects {
             }))
         }
     }
-
-    tasks.withType(Test).configureEach {
-        jvmArgs += [
-                "-javaagent:${configurations.mockitoAgent.asPath}",
-                '-Xshare:off'
-        ]
-    }
 }
-
 
 reporting {
     reports {

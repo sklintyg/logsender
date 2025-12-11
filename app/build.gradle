@@ -1,42 +1,6 @@
-
 def applicationDir = "${rootProject.projectDir}/devops/dev"
 
-springBoot {
-    mainClass = 'se.inera.intyg.logsender.LogsenderApplication'
-}
-
-bootJar {
-    enabled = true
-    archiveBaseName = 'logsender'
-}
-
-jar {
-    enabled = true
-}
-
 dependencies {
-    // Camel Spring Boot
-    implementation "org.apache.camel.springboot:camel-spring-boot-starter:${camelSpringBootVersion}"
-    implementation "org.apache.camel.springboot:camel-activemq-starter:${camelSpringBootVersion}"
-    implementation "org.apache.camel.springboot:camel-jms-starter:${camelSpringBootVersion}"
-
-    // Schemas
-    implementation "se.inera.intyg.schemas:schemas-contract:${schemasContractVersion}"
-    implementation "se.riv.informationsecurity.auditing.log:informationsecurity-auditing-log-schemas:${rivtaStoreLogSchemasVersion}"
-
-    // Apache CXF
-    implementation "com.google.guava:guava:${googleGuavaVersion}"
-    implementation "org.apache.cxf:cxf-rt-features-logging:${apacheCXFVersion}"
-    implementation "org.apache.cxf:cxf-rt-frontend-jaxws:${apacheCXFVersion}"
-    implementation "org.apache.cxf:cxf-rt-frontend-jaxrs:${apacheCXFVersion}"
-    implementation "org.apache.cxf:cxf-rt-transports-http:${apacheCXFVersion}"
-    implementation "org.apache.cxf:cxf-rt-rs-service-description:${apacheCXFVersion}"
-    implementation "com.fasterxml.jackson.jakarta.rs:jackson-jakarta-rs-json-provider"
-    implementation "jakarta.ws.rs:jakarta.ws.rs-api"
-    implementation "codes.rafael.jaxb2_commons:jaxb2-basics:${jaxb2Version}"
-    implementation "ch.qos.logback:logback-classic"
-
-    // Spring Boot Starters
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-aop'
@@ -44,20 +8,37 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-activemq'
 
+    implementation "codes.rafael.jaxb2_commons:jaxb2-basics"
+    implementation "com.fasterxml.jackson.jakarta.rs:jackson-jakarta-rs-json-provider"
+    implementation "com.google.guava:guava"
+    implementation "jakarta.ws.rs:jakarta.ws.rs-api"
+    implementation "org.apache.camel.springboot:camel-spring-boot-starter"
+    implementation "org.apache.camel.springboot:camel-activemq-starter"
+    implementation "org.apache.camel.springboot:camel-jms-starter"
+    implementation "org.apache.cxf:cxf-rt-features-logging"
+    implementation "org.apache.cxf:cxf-rt-frontend-jaxrs"
+    implementation "org.apache.cxf:cxf-rt-frontend-jaxws"
+    implementation "org.apache.cxf:cxf-rt-rs-service-description"
+    implementation "org.apache.cxf:cxf-rt-transports-http"
 
-    compileOnly "jakarta.servlet:jakarta.servlet-api"
-    compileOnly "org.apache.geronimo.specs:geronimo-jms_1.1_spec:${geronimoVersion}"
+    implementation "se.inera.intyg.schemas:schemas-contract:${schemasContractVersion}"
+    implementation "se.riv.informationsecurity.auditing.log:informationsecurity-auditing-log-schemas:${rivtaStoreLogSchemasVersion}"
+
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
-
     runtimeOnly "org.glassfish.jaxb:jaxb-runtime"
 
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation "org.apache.activemq:activemq-broker"
-    testImplementation "org.apache.camel:camel-test-spring-junit5:${camelSpringBootVersion}"
-    testImplementation "org.awaitility:awaitility"
     testImplementation "jakarta.xml.bind:jakarta.xml.bind-api"
+    testImplementation "org.apache.activemq:activemq-broker"
+    testImplementation "org.apache.camel:camel-test-spring-junit5"
+    testImplementation "org.awaitility:awaitility"
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
     testAnnotationProcessor 'org.projectlombok:lombok'
+}
+
+testing.suites {
+    test { useJUnitJupiter() }
 }
 
 bootRun {
