@@ -18,49 +18,37 @@
  */
 package se.inera.intyg.logsender.config;
 
-import static org.apache.camel.LoggingLevel.OFF;
-
 import jakarta.jms.ConnectionFactory;
-import org.apache.camel.CamelContext;
-import org.apache.camel.component.activemq.ActiveMQComponent;
-import org.apache.camel.component.jms.JmsConfiguration;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jms.connection.JmsTransactionManager;
 import org.springframework.jms.support.destination.DynamicDestinationResolver;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
+@EnableTransactionManagement
 public class LogSenderJmsConfig {
 
-  @Autowired
-  private CamelContext camelContext;
-
-  @Autowired
-  @Qualifier("jmsConnectionFactory")
-  private ConnectionFactory connectionFactory;
-
-  @Bean(name = "jms")
-  public ActiveMQComponent activeMQComponent() {
-    ActiveMQComponent activeMQComponent = new ActiveMQComponent();
-    activeMQComponent.setConnectionFactory(connectionFactory);
-    activeMQComponent.setConfiguration(jmsConfiguration());
-    activeMQComponent.setTransacted(true);
-    activeMQComponent.setCacheLevelName("CACHE_CONSUMER");
-    activeMQComponent.setCamelContext(camelContext);
-    return activeMQComponent;
-  }
-
-  private JmsConfiguration jmsConfiguration() {
-    JmsConfiguration jmsConfig = new JmsConfiguration();
-    jmsConfig.setConnectionFactory(connectionFactory);
-    jmsConfig.setErrorHandlerLoggingLevel(OFF);
-    jmsConfig.setErrorHandlerLogStackTrace(false);
-    jmsConfig.setDestinationResolver(jmsDestinationResolver());
-    return jmsConfig;
-  }
-
-  private DynamicDestinationResolver jmsDestinationResolver() {
+  @Bean
+  public DynamicDestinationResolver dynamicDestinationResolver() {
     return new DynamicDestinationResolver();
+  }
+
+  @Bean
+  public JmsTransactionManager jmsTransactionManager(
+      @Qualifier("jmsConnectionFactory") ConnectionFactory connectionFactory) {
+    return new JmsTransactionManager(connectionFactory);
+  }
+
+  @Bean(name = "jmsConnectionFactory")
+  public ConnectionFactory jmsConnectionFactory(
+      @Value("${spring.activemq.broker-url}") String brokerUrl,
+      @Value("${spring.activemq.user}") String username,
+      @Value("${spring.activemq.password}") String password
+  ) {
+    return new ActiveMQConnectionFactory(username, password, brokerUrl);
   }
 }
