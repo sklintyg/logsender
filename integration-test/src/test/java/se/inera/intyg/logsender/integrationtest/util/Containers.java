@@ -28,12 +28,14 @@ public class Containers {
     );
   }
 
+
   private static String withRedeliveryPolicy(String brokerUrl) {
-    return brokerUrl + "?jms.redeliveryPolicy.maximumRedeliveries=3"
+    return brokerUrl + "?jms.nonBlockingRedelivery=true"
+        + "&jms.redeliveryPolicy.maximumRedeliveries=1"
         + "&jms.redeliveryPolicy.initialRedeliveryDelay=100"
         + "&jms.redeliveryPolicy.useExponentialBackOff=true"
         + "&jms.redeliveryPolicy.backOffMultiplier=2"
-        + "&jms.redeliveryPolicy.maximumRedeliveryDelay=2000";
+        + "&jms.redeliveryPolicy.maximumRedeliveryDelay=500";
   }
 }
 

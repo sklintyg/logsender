@@ -18,13 +18,11 @@
  */
 package se.inera.intyg.logsender.client.mock;
 
+import jakarta.xml.ws.WebServiceException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import jakarta.xml.ws.WebServiceException;
-
 import se.inera.intyg.logsender.model.ActivityType;
 import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
@@ -33,73 +31,73 @@ import se.riv.informationsecurity.auditing.log.v2.LogType;
 import se.riv.informationsecurity.auditing.log.v2.ResultCodeType;
 import se.riv.informationsecurity.auditing.log.v2.ResultType;
 
-/**
- * Created by eriklupander on 2016-02-29.
- */
+
 public class MockLogSenderClientImpl implements StoreLogResponderInterface {
 
-    private AtomicInteger count = new AtomicInteger(0);
+  private AtomicInteger count = new AtomicInteger(0);
 
-    private ConcurrentHashMap<String, AtomicInteger> attemptsPerMessage = new ConcurrentHashMap<>();
-    private List<String> store = new CopyOnWriteArrayList<>();
+  private ConcurrentHashMap<String, AtomicInteger> attemptsPerMessage = new ConcurrentHashMap<>();
+  private List<String> store = new CopyOnWriteArrayList<>();
 
-    @Override
-    public StoreLogResponseType storeLog(String logicalAddress, StoreLogType storeLogRequestType) {
-        count.incrementAndGet();
+  @Override
+  public StoreLogResponseType storeLog(String logicalAddress, StoreLogType storeLogRequestType) {
+    count.incrementAndGet();
 
-        StoreLogResponseType resp = new StoreLogResponseType();
-        ResultType resultType = new ResultType();
-        if (storeLogRequestType.getLog().size() == 0) {
-            resultType.setResultCode(ResultCodeType.INFO);
-            resultType.setResultText("No log messages to store, doing nothing...");
-            resp.setResult(resultType);
-            return resp;
-        }
+    StoreLogResponseType resp = new StoreLogResponseType();
+    ResultType resultType = new ResultType();
+    if (storeLogRequestType.getLog().size() == 0) {
+      resultType.setResultCode(ResultCodeType.INFO);
+      resultType.setResultText("No log messages to store, doing nothing...");
+      resp.setResult(resultType);
+      return resp;
+    }
 
-        increaseAttemptsPerMessage(storeLogRequestType);
+    increaseAttemptsPerMessage(storeLogRequestType);
 
-        // Use the ActivityType.EMERGENCY_ACCESS to fake failures that should trigger a resend.
-        if (storeLogRequestType.getLog().get(0).getActivity().getActivityType().equals(ActivityType.EMERGENCY_ACCESS.getType())) {
-            throw new WebServiceException("This is an expected error since we got the EMERGENCY_ACCESS type");
-        }
+    // Use the ActivityType.EMERGENCY_ACCESS to fake failures that should trigger a resend.
+    if (storeLogRequestType.getLog().get(0).getActivity().getActivityType()
+        .equals(ActivityType.EMERGENCY_ACCESS.getType())) {
+      throw new WebServiceException(
+          "This is an expected error since we got the EMERGENCY_ACCESS type");
+    }
 
-        // Use mechanism to trigger VALIDATION_ERROR
-        for (LogType logType : storeLogRequestType.getLog()) {
-            if (logType.getSystem().getSystemId().equals("invalid")) {
-                resultType.setResultCode(ResultCodeType.VALIDATION_ERROR);
-                resp.setResult(resultType);
-                return resp;
-            }
-        }
-
-        resultType.setResultCode(ResultCodeType.OK);
+    // Use mechanism to trigger VALIDATION_ERROR
+    for (LogType logType : storeLogRequestType.getLog()) {
+      if (logType.getSystem().getSystemId().equals("invalid")) {
+        resultType.setResultCode(ResultCodeType.VALIDATION_ERROR);
         resp.setResult(resultType);
-
-        store.add(storeLogRequestType.getLog().get(0).getLogId());
-
         return resp;
+      }
     }
 
-    private void increaseAttemptsPerMessage(StoreLogType storeLogRequestType) {
-        String key = storeLogRequestType.getLog().get(0).getLogId();
-        if (!attemptsPerMessage.containsKey(key)) {
-            attemptsPerMessage.put(key, new AtomicInteger(1));
-        } else {
-            attemptsPerMessage.get(key).incrementAndGet();
-        }
-    }
+    resultType.setResultCode(ResultCodeType.OK);
+    resp.setResult(resultType);
 
-    public int getNumberOfReceivedMessages() {
-        return count.get();
-    }
+    store.add(storeLogRequestType.getLog().get(0).getLogId());
 
-    public int getNumberOfSentMessages() {
-        return store.size();
-    }
+    return resp;
+  }
 
-    public void reset() {
-        count = new AtomicInteger(0);
-        attemptsPerMessage = new ConcurrentHashMap<>();
-        store = new CopyOnWriteArrayList<>();
+  private void increaseAttemptsPerMessage(StoreLogType storeLogRequestType) {
+    String key = storeLogRequestType.getLog().get(0).getLogId();
+    if (!attemptsPerMessage.containsKey(key)) {
+      attemptsPerMessage.put(key, new AtomicInteger(1));
+    } else {
+      attemptsPerMessage.get(key).incrementAndGet();
     }
+  }
+
+  public int getNumberOfReceivedMessages() {
+    return count.get();
+  }
+
+  public int getNumberOfSentMessages() {
+    return store.size();
+  }
+
+  public void reset() {
+    count = new AtomicInteger(0);
+    attemptsPerMessage = new ConcurrentHashMap<>();
+    store = new CopyOnWriteArrayList<>();
+  }
 }

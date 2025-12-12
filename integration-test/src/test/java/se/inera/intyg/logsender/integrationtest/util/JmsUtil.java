@@ -1,15 +1,13 @@
 package se.inera.intyg.logsender.integrationtest.util;
 
 import static org.awaitility.Awaitility.await;
-import static se.inera.intyg.certificateanalyticsservice.testdata.TestDataMessages.toJson;
 
 import jakarta.jms.Message;
 import java.time.Duration;
 import java.util.function.Predicate;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.MessagePostProcessor;
-import se.inera.intyg.certificateanalyticsservice.application.messages.model.v1.CertificateAnalyticsMessageV1;
-import se.inera.intyg.certificateanalyticsservice.infrastructure.logging.MdcHelper;
+import se.inera.intyg.logsender.helper.TestDataHelper;
+import se.inera.intyg.logsender.model.ActivityType;
 
 public class JmsUtil {
 
@@ -28,13 +26,10 @@ public class JmsUtil {
     purgeQueue(DLQ_QUEUE_NAME);
   }
 
-//  public void publishMessage(CertificateAnalyticsMessageV1 message) {
-//    jmsTemplate.convertAndSend(queueName, toJson(message), messagePostProcessor(message));
-//  }
-//
-//  public void publishUnparsableMessage(CertificateAnalyticsMessageV1 message) {
-//    jmsTemplate.convertAndSend(queueName, "unparsableMessage", messagePostProcessor(message));
-//  }
+  public void publishMessage() {
+    jmsTemplate.convertAndSend(queueName,
+        TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ));
+  }
 
   public boolean awaitProcessedToDlq(String messageId, Duration timeout) {
     await()
@@ -53,20 +48,6 @@ public class JmsUtil {
       }
     }
   }
-
-//  private static MessagePostProcessor messagePostProcessor(
-//      CertificateAnalyticsMessageV1 message) {
-//    return msg -> {
-//      msg.setStringProperty("messageId", message.getMessageId());
-//      msg.setStringProperty("sessionId", message.getEvent().getSessionId());
-//      msg.setStringProperty("traceId", MdcHelper.traceId());
-//      msg.setStringProperty("_type", message.getType());
-//      msg.setStringProperty("schemaVersion", message.getSchemaVersion());
-//      msg.setStringProperty("contentType", "application/json");
-//      msg.setStringProperty("messageType", message.getEvent().getMessageType());
-//      return msg;
-//    };
-//  }
 
   private boolean dlqContains(String messageId) {
     final var pred = matchingMessageIdPredicate(messageId);

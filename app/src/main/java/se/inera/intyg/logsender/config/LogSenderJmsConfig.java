@@ -20,12 +20,16 @@ package se.inera.intyg.logsender.config;
 
 import jakarta.jms.ConnectionFactory;
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.camel.CamelContext;
+import org.apache.camel.component.activemq.ActiveMQComponent;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.connection.JmsTransactionManager;
+import org.springframework.jms.support.destination.DestinationResolver;
 import org.springframework.jms.support.destination.DynamicDestinationResolver;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
@@ -50,5 +54,29 @@ public class LogSenderJmsConfig {
       @Value("${spring.activemq.password}") String password
   ) {
     return new ActiveMQConnectionFactory(username, password, brokerUrl);
+  }
+
+  @Bean(name = "activemq")
+  public ActiveMQComponent activeMQComponent(
+      CamelContext camelContext,
+      @Qualifier("jmsConnectionFactory") ConnectionFactory connectionFactory,
+      @Qualifier("jmsTransactionManager") PlatformTransactionManager transactionManager,
+      @Qualifier("dynamicDestinationResolver") DestinationResolver destinationResolver,
+      @Value("${camel.component.activemq.transacted:true}") boolean transacted,
+      @Value("${camel.component.activemq.cacheLevelName:CACHE_CONSUMER}") String cacheLevelName,
+      @Value("${camel.component.activemq.errorHandlerLoggingLevel:WARN}") String errorHandlerLoggingLevel,
+      @Value("${camel.component.activemq.errorHandlerLogStackTrace:true}") boolean errorHandlerLogStackTrace
+  ) {
+    ActiveMQComponent activeMQComponent = new ActiveMQComponent();
+    activeMQComponent.setConnectionFactory(connectionFactory);
+    activeMQComponent.setTransactionManager(transactionManager);
+    activeMQComponent.setTransacted(transacted);
+    activeMQComponent.setCacheLevelName(cacheLevelName);
+    activeMQComponent.setDestinationResolver(destinationResolver);
+    activeMQComponent.setErrorHandlerLoggingLevel(
+        org.apache.camel.LoggingLevel.valueOf(errorHandlerLoggingLevel));
+    activeMQComponent.setErrorHandlerLogStackTrace(errorHandlerLogStackTrace);
+    activeMQComponent.setCamelContext(camelContext);
+    return activeMQComponent;
   }
 }

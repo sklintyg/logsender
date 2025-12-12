@@ -18,16 +18,21 @@
  */
 package se.inera.intyg.logsender.integrationtest.util;
 
+import jakarta.jms.ConnectionFactory;
 import jakarta.jms.Queue;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.camel.spring.boot.CamelAutoConfiguration;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
+import org.springframework.jms.core.JmsTemplate;
 import se.inera.intyg.logsender.client.mock.MockLogSenderClientImpl;
-import se.inera.intyg.logsender.config.LogSenderBeanConfig;
+import se.inera.intyg.logsender.config.LogSenderAppConfig;
+import se.inera.intyg.logsender.config.LoggtjanstStubConfig;
 import se.inera.intyg.logsender.config.LogsenderProperties;
 import se.inera.intyg.logsender.routes.LogSenderRouteBuilder;
 
@@ -35,15 +40,15 @@ import se.inera.intyg.logsender.routes.LogSenderRouteBuilder;
 @EnableAutoConfiguration
 @EnableConfigurationProperties(LogsenderProperties.class)
 @Import({
-    LogSenderBeanConfig.class,
+    LogSenderAppConfig.class,
     CamelAutoConfiguration.class,
     LogSenderRouteBuilder.class,
-    IntegrationTestJmsConfig.class,
-    IntegrationTestBrokerService.class
+    LoggtjanstStubConfig.class
 })
 public class IntegrationTestConfig {
 
   @Bean
+  @Primary  // Prefer this bean over storeLogStubResponder for StoreLogResponderInterface injection
   public MockLogSenderClientImpl mockSendCertificateServiceClient() {
     return new MockLogSenderClientImpl();
   }
@@ -67,5 +72,11 @@ public class IntegrationTestConfig {
     ActiveMQQueue newAggregatedLogMessageDLQ = new ActiveMQQueue();
     newAggregatedLogMessageDLQ.setPhysicalName("DLQ.newAggregatedLogMessageQueue");
     return newAggregatedLogMessageDLQ;
+  }
+
+  @Bean
+  public JmsTemplate jmsTemplate(
+      @Qualifier("jmsConnectionFactory") ConnectionFactory connectionFactory) {
+    return new JmsTemplate(connectionFactory);
   }
 }

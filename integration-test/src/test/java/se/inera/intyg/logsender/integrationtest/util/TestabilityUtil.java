@@ -2,9 +2,11 @@ package se.inera.intyg.logsender.integrationtest.util;
 
 import static org.awaitility.Awaitility.await;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.time.Duration;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import se.inera.intyg.certificateanalyticsservice.application.messages.model.PseudonymizedAnalyticsMessage;
+import org.springframework.http.ResponseEntity;
+import se.riv.informationsecurity.auditing.log.v2.LogType;
 
 public class TestabilityUtil {
 
@@ -16,45 +18,78 @@ public class TestabilityUtil {
     this.port = port;
   }
 
-  public PseudonymizedAnalyticsMessage awaitProcessed(String messageId, Duration timeout) {
+  /**
+   * Wait for a specific log message to be processed by checking the stub store.
+   */
+  public LogType awaitProcessed(String logId, Duration timeout) {
     await()
         .atMost(timeout)
         .pollInterval(Duration.ofMillis(200))
         .until(() -> {
-              final var resp = restTemplate.getForEntity(
-                  "http://localhost:%s/testability/messages/v1/%s".formatted(port, messageId),
-                  PseudonymizedAnalyticsMessage.class
-              );
+              final var resp = getLogById(logId);
               return resp.getStatusCode().is2xxSuccessful() && resp.getBody() != null;
             }
         );
+    return getLogById(logId).getBody();
+  }
 
+  /**
+   * Wait for the stub to have received a specific number of messages.
+   */
+  public void awaitMessageCount(int expectedCount, Duration timeout) {
+    await()
+        .atMost(timeout)
+        .pollInterval(Duration.ofMillis(200))
+        .until(() -> getMessageCount() >= expectedCount);
+  }
+
+  /**
+   * Get a specific log message from the stub by log ID.
+   */
+  public ResponseEntity<LogType> getLogById(String logId) {
     return restTemplate.getForEntity(
-        "http://localhost:%s/testability/messages/v1/%s".formatted(port, messageId),
-        PseudonymizedAnalyticsMessage.class
-    ).getBody();
+        "http://localhost:%s/api/loggtjanst-api/logs/%s".formatted(port, logId),
+        LogType.class
+    );
   }
 
+  /**
+   * Get all logs stored in the stub.
+   */
+  public ResponseEntity<LogType[]> getAllLogs() {
+    return restTemplate.getForEntity(
+        "http://localhost:%s/api/loggtjanst-api/logs".formatted(port),
+        LogType[].class
+    );
+  }
+
+  /**
+   * Get the count of messages received by the stub.
+   */
+  public int getMessageCount() {
+    final var resp = getAllLogs();
+    if (resp.getStatusCode().is2xxSuccessful() && resp.getBody() != null) {
+      return resp.getBody().length;
+    }
+    return 0;
+  }
+
+  /**
+   * Reset the stub - clear all stored messages.
+   */
   public void reset() {
-    restTemplate.getForEntity(
-        "http://localhost:%s/testability/messages/reset".formatted(port),
-        Void.class
+    restTemplate.delete(
+        "http://localhost:%s/api/loggtjanst-api/logs".formatted(port)
     );
   }
 
-  public void toggleTemporaryFailure(int numberOfFailures) {
-    restTemplate.getForEntity(
-        "http://localhost:%s/testability/messages/fail/temporary/%s"
-            .formatted(port, numberOfFailures),
-        Void.class
-    );
-  }
-
-  public void togglePermanentFailure(boolean permanentFailure) {
-    restTemplate.getForEntity(
-        "http://localhost:%s/testability/messages/fail/permanent/%s"
-            .formatted(port, permanentFailure),
-        Void.class
+  /**
+   * Get stub state (for debugging).
+   */
+  public ResponseEntity<JsonNode> getState() {
+    return restTemplate.getForEntity(
+        "http://localhost:%s/api/loggtjanst-api/state".formatted(port),
+        JsonNode.class
     );
   }
 }

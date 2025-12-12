@@ -26,6 +26,8 @@ dependencies {
     testImplementation "jakarta.xml.bind:jakarta.xml.bind-api"
     testImplementation "jakarta.jws:jakarta.jws-api"
 
+
+
     // ActiveMQ dependencies for testing
     testImplementation "org.apache.activemq:activemq-broker"
     testImplementation 'org.springframework.boot:spring-boot-starter-activemq'
@@ -35,6 +37,9 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-web'
     testImplementation 'org.springframework.boot:spring-boot-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    testImplementation 'org.testcontainers:testcontainers'
+    testImplementation 'org.testcontainers:junit-jupiter'
     testImplementation 'org.testcontainers:activemq'
     testImplementation 'org.testcontainers:mockserver'
 

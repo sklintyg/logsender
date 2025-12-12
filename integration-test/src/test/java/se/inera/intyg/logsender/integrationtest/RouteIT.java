@@ -18,6 +18,7 @@
  */
 package se.inera.intyg.logsender.integrationtest;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.awaitility.Awaitility.await;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -49,6 +50,7 @@ import org.springframework.test.context.ActiveProfiles;
 import se.inera.intyg.logsender.client.mock.MockLogSenderClientImpl;
 import se.inera.intyg.logsender.helper.TestDataHelper;
 import se.inera.intyg.logsender.helper.ValueInclude;
+import se.inera.intyg.logsender.integrationtest.util.Containers;
 import se.inera.intyg.logsender.integrationtest.util.IntegrationTestConfig;
 import se.inera.intyg.logsender.model.ActivityType;
 import se.inera.intyg.logsender.model.PdlLogMessage;
@@ -63,6 +65,12 @@ public class RouteIT {
   private static final Logger LOG = LoggerFactory.getLogger(RouteIT.class);
 
   private static final int SECONDS_TO_WAIT = 5;
+
+  // Initialize containers BEFORE Spring context loads
+  static {
+    Containers.ensureRunning();
+  }
+
   @Autowired
   CamelContext camelContext;
   @Autowired
@@ -169,7 +177,17 @@ public class RouteIT {
     sendMessage(ActivityType.EMERGENCY_ACCESS);
     sendMessage(ActivityType.EMERGENCY_ACCESS);
 
-    await().atMost(SECONDS_TO_WAIT, TimeUnit.SECONDS).until(() -> expectedDLQMessages(1));
+    await()
+        .atMost(SECONDS_TO_WAIT, TimeUnit.SECONDS)
+        .failFast(() -> numberOfDLQMessages() > 1)
+        .untilAsserted(() -> {
+          int actualDLQMessages = numberOfDLQMessages();
+          assertThat(actualDLQMessages)
+              .withFailMessage(
+                  "Expected 1 message in DLQ after sending 5 EMERGENCY_ACCESS messages, but found %d",
+                  actualDLQMessages)
+              .isEqualTo(1);
+        });
   }
 
   @Test
@@ -187,7 +205,17 @@ public class RouteIT {
     sendMessage(ActivityType.EMERGENCY_ACCESS);
     sendMessage(ActivityType.EMERGENCY_ACCESS);
 
-    await().atMost(SECONDS_TO_WAIT, TimeUnit.SECONDS).until(() -> expectedDLQMessages(2));
+    await()
+        .atMost(SECONDS_TO_WAIT, TimeUnit.SECONDS)
+        .failFast(() -> numberOfDLQMessages() > 2)
+        .untilAsserted(() -> {
+          int actualDLQMessages = numberOfDLQMessages();
+          assertThat(actualDLQMessages)
+              .withFailMessage(
+                  "Expected 2 messages in DLQ after sending 10 EMERGENCY_ACCESS messages, but found %d",
+                  actualDLQMessages)
+              .isEqualTo(2);
+        });
   }
 
   @Test
