@@ -22,8 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.util.List;
 import org.apache.camel.Message;
 import org.apache.camel.impl.DefaultCamelContext;
@@ -51,12 +49,8 @@ class LogMessageSplitProcessorTest {
     when(mdcHelper.spanId()).thenReturn("spanId");
     when(mdcHelper.traceId()).thenReturn("traceId");
 
-    // Create real ObjectMapper with JavaTimeModule
-    ObjectMapper objectMapper = new ObjectMapper()
-        .registerModule(new JavaTimeModule());
-
     // Manually create instance with all dependencies
-    testee = new LogMessageSplitProcessor(objectMapper, mdcHelper);
+    testee = new LogMessageSplitProcessor(mdcHelper);
   }
 
   @Test

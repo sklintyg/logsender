@@ -20,6 +20,7 @@ package se.inera.intyg.logsender.loggtjanststub;
 
 import jakarta.xml.ws.WebServiceException;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
@@ -30,9 +31,6 @@ import se.riv.informationsecurity.auditing.log.v2.ResultCodeType;
 import se.riv.informationsecurity.auditing.log.v2.ResultType;
 
 
-/**
- * @author andreaskaltenbach
- */
 @Slf4j
 @RequiredArgsConstructor
 public class StoreLogStubResponder implements StoreLogResponderInterface {
@@ -87,6 +85,18 @@ public class StoreLogStubResponder implements StoreLogResponderInterface {
 
     assert request != null;
     List<LogType> logItems = request.getLog();
+
+    boolean hasInvalid = logItems.stream()
+        .anyMatch(item -> Objects.equals(item.getSystem().getSystemId(), "invalid"));
+
+    if (hasInvalid) {
+      log.info("Storelog called with artificial \"invalid\" log entries");
+      result.setResultCode(ResultCodeType.VALIDATION_ERROR);
+      result.setResultText("Invalid log ID");
+      response.setResult(result);
+      return response;
+    }
+
     log.info("Storing {} log items to LogStore", logItems.size());
 
     if (stubState != null) {

@@ -7,17 +7,13 @@ jar {
 }
 
 dependencies {
-    // Access to app module's main source code
     testImplementation project(':app')
-
-    // Access to app module's test source code (for shared test helpers)
-    testImplementation project(':app').sourceSets.test.output
 
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
     testImplementation "codes.rafael.jaxb2_commons:jaxb2-basics"
-    // Camel dependencies for testing
+
     testImplementation "org.apache.camel.springboot:camel-spring-boot-starter"
     testImplementation "org.apache.camel.springboot:camel-activemq-starter"
     testImplementation "org.apache.camel:camel-test-spring-junit5"
@@ -27,9 +23,6 @@ dependencies {
     testImplementation "jakarta.xml.bind:jakarta.xml.bind-api"
     testImplementation "jakarta.jws:jakarta.jws-api"
 
-
-
-    // ActiveMQ dependencies for testing
     testImplementation "org.apache.activemq:activemq-broker"
     testImplementation 'org.springframework.boot:spring-boot-starter-activemq'
 

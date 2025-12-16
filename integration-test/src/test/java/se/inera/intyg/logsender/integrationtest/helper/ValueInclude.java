@@ -16,23 +16,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.inera.intyg.logsender.config;
+package se.inera.intyg.logsender.integrationtest.helper;
 
-import jakarta.jms.ConnectionFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.jms.connection.JmsTransactionManager;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
-
-@Configuration
-@EnableTransactionManagement
-public class LogSenderJmsConfig {
-
-  @Bean
-  public PlatformTransactionManager transactionManager(
-      @Qualifier("jmsConnectionFactory") ConnectionFactory connectionFactory) {
-    return new JmsTransactionManager(connectionFactory);
-  }
+/**
+ * Enum used to tell the TestDataHelper whether to use a full patient name, a " " or null.
+ * <p>
+ * Created by eriklupander on 2017-10-24.
+ */
+public enum ValueInclude {
+  INCLUDE, BLANK_WITH_SPACE, NULL
 }

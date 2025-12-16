@@ -6,29 +6,37 @@ import java.time.Duration;
 import java.util.Enumeration;
 import org.springframework.jms.core.BrowserCallback;
 import org.springframework.jms.core.JmsTemplate;
-import se.inera.intyg.logsender.helper.TestDataHelper;
+import se.inera.intyg.logsender.config.LogsenderProperties;
+import se.inera.intyg.logsender.integrationtest.helper.TestDataHelper;
 import se.inera.intyg.logsender.model.ActivityType;
 
 public class JmsUtil {
 
-  public static final String DLQ_QUEUE_NAME = "ActiveMQ.DLQ";
+  public final String dlqQueueName;
 
   private final JmsTemplate jmsTemplate;
   private final String queueName;
 
-  public JmsUtil(JmsTemplate jmsTemplate, String queueName) {
+  public JmsUtil(JmsTemplate jmsTemplate, LogsenderProperties properties) {
     this.jmsTemplate = jmsTemplate;
-    this.queueName = queueName;
+    this.queueName = properties.getQueue().getReceiveLogMessageEndpoint()
+        .replace("activemq:queue:", "");
+    this.dlqQueueName = properties.getQueue().getReceiveAggregatedLogMessageDlq()
+        .replace("activemq:queue:", "");
   }
 
   public void reset() {
     purgeQueue(queueName);
-    purgeQueue(DLQ_QUEUE_NAME);
+    purgeQueue(dlqQueueName);
   }
 
   public void publishMessage() {
     jmsTemplate.convertAndSend(queueName,
         TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ));
+  }
+
+  public void publishMessage(String message) {
+    jmsTemplate.convertAndSend(queueName, message);
   }
 
   public void publishMessage(ActivityType activityType) {
@@ -66,7 +74,7 @@ public class JmsUtil {
 
 
   public Integer numberOfDLQMessages() {
-    return (Integer) jmsTemplate.browse(DLQ_QUEUE_NAME,
+    return (Integer) jmsTemplate.browse(dlqQueueName,
         (BrowserCallback<Object>) (session, browser) -> {
           int counter = 0;
           Enumeration<?> msgs = browser.getEnumeration();
