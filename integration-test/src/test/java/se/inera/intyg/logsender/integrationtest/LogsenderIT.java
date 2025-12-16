@@ -259,6 +259,9 @@ public class LogsenderIT {
 
       int batchCount = testabilityUtil.getBatchCount();
       assertEquals(0, batchCount, "Expected messages to be sent in 0 batches");
+
+      Thread.sleep(500);
+
     }
   }
 
