@@ -18,16 +18,19 @@
  */
 package se.inera.intyg.logsender.exception;
 
+import java.io.Serial;
+
 public class TemporaryException extends Exception {
 
-    private static final long serialVersionUID = -8184379033317261358L;
+  @Serial
+  private static final long serialVersionUID = -8184379033317261358L;
 
-    public TemporaryException(String message) {
-        super(message);
-    }
+  public TemporaryException(String message) {
+    super(message);
+  }
 
-    public TemporaryException(Throwable cause) {
-        super(cause);
-    }
+  public TemporaryException(Throwable cause) {
+    super(cause);
+  }
 
 }

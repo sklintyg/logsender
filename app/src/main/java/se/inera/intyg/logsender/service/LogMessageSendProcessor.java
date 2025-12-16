@@ -23,8 +23,7 @@ import jakarta.xml.ws.WebServiceException;
 import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import se.inera.intyg.logsender.client.LogSenderClient;
 import se.inera.intyg.logsender.converter.LogTypeFactory;
@@ -41,9 +40,8 @@ import se.riv.informationsecurity.auditing.log.v2.ResultType;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class LogMessageSendProcessor {
-
-  private static final Logger LOG = LoggerFactory.getLogger(LogMessageSendProcessor.class);
 
   private final LogSenderClient logSenderClient;
 
@@ -56,7 +54,7 @@ public class LogMessageSendProcessor {
   public void process(String groupedLogEntries)
       throws IOException, BatchValidationException, TemporaryException {
 
-    try (MdcCloseableMap mdc = MdcCloseableMap.builder()
+    try (MdcCloseableMap ignored = MdcCloseableMap.builder()
         .put(MdcLogConstants.TRACE_ID_KEY, mdcHelper.traceId())
         .put(MdcLogConstants.SPAN_ID_KEY, mdcHelper.spanId())
         .build()
@@ -78,14 +76,14 @@ public class LogMessageSendProcessor {
         case OK:
           break;
         case ERROR, VALIDATION_ERROR:
-          LOG.error(
+          log.error(
               "Loggtjänsten rejected PDL message batch with {}, batch will be moved to DLQ. Result text: '{}'",
               resultCodeValue, resultText);
           throw new BatchValidationException(
               "Loggtjänsten rejected PDL message batch with error: " + resultText
                   + ". Batch will be moved directly to DLQ.");
         case INFO:
-          LOG.warn(
+          log.warn(
               "Warning of type INFO occured when sending PDL log message batch: '{}'. Will not requeue.",
               resultText);
           break;
@@ -94,15 +92,15 @@ public class LogMessageSendProcessor {
       }
 
     } catch (IllegalArgumentException e) {
-      LOG.error("Moving batch to DLQ.");
+      log.error("Moving batch to DLQ.");
       throw new BatchValidationException("Unparsable Log message: " + e);
 
     } catch (LoggtjanstExecutionException e) {
-      LOG.warn("Call to send log message caused a LoggtjanstExecutionException. Will retry.");
+      log.warn("Call to send log message caused a LoggtjanstExecutionException. Will retry.");
       throw new TemporaryException(e);
 
     } catch (WebServiceException e) {
-      LOG.warn("Call to send log message caused an error. Will retry.");
+      log.warn("Call to send log message caused an error. Will retry.");
       throw new TemporaryException(e);
     }
   }

@@ -35,28 +35,26 @@ import org.springframework.stereotype.Component;
 @Component
 public class LogStoreObjectMapper extends ObjectMapper {
 
-    public LogStoreObjectMapper() {
-        setSerializationInclusion(JsonInclude.Include.ALWAYS);
+  public LogStoreObjectMapper() {
+    setSerializationInclusion(JsonInclude.Include.ALWAYS);
 
-        configure(SerializationFeature.INDENT_OUTPUT, true);
-        configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    configure(SerializationFeature.INDENT_OUTPUT, true);
+    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+    configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        registerModule(new Module());
+    registerModule(new Module());
 
-        setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
+    setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
+  }
+
+  private static final class Module extends SimpleModule {
+
+    private Module() {
+      addSerializer(LocalDate.class, LocalDateSerializer.INSTANCE);
+      addDeserializer(LocalDate.class, LocalDateDeserializer.INSTANCE);
+
+      addSerializer(LocalDateTime.class, LocalDateTimeSerializer.INSTANCE);
+      addDeserializer(LocalDateTime.class, LocalDateTimeDeserializer.INSTANCE);
     }
-
-    private static final class Module extends SimpleModule {
-
-        private Module() {
-            // LocalDate
-            addSerializer(LocalDate.class, LocalDateSerializer.INSTANCE);
-            addDeserializer(LocalDate.class, LocalDateDeserializer.INSTANCE);
-
-            // LocalDateTime
-            addSerializer(LocalDateTime.class, LocalDateTimeSerializer.INSTANCE);
-            addDeserializer(LocalDateTime.class, LocalDateTimeDeserializer.INSTANCE);
-        }
-    }
+  }
 }

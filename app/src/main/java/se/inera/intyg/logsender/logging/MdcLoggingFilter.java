@@ -24,55 +24,42 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.AllArgsConstructor;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.MDC;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-
-/**
- * Servlet filter that adds MDC (Mapped Diagnostic Context) values for distributed tracing.
- * Generates trace and span IDs for each HTTP request to enable correlation across logs.
- *
- * This filter runs early in the filter chain to ensure MDC context is available for all
- * downstream processing and logging.
- */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @RequiredArgsConstructor
 public class MdcLoggingFilter implements Filter {
 
-    private final MdcHelper mdcHelper;
+  private final MdcHelper mdcHelper;
 
-    @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-            throws IOException, ServletException {
+  @Override
+  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+      throws IOException, ServletException {
 
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
+    HttpServletRequest httpRequest = (HttpServletRequest) request;
 
-        try {
-            // Set MDC context with trace and span IDs
-            MDC.put(MdcLogConstants.TRACE_ID_KEY, mdcHelper.traceId());
-            MDC.put(MdcLogConstants.SPAN_ID_KEY, mdcHelper.spanId());
+    try {
+      MDC.put(MdcLogConstants.TRACE_ID_KEY, mdcHelper.traceId());
+      MDC.put(MdcLogConstants.SPAN_ID_KEY, mdcHelper.spanId());
 
-            // Add request URI for debugging
-            MDC.put("request.uri", httpRequest.getRequestURI());
-            MDC.put("request.method", httpRequest.getMethod());
+      MDC.put("request.uri", httpRequest.getRequestURI());
+      MDC.put("request.method", httpRequest.getMethod());
 
-            // Continue the filter chain with MDC context in place
-            chain.doFilter(request, response);
+      chain.doFilter(request, response);
 
-        } finally {
-            // Always clean up MDC to prevent memory leaks and context pollution
-            MDC.remove(MdcLogConstants.TRACE_ID_KEY);
-            MDC.remove(MdcLogConstants.SPAN_ID_KEY);
-            MDC.remove("request.uri");
-            MDC.remove("request.method");
-            MDC.clear();
-        }
+    } finally {
+      MDC.remove(MdcLogConstants.TRACE_ID_KEY);
+      MDC.remove(MdcLogConstants.SPAN_ID_KEY);
+      MDC.remove("request.uri");
+      MDC.remove("request.method");
+      MDC.clear();
     }
+  }
 }
 

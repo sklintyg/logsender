@@ -18,15 +18,16 @@
  */
 package se.inera.intyg.logsender.exception;
 
-/**
- * @author andreaskaltenbach
- */
+
+import java.io.Serial;
+
 public class LoggtjanstExecutionException extends RuntimeException {
 
-    private static final long serialVersionUID = -6996998722601503134L;
+  @Serial
+  private static final long serialVersionUID = -6996998722601503134L;
 
-    public LoggtjanstExecutionException(Throwable cause) {
-        super(cause);
-    }
+  public LoggtjanstExecutionException(Throwable cause) {
+    super(cause);
+  }
 
 }

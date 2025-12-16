@@ -81,13 +81,6 @@ public class LoggtjanstStubRestApi {
     return Response.ok().entity(logStore.getAll()).build();
   }
 
-  /**
-   * Makes the stub fake one of the specified error types. See {@link ErrorState}
-   *
-   * @param errorType Allowed values are NONE, ERROR, VALIDATION
-   * @return 200 OK if state change was successful. 500 Server Error if the errorType string
-   * couldn't be parsed into an {@link ErrorState}
-   */
   @GET
   @Path("/error/{errorType}")
   @Produces(MediaType.APPLICATION_JSON)
@@ -105,12 +98,7 @@ public class LoggtjanstStubRestApi {
     }
   }
 
-  /**
-   * Introduces a fake latency in the stub.
-   *
-   * @param latencyMillis Latency, in milliseconds.
-   * @return 200 OK
-   */
+
   @GET
   @Path("/latency/{latencyMillis}")
   public Response setLatency(@PathParam("latencyMillis") Long latencyMillis) {

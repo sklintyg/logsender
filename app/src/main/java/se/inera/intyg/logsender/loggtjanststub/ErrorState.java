@@ -18,9 +18,6 @@
  */
 package se.inera.intyg.logsender.loggtjanststub;
 
-/**
- * Created by eriklupander on 2016-03-24.
- */
 public enum ErrorState {
-    NONE, ERROR, VALIDATION
+  NONE, ERROR, VALIDATION
 }

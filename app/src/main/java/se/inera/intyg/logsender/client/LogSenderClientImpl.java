@@ -26,53 +26,48 @@ import lombok.extern.slf4j.Slf4j;
 import se.inera.intyg.logsender.config.LogsenderProperties;
 import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
 import se.inera.intyg.logsender.service.SoapIntegrationService;
-import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogType;
 import se.riv.informationsecurity.auditing.log.v2.LogType;
 import se.riv.informationsecurity.auditing.log.v2.ResultCodeType;
 import se.riv.informationsecurity.auditing.log.v2.ResultType;
 
-/**
- * Responsible for sending a list of {@link LogType} over the {@link StoreLogResponderInterface}.
- * Typically, StoreLogResponderInterface is stubbed for dev and test, NTjP connected service used for demo, qa and prod.
- * Created by eriklupander on 2016-02-29.
- */
 @Slf4j
 @RequiredArgsConstructor
 public class LogSenderClientImpl implements LogSenderClient {
 
-    private final LogsenderProperties properties;
-    private final SoapIntegrationService soapIntegrationService;
+  private final LogsenderProperties properties;
+  private final SoapIntegrationService soapIntegrationService;
 
-    @Override
-    public StoreLogResponseType sendLogMessage(List<LogType> logEntries) {
+  @Override
+  public StoreLogResponseType sendLogMessage(List<LogType> logEntries) {
 
-        if (logEntries == null || logEntries.isEmpty()) {
-            StoreLogResponseType response = new StoreLogResponseType();
-            ResultType resultType = new ResultType();
-            resultType.setResultCode(ResultCodeType.INFO);
-            resultType.setResultText("No log entries supplied, not invoking storeLog");
-            response.setResult(resultType);
-            return response;
-        }
-
-        StoreLogType request = new StoreLogType();
-        request.getLog().addAll(logEntries);
-
-        try {
-            StoreLogResponseType response = soapIntegrationService.storeLog(
-                properties.getLoggtjanst().getLogicalAddress(),
-                request
-            );
-            if (response.getResult().getResultCode() == ResultCodeType.OK && (log.isDebugEnabled())) {
-                    log.debug("Successfully sent {} PDL log entries for ID's: {}", logEntries.size(), logEntries.stream()
-                        .map(LogType::getLogId)
-                        .collect(Collectors.joining(", ")));
-            }
-            return response;
-        } catch (WebServiceException e) {
-            throw new LoggtjanstExecutionException(e);
-        }
+    if (logEntries == null || logEntries.isEmpty()) {
+      StoreLogResponseType response = new StoreLogResponseType();
+      ResultType resultType = new ResultType();
+      resultType.setResultCode(ResultCodeType.INFO);
+      resultType.setResultText("No log entries supplied, not invoking storeLog");
+      response.setResult(resultType);
+      return response;
     }
+
+    StoreLogType request = new StoreLogType();
+    request.getLog().addAll(logEntries);
+
+    try {
+      StoreLogResponseType response = soapIntegrationService.storeLog(
+          properties.getLoggtjanst().getLogicalAddress(),
+          request
+      );
+      if (response.getResult().getResultCode() == ResultCodeType.OK && (log.isDebugEnabled())) {
+        log.debug("Successfully sent {} PDL log entries for ID's: {}", logEntries.size(),
+            logEntries.stream()
+                .map(LogType::getLogId)
+                .collect(Collectors.joining(", ")));
+      }
+      return response;
+    } catch (WebServiceException e) {
+      throw new LoggtjanstExecutionException(e);
+    }
+  }
 }

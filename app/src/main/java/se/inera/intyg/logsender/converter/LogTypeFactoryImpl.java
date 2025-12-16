@@ -36,121 +36,118 @@ import se.riv.informationsecurity.auditing.log.v2.ResourcesType;
 import se.riv.informationsecurity.auditing.log.v2.SystemType;
 import se.riv.informationsecurity.auditing.log.v2.UserType;
 
-/**
- * Encapsulates PdlLogMessage (internal format) -> LogType conversion.
- *
- * Created by eriklupander on 2016-02-29.
- */
+
 @Service
 public class LogTypeFactoryImpl implements LogTypeFactory {
 
-    private static final LogTypeFactoryUtil util = LogTypeFactoryUtil.getInstance();
+  private static final LogTypeFactoryUtil util = LogTypeFactoryUtil.getInstance();
 
-    @Override
-    public LogType convert(PdlLogMessage source) {
-        LogType logType = new LogType();
-        logType.setLogId(source.getLogId());
+  @Override
+  public LogType convert(PdlLogMessage source) {
+    LogType logType = new LogType();
+    logType.setLogId(source.getLogId());
 
-        buildSystemType(source, logType);
-        buildActivityType(source, logType);
-        buildUserType(source, logType);
+    buildSystemType(source, logType);
+    buildActivityType(source, logType);
+    buildUserType(source, logType);
 
-        logType.setResources(new ResourcesType());
+    logType.setResources(new ResourcesType());
 
-        List<ResourceType> resources = source.getPdlResourceList()
-            .stream()
-            .map(this::buildResource)
-            .toList();
-        logType.getResources().getResource().addAll(resources);
+    List<ResourceType> resources = source.getPdlResourceList()
+        .stream()
+        .map(this::buildResource)
+        .toList();
+    logType.getResources().getResource().addAll(resources);
 
-        return logType;
-    }
+    return logType;
+  }
 
-    private void buildUserType(PdlLogMessage source, LogType logType) {
-        UserType user = new UserType();
-        user.setUserId(util.trim(source.getUserId()));
-        user.setCareProvider(careProvider(source.getUserCareUnit()));
-        user.setCareUnit(careUnit(source.getUserCareUnit()));
+  private void buildUserType(PdlLogMessage source, LogType logType) {
+    UserType user = new UserType();
+    user.setUserId(util.trim(source.getUserId()));
+    user.setCareProvider(careProvider(source.getUserCareUnit()));
+    user.setCareUnit(careUnit(source.getUserCareUnit()));
 
-        // optional according to XML schema
-        user.setName(util.trimToNull(source.getUserName()));
-        user.setAssignment(util.trimToNull(source.getUserAssignment()));
-        user.setTitle(util.trimToNull(source.getUserTitle()));
+    // optional according to XML schema
+    user.setName(util.trimToNull(source.getUserName()));
+    user.setAssignment(util.trimToNull(source.getUserAssignment()));
+    user.setTitle(util.trimToNull(source.getUserTitle()));
 
-        logType.setUser(user);
-    }
+    logType.setUser(user);
+  }
 
-    private void buildSystemType(PdlLogMessage source, LogType logType) {
-        SystemType system = new SystemType();
-        system.setSystemId(util.trim(source.getSystemId()));
+  private void buildSystemType(PdlLogMessage source, LogType logType) {
+    SystemType system = new SystemType();
+    system.setSystemId(util.trim(source.getSystemId()));
 
-        // optional according to XML schema
-        system.setSystemName(util.trimToNull(source.getSystemName()));
+    system.setSystemName(util.trimToNull(source.getSystemName()));
 
-        logType.setSystem(system);
-    }
+    logType.setSystem(system);
+  }
 
-    private void buildActivityType(PdlLogMessage source, LogType logType) {
-        ActivityType activity = new ActivityType();
-        activity.setActivityType(source.getActivityType().getType());
-        activity.setStartDate(source.getTimestamp());
-        activity.setPurpose(source.getPurpose().getType());
+  private void buildActivityType(PdlLogMessage source, LogType logType) {
+    ActivityType activity = new ActivityType();
+    activity.setActivityType(source.getActivityType().getType());
+    activity.setStartDate(source.getTimestamp());
+    activity.setPurpose(source.getPurpose().getType());
 
-        // optional according to XML schema
-        activity.setActivityLevel(util.trimToNull(source.getActivityLevel()));
-        activity.setActivityArgs(util.trimToNull(source.getActivityArgs()));
+    // optional according to XML schema
+    activity.setActivityLevel(util.trimToNull(source.getActivityLevel()));
+    activity.setActivityArgs(util.trimToNull(source.getActivityArgs()));
 
-        logType.setActivity(activity);
-    }
+    logType.setActivity(activity);
+  }
 
-    private PatientType patient(Patient source) {
-        String id = util.trim(source.getPatientId());
+  private PatientType patient(Patient source) {
+    String id = util.trim(source.getPatientId());
 
-        final Personnummer personnummer = Personnummer.createPersonnummer(id)
-            .orElseThrow(() -> new IllegalArgumentException("PatientId must be a valid personnummer or samordningsnummer"));
+    final Personnummer personnummer = Personnummer.createPersonnummer(id)
+        .orElseThrow(() -> new IllegalArgumentException(
+            "PatientId must be a valid personnummer or samordningsnummer"));
 
-        IIType patientId = new IIType();
-        patientId.setRoot(util.isSamordningsNummer(personnummer) ? util.getSamordningsNummerRoot() : util.getPersonnummerRoot());
-        patientId.setExtension(util.trim(source.getPatientId()));
+    IIType patientId = new IIType();
+    patientId.setRoot(util.isSamordningsNummer(personnummer) ? util.getSamordningsNummerRoot()
+        : util.getPersonnummerRoot());
+    patientId.setExtension(util.trim(source.getPatientId()));
 
-        PatientType patient = new PatientType();
-        patient.setPatientId(patientId);
+    PatientType patient = new PatientType();
+    patient.setPatientId(patientId);
 
-        // optional according to XML schema
-        patient.setPatientName(util.trimToNull(source.getPatientNamn()));
+    // optional according to XML schema
+    patient.setPatientName(util.trimToNull(source.getPatientNamn()));
 
-        return patient;
-    }
+    return patient;
+  }
 
-    private CareUnitType careUnit(Enhet source) {
-        CareUnitType careUnit = new CareUnitType();
-        careUnit.setCareUnitId(util.trim(source.getEnhetsId()));
+  private CareUnitType careUnit(Enhet source) {
+    CareUnitType careUnit = new CareUnitType();
+    careUnit.setCareUnitId(util.trim(source.getEnhetsId()));
 
-        // optional according to XML schema
-        careUnit.setCareUnitName(util.trimToNull(source.getEnhetsNamn()));
+    // optional according to XML schema
+    careUnit.setCareUnitName(util.trimToNull(source.getEnhetsNamn()));
 
-        return careUnit;
-    }
+    return careUnit;
+  }
 
-    private CareProviderType careProvider(Enhet source) {
-        CareProviderType careProvider = new CareProviderType();
-        careProvider.setCareProviderId(util.trim(source.getVardgivareId()));
+  private CareProviderType careProvider(Enhet source) {
+    CareProviderType careProvider = new CareProviderType();
+    careProvider.setCareProviderId(util.trim(source.getVardgivareId()));
 
-        // optional according to XML schema
-        careProvider.setCareProviderName(util.trimToNull(source.getVardgivareNamn()));
+    // optional according to XML schema
+    careProvider.setCareProviderName(util.trimToNull(source.getVardgivareNamn()));
 
-        return careProvider;
-    }
+    return careProvider;
+  }
 
-    private ResourceType buildResource(PdlResource source) {
-        ResourceType resource = new ResourceType();
-        resource.setResourceType(source.getResourceType());
-        resource.setCareProvider(careProvider(source.getResourceOwner()));
-        resource.setCareUnit(careUnit(source.getResourceOwner()));
+  private ResourceType buildResource(PdlResource source) {
+    ResourceType resource = new ResourceType();
+    resource.setResourceType(source.getResourceType());
+    resource.setCareProvider(careProvider(source.getResourceOwner()));
+    resource.setCareUnit(careUnit(source.getResourceOwner()));
 
-        // optional according to XML schema
-        resource.setPatient(patient(source.getPatient()));
+    // optional according to XML schema
+    resource.setPatient(patient(source.getPatient()));
 
-        return resource;
-    }
+    return resource;
+  }
 }

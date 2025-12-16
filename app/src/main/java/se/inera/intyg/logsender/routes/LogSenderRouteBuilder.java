@@ -23,8 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.processor.aggregate.GroupedExchangeAggregationStrategy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import se.inera.intyg.logsender.config.LogsenderProperties;
 import se.inera.intyg.logsender.exception.BatchValidationException;
@@ -35,7 +33,6 @@ import se.inera.intyg.logsender.exception.TemporaryException;
 @Slf4j
 public class LogSenderRouteBuilder extends RouteBuilder {
 
-  private static final Logger LOG = LoggerFactory.getLogger(LogSenderRouteBuilder.class);
 
   private final LogsenderProperties properties;
 
@@ -82,7 +79,7 @@ public class LogSenderRouteBuilder extends RouteBuilder {
 
     // Error handling
     from("direct:logMessagePermanentErrorHandlerEndpoint").routeId("permanentErrorLogging")
-        .log(LoggingLevel.ERROR, LOG,
+        .log(LoggingLevel.ERROR, log,
             simple(
                 "ENTER - Permanent exception for LogMessage batch: ${exception.message}\n ${exception.stacktrace}")
                 .toString())
@@ -90,7 +87,7 @@ public class LogSenderRouteBuilder extends RouteBuilder {
 
     from("direct:logMessageBatchValidationErrorHandlerEndpoint").routeId(
             "batchValidationErrorLogging")
-        .log(LoggingLevel.ERROR, LOG,
+        .log(LoggingLevel.ERROR, log,
             simple(
                 "ENTER - Batch validation exception for LogMessage batch: ${exception.message}\n ${exception.stacktrace}")
                 .toString())
@@ -100,12 +97,12 @@ public class LogSenderRouteBuilder extends RouteBuilder {
     from("direct:logMessageTemporaryErrorHandlerEndpoint").routeId("temporaryErrorLogging")
         .choice()
         .when(header("JMSRedelivered").isEqualTo("false"))
-        .log(LoggingLevel.ERROR, LOG,
+        .log(LoggingLevel.ERROR, log,
             simple(
                 "ENTER - Temporary exception for logMessage batch: ${exception.message}\n ${exception.stacktrace}")
                 .toString())
         .otherwise()
-        .log(LoggingLevel.WARN, LOG,
+        .log(LoggingLevel.WARN, log,
             simple(
                 "ENTER - Temporary exception (redelivered) for logMessage batch: ${exception.message}").toString())
         .stop();

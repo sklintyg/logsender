@@ -18,30 +18,22 @@
  */
 package se.inera.intyg.logsender.model;
 
+import java.io.Serial;
 import java.io.Serializable;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-
-/**
- * @author andreaskaltenbach
- */
 
 @Getter
 @Setter
+@RequiredArgsConstructor
 public class Patient implements Serializable {
 
+  @Serial
   private static final long serialVersionUID = -3089443403583678480L;
 
   private String patientId;
   private String patientNamn;
-
-  public Patient() {
-    // Needed for deserialization
-  }
-
-  public Patient(String patientId) {
-    this.patientId = patientId;
-  }
 
   public Patient(String patientId, String patientNamn) {
     this.patientId = patientId;

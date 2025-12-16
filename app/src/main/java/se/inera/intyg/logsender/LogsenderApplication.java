@@ -23,18 +23,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import se.inera.intyg.logsender.config.LogsenderProperties;
 
-/**
- * Spring Boot main application class for Logsender.
- *
- * Logsender is responsible for aggregating and sending PDL log messages
- * to the national logging service using Apache Camel for message routing.
- */
 @SpringBootApplication
 @EnableConfigurationProperties(LogsenderProperties.class)
 public class LogsenderApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(LogsenderApplication.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(LogsenderApplication.class, args);
+  }
 }
 

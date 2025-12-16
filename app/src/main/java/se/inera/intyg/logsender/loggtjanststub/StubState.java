@@ -22,9 +22,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
 
-/**
- * Created by eriklupander on 2016-03-22.
- */
 @Getter
 @Setter
 @Component

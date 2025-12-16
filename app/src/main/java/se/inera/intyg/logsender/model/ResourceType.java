@@ -18,38 +18,33 @@
  */
 package se.inera.intyg.logsender.model;
 
-/**
- * Kan vara kemlabbsvar, journaltext, remiss, översikt, samtycke, patientrelation, sätta spärr, rapport,
- * Översikt sjukskrivning osv.
- *
- * Created by eriklupander on 2016-03-02.
- */
+
+import lombok.Getter;
+
+@Getter
 public enum ResourceType {
 
-    RESOURCE_TYPE_INTYG("Intyg"),
+  RESOURCE_TYPE_INTYG("Intyg"),
 
-    RESOURCE_TYPE_SJUKFALL("Sjukfall"),
+  RESOURCE_TYPE_SJUKFALL("Sjukfall"),
 
-    RESOURCE_TYPE_SAMTYCKE("Samtycke"),
+  RESOURCE_TYPE_SAMTYCKE("Samtycke"),
 
-    RESOURCE_TYPE_PREDIKTION_SRS("Prediktion från SRS av risk för lång sjukskrivning"),
+  RESOURCE_TYPE_PREDIKTION_SRS("Prediktion från SRS av risk för lång sjukskrivning"),
 
-    RESOURCE_TYPE_FMU_OVERSIKT("Översikt försäkringsmedicinska utredningar"),
-    RESOURCE_TYPE_FMU("Försäkringsmedicinsk utredning"),
-    RESOURCE_TYPE_FMU_BESOK("Besök i försäkringsmedicinsk utredning"),
-    RESOURCE_TYPE_FMU_AVVIKELSE("Avvikelse i försäkringsmedicinsk utredning"),
-    RESOURCE_TYPE_FMU_TOLK("Användning av tolk i försäkringsmedicinsk utredning"),
-    RESOURCE_TYPE_FMU_ANTECKNING("Anteckning i försäkringsmedicinsk utredning"),
+  RESOURCE_TYPE_FMU_OVERSIKT("Översikt försäkringsmedicinska utredningar"),
+  RESOURCE_TYPE_FMU("Försäkringsmedicinsk utredning"),
+  RESOURCE_TYPE_FMU_BESOK("Besök i försäkringsmedicinsk utredning"),
+  RESOURCE_TYPE_FMU_AVVIKELSE("Avvikelse i försäkringsmedicinsk utredning"),
+  RESOURCE_TYPE_FMU_TOLK("Användning av tolk i försäkringsmedicinsk utredning"),
+  RESOURCE_TYPE_FMU_ANTECKNING("Anteckning i försäkringsmedicinsk utredning"),
 
-    RESOURCE_TYPE_BESTALLNING("Beställning");
+  RESOURCE_TYPE_BESTALLNING("Beställning");
 
-    private final String resourceTypeName;
+  private final String resourceTypeName;
 
-    ResourceType(String resourceTypeName) {
-        this.resourceTypeName = resourceTypeName;
-    }
+  ResourceType(String resourceTypeName) {
+    this.resourceTypeName = resourceTypeName;
+  }
 
-    public String getResourceTypeName() {
-        return resourceTypeName;
-    }
 }

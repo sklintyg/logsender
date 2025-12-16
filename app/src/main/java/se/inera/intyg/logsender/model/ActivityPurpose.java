@@ -18,17 +18,17 @@
  */
 package se.inera.intyg.logsender.model;
 
+import lombok.Getter;
+
+@Getter
 public enum ActivityPurpose {
 
-    CARE_TREATMENT("Vård och behandling");
+  CARE_TREATMENT("Vård och behandling");
 
-    private final String type;
+  private final String type;
 
-    ActivityPurpose(String type) {
-        this.type = type;
-    }
+  ActivityPurpose(String type) {
+    this.type = type;
+  }
 
-    public String getType() {
-        return type;
-    }
 }

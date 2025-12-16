@@ -18,20 +18,15 @@
  */
 package se.inera.intyg.logsender.exception;
 
+import java.io.Serial;
+
 public class PermanentException extends Exception {
 
-    private static final long serialVersionUID = -8184379033317261358L;
+  @Serial
+  private static final long serialVersionUID = -8184379033317261358L;
 
-    public PermanentException(String message) {
-        super(message);
-    }
-
-    public PermanentException(Throwable cause) {
-        super(cause);
-    }
-
-    public PermanentException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public PermanentException(String message) {
+    super(message);
+  }
 
 }

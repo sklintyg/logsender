@@ -36,8 +36,7 @@ import se.riv.informationsecurity.auditing.log.v2.LogType;
 @Repository
 @Slf4j
 public class LogStore {
-
-
+  
   private static final String LOGSTORE = "logstore";
   private static final int MAX_SIZE = 300;
 
@@ -82,8 +81,7 @@ public class LogStore {
     log.info("Log item added. New size: {}", logEntries.size());
   }
 
-  // Ugly hack to sort and remove the oldest log items. Shoud go from MAX_SIZE + OVERFLOW_SIZE -> MAX_SIZE.
-  @SuppressWarnings("SynchronizeOnNonFinalField") // lazy init
+  @SuppressWarnings("SynchronizeOnNonFinalField")
   private void cleanup() {
     synchronized (logEntries) {
       Collection<String> values = logEntries.values();
