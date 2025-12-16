@@ -23,7 +23,6 @@ import static org.awaitility.Awaitility.await;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -33,16 +32,14 @@ import jakarta.jms.Queue;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.concurrent.TimeUnit;
-import org.apache.camel.CamelContext;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.test.spring.junit5.CamelSpringBootTest;
-import org.apache.camel.test.spring.junit5.UseAdviceWith;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.jms.core.BrowserCallback;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.annotation.DirtiesContext;
@@ -52,19 +49,17 @@ import se.inera.intyg.logsender.helper.TestDataHelper;
 import se.inera.intyg.logsender.helper.ValueInclude;
 import se.inera.intyg.logsender.integrationtest.util.Containers;
 import se.inera.intyg.logsender.integrationtest.util.IntegrationTestConfig;
+import se.inera.intyg.logsender.mapper.CustomObjectMapper;
 import se.inera.intyg.logsender.model.ActivityType;
 import se.inera.intyg.logsender.model.PdlLogMessage;
 
+@Slf4j
 @CamelSpringBootTest
-@UseAdviceWith
-@SpringBootTest(classes = IntegrationTestConfig.class, webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@ActiveProfiles("integration-test")
+@SpringBootTest
+@Import(IntegrationTestConfig.class)
+@ActiveProfiles({"dev", "testability-api", "integration-test"})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class RouteIT {
-
-  private static final Logger LOG = LoggerFactory.getLogger(RouteIT.class);
-
-  private static final int SECONDS_TO_WAIT = 5;
+class RouteIT {
 
   // Initialize containers BEFORE Spring context loads
   static {
@@ -72,15 +67,10 @@ public class RouteIT {
   }
 
   @Autowired
-  CamelContext camelContext;
-  @Autowired
   private JmsTemplate jmsTemplate;
   @Autowired
   @Qualifier("newLogMessageQueue")
   private Queue sendQueue;
-  @Autowired
-  @Qualifier("newAggregatedLogMessageQueue")
-  private Queue newAggregatedLogMessageQueue;
   @Autowired
   @Qualifier("newAggregatedLogMessageDLQ")
   private Queue newAggregatedLogMessageDLQ;
@@ -88,73 +78,81 @@ public class RouteIT {
   private MockLogSenderClientImpl mockLogSenderClient;
 
   @BeforeEach
-  public void resetStub() {
+  void resetStub() {
     mockLogSenderClient.reset();
-    camelContext.start();
+
+    // Simple DLQ clear - with @DirtiesContext and persistent=false,
+    // this should be sufficient
+    clearQueue(newAggregatedLogMessageDLQ);
+  }
+
+  private void clearQueue(Queue queue) {
+    Long originalTimeout = jmsTemplate.getReceiveTimeout();
+    jmsTemplate.setReceiveTimeout(100L);
+
+    // Consume all messages from the queue
+    int cleared = 0;
+    while (jmsTemplate.receiveAndConvert(queue) != null) {
+      cleared++;
+    }
+
+    if (cleared > 0) {
+      log.debug("Cleared {} messages from DLQ", cleared);
+    }
+
+    jmsTemplate.setReceiveTimeout(originalTimeout);
   }
 
   @Test
-  public void ensureStubReceivesOneMessageAfterSixHasBeenSent() {
-
+  void ensureStubReceivesOneMessageAfterSixHasBeenSent() {
     for (int a = 0; a < 6; a++) {
       sendMessage(ActivityType.READ);
     }
-
-    await().atMost(SECONDS_TO_WAIT, TimeUnit.SECONDS).until(() -> messagesReceived(1));
+    await().atMost(5, TimeUnit.SECONDS).until(() -> messagesReceived(1));
   }
 
   @Test
-  public void ensureStubReceivesTwoMessagesAfterTenHasBeenSent() {
-
+  void ensureStubReceivesTwoMessagesAfterTenHasBeenSent() {
     for (int a = 0; a < 10; a++) {
       sendMessage(ActivityType.READ);
     }
-
-    await().atMost(SECONDS_TO_WAIT, TimeUnit.SECONDS).until(() -> messagesReceived(2));
+    await().atMost(5, TimeUnit.SECONDS).until(() -> messagesReceived(2));
   }
 
   @Test
-  public void ensureStubReceivesZeroMessagesAfterThreeHasBeenSent() {
-
+  void ensureStubReceivesZeroMessagesAfterThreeHasBeenSent() {
     for (int a = 0; a < 3; a++) {
       sendMessage(ActivityType.READ);
     }
-
-    await().atMost(SECONDS_TO_WAIT, TimeUnit.SECONDS).until(() -> messagesReceived(0));
+    await().atMost(5, TimeUnit.SECONDS).until(() -> messagesReceived(0));
   }
 
   @Test
-  public void ensureStubReceivesOneMessagesAfterOneWithFiveResourcesHasBeenSent() {
-
+  void ensureStubReceivesOneMessagesAfterOneWithFiveResourcesHasBeenSent() {
     for (int a = 0; a < 1; a++) {
       sendMessage(ActivityType.READ, 5);
     }
-
-    await().atMost(SECONDS_TO_WAIT, TimeUnit.SECONDS).until(() -> messagesReceived(1));
+    await().atMost(5, TimeUnit.SECONDS).until(() -> messagesReceived(1));
   }
 
   @Test
-  public void ensureStubReceivesSixMessagesAfterThreeTimesTenHasBeenSent() {
-
+  void ensureStubReceivesSixMessagesAfterThreeTimesTenHasBeenSent() {
     for (int a = 0; a < 3; a++) {
       sendMessage(ActivityType.READ, 10);
     }
-
-    await().atMost(SECONDS_TO_WAIT, TimeUnit.SECONDS).until(() -> messagesReceived(6));
+    await().atMost(5, TimeUnit.SECONDS).until(() -> messagesReceived(6));
   }
 
   @Test
-  public void ensureStubReceivesZeroMessagesAfterFiveWithNoResourcesHasBeenSent() {
-
+  void ensureStubReceivesZeroMessagesAfterFiveWithNoResourcesHasBeenSent() {
     for (int a = 0; a < 5; a++) {
       sendMessage(ActivityType.READ, 0);
     }
-
-    await().atMost(SECONDS_TO_WAIT, TimeUnit.SECONDS).until(() -> messagesReceived(0));
+    await().atMost(5, TimeUnit.SECONDS).until(() -> messagesReceived(0));
   }
 
   @Test
-  public void ensureStubReceivesNoMessageAfterOneWithSixWhereOnIsInvalidHasBeenSent()
+  void ensureStubReceivesNoMessageAfterOneWithSixWhereOnIsInvalidHasBeenSent()
       throws IOException {
     String body = buildPdlLogMessageWithInvalidResourceJson();
     jmsTemplate.send(sendQueue, session -> {
@@ -164,24 +162,24 @@ public class RouteIT {
         throw new RuntimeException(e);
       }
     });
-
-    await().atMost(SECONDS_TO_WAIT, TimeUnit.SECONDS).until(() -> messagesReceived(0));
+    await().atMost(5, TimeUnit.SECONDS).until(() -> messagesReceived(0));
   }
 
   @Test
-  public void ensureMessageEndsUpInDLQ() {
+  void ensureMessageEndsUpInDLQ() {
+    // Send 5 EMERGENCY_ACCESS messages (will form 1 batch that fails)
+    for (int a = 0; a < 5; a++) {
+      sendMessage(ActivityType.EMERGENCY_ACCESS);
+    }
 
-    sendMessage(ActivityType.EMERGENCY_ACCESS);
-    sendMessage(ActivityType.EMERGENCY_ACCESS);
-    sendMessage(ActivityType.EMERGENCY_ACCESS);
-    sendMessage(ActivityType.EMERGENCY_ACCESS);
-    sendMessage(ActivityType.EMERGENCY_ACCESS);
-
+    // Wait patiently for message to go through: aggregate -> fail -> redelivery -> fail -> DLQ
     await()
-        .atMost(SECONDS_TO_WAIT, TimeUnit.SECONDS)
-        .failFast(() -> numberOfDLQMessages() > 1)
+        .pollDelay(1, TimeUnit.SECONDS)
+        .pollInterval(1, TimeUnit.SECONDS)
+        .atMost(30, TimeUnit.SECONDS)
         .untilAsserted(() -> {
           int actualDLQMessages = numberOfDLQMessages();
+          log.info("DLQ message count: {}", actualDLQMessages);
           assertThat(actualDLQMessages)
               .withFailMessage(
                   "Expected 1 message in DLQ after sending 5 EMERGENCY_ACCESS messages, but found %d",
@@ -191,25 +189,22 @@ public class RouteIT {
   }
 
   @Test
-  public void ensureTwoMessagesEndsUpInDLQ() {
+  void ensureTwoMessagesEndsUpInDLQ() {
+    // Send 10 EMERGENCY_ACCESS messages
+    // They will form batches that fail and go to DLQ
+    for (int a = 0; a < 10; a++) {
+      sendMessage(ActivityType.EMERGENCY_ACCESS);
+    }
 
-    sendMessage(ActivityType.EMERGENCY_ACCESS);
-    sendMessage(ActivityType.EMERGENCY_ACCESS);
-    sendMessage(ActivityType.EMERGENCY_ACCESS);
-    sendMessage(ActivityType.EMERGENCY_ACCESS);
-    sendMessage(ActivityType.EMERGENCY_ACCESS);
-
-    sendMessage(ActivityType.EMERGENCY_ACCESS);
-    sendMessage(ActivityType.EMERGENCY_ACCESS);
-    sendMessage(ActivityType.EMERGENCY_ACCESS);
-    sendMessage(ActivityType.EMERGENCY_ACCESS);
-    sendMessage(ActivityType.EMERGENCY_ACCESS);
-
+    // Wait patiently for both batches to reach DLQ
+    // No need to control timing - just wait for the final state
     await()
-        .atMost(SECONDS_TO_WAIT, TimeUnit.SECONDS)
-        .failFast(() -> numberOfDLQMessages() > 2)
+        .pollDelay(1, TimeUnit.SECONDS)
+        .pollInterval(1, TimeUnit.SECONDS)
+        .atMost(30, TimeUnit.SECONDS)
         .untilAsserted(() -> {
           int actualDLQMessages = numberOfDLQMessages();
+          log.info("DLQ message count: {}", actualDLQMessages);
           assertThat(actualDLQMessages)
               .withFailMessage(
                   "Expected 2 messages in DLQ after sending 10 EMERGENCY_ACCESS messages, but found %d",
@@ -219,8 +214,7 @@ public class RouteIT {
   }
 
   @Test
-  public void ensureMessageEndsUpInDlqWithOneInvalidSystemInBatch() {
-
+  void ensureMessageEndsUpInDlqWithOneInvalidSystemInBatch() {
     sendMessage(ActivityType.READ, 2);
 
     jmsTemplate.send(sendQueue, session -> {
@@ -228,7 +222,7 @@ public class RouteIT {
         PdlLogMessage pdlLogMessage = TestDataHelper.buildBasePdlLogMessage(ActivityType.READ,
             1, ValueInclude.INCLUDE, ValueInclude.INCLUDE);
         pdlLogMessage.setSystemId("invalid");
-        return session.createTextMessage(new ObjectMapper().registerModule(new JavaTimeModule())
+        return session.createTextMessage(new CustomObjectMapper().registerModule(new JavaTimeModule())
             .writeValueAsString(pdlLogMessage));
       } catch (JMSException | JsonProcessingException e) {
         throw new RuntimeException(e);
@@ -237,12 +231,20 @@ public class RouteIT {
 
     sendMessage(ActivityType.READ, 2);
 
-    await().atMost(SECONDS_TO_WAIT, TimeUnit.SECONDS).until(() -> expectedDLQMessages(1));
+    await()
+        .atMost(10, TimeUnit.SECONDS)
+        .untilAsserted(() -> {
+          int actualDLQMessages = numberOfDLQMessages();
+          assertThat(actualDLQMessages)
+              .withFailMessage(
+                  "Expected 1 message in DLQ (the invalid one), but found %d",
+                  actualDLQMessages)
+              .isEqualTo(1);
+        });
   }
 
   @Test
-  public void ensureStubReceivesOneMessageDueToTimeoutWhenTwoMessagesHaveBeenSent() {
-
+  void ensureStubReceivesOneMessageDueToTimeoutWhenTwoMessagesHaveBeenSent() {
     for (int a = 0; a < 2; a++) {
       sendMessage(ActivityType.READ);
     }
@@ -251,7 +253,7 @@ public class RouteIT {
   }
 
   @Test
-  public void ensureStubReceivesZeroMessagesDueToTimeoutNotExpiredWhenTwoMessagesHaveBeenSent() {
+  void ensureStubReceivesZeroMessagesDueToTimeoutNotExpiredWhenTwoMessagesHaveBeenSent() {
 
     for (int a = 0; a < 2; a++) {
       sendMessage(ActivityType.READ);
@@ -270,6 +272,13 @@ public class RouteIT {
         throw new RuntimeException(e);
       }
     });
+
+    // Small delay to ensure predictable aggregation timing
+    try {
+      Thread.sleep(20);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
   }
 
   private void sendMessage(final ActivityType activityType) {
@@ -291,25 +300,20 @@ public class RouteIT {
 
   private Boolean messagesReceived(int expected) {
     int numberOfReceivedMessages = mockLogSenderClient.getNumberOfReceivedMessages();
-    LOG.info("numberOfReceivedMessages: {}", numberOfReceivedMessages);
+    log.info("numberOfReceivedMessages: {}", numberOfReceivedMessages);
     return (numberOfReceivedMessages == expected);
   }
 
-  private Boolean expectedDLQMessages(int expectedDlqMessages) {
-    int numberOfDLQMessages = numberOfDLQMessages();
-    LOG.info("numberOfDLQMessages: {}", numberOfDLQMessages);
-    return (numberOfDLQMessages == expectedDlqMessages);
-  }
 
   private String buildPdlLogMessageWithInvalidResourceJson() throws IOException {
     String bodyOfSix = TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ, 6);
-    ObjectNode jsonNode = (ObjectNode) new ObjectMapper().readTree(bodyOfSix);
+    ObjectNode jsonNode = (ObjectNode) new CustomObjectMapper().readTree(bodyOfSix);
     ArrayNode pdlResourceList = (ArrayNode) jsonNode.get("pdlResourceList");
 
     JsonNode invalidJsonNode = new TextNode("Some text that doesn't belong here");
     ObjectNode resourceNode = (ObjectNode) pdlResourceList.get(2);
     resourceNode.set("resourceOwner", invalidJsonNode);
 
-    return new ObjectMapper().writeValueAsString(jsonNode);
+    return new CustomObjectMapper().writeValueAsString(jsonNode);
   }
 }

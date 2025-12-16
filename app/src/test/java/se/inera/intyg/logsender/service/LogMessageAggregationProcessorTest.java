@@ -24,7 +24,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.camel.Exchange;
@@ -37,6 +36,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import se.inera.intyg.logsender.exception.PermanentException;
 import se.inera.intyg.logsender.helper.TestDataHelper;
 import se.inera.intyg.logsender.logging.MdcHelper;
+import se.inera.intyg.logsender.mapper.CustomObjectMapper;
 import se.inera.intyg.logsender.model.ActivityType;
 
 /**
@@ -46,8 +46,8 @@ import se.inera.intyg.logsender.model.ActivityType;
 @ExtendWith(MockitoExtension.class)
 class LogMessageAggregationProcessorTest {
 
-  private final ObjectMapper objectMapper = new ObjectMapper()
-      .registerModule(new JavaTimeModule());
+  private static final ObjectMapper objectMapper = new CustomObjectMapper();
+
   @Mock
   MdcHelper mdcHelper;
   private LogMessageAggregationProcessor testee;

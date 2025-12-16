@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Inera AB (http://www.inera.se)
+ * Copyright (C) 2025 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -16,21 +16,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.inera.intyg.logsender.config;
+package se.inera.intyg.logsender.mapper;
 
-import jakarta.jms.ConnectionFactory;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.jms.connection.JmsTransactionManager;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import java.io.IOException;
 
-@Configuration
-@EnableTransactionManagement
-public class LogSenderJmsConfig {
+public class InternalDateSerializer extends StdSerializer<InternalDate> {
 
-  @Bean
-  public PlatformTransactionManager transactionManager(ConnectionFactory connectionFactory) {
-    return new JmsTransactionManager(connectionFactory);
-  }
+    private static final long serialVersionUID = 1L;
+
+    public InternalDateSerializer() {
+        super(InternalDate.class);
+    }
+
+    @Override
+    public void serialize(InternalDate date, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+        jgen.writeString(InternalDateAdapter.printInternalDate(date));
+    }
 }

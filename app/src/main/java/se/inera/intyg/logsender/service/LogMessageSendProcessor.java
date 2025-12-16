@@ -25,6 +25,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import se.inera.intyg.logsender.client.LogSenderClient;
 import se.inera.intyg.logsender.converter.LogTypeFactory;
 import se.inera.intyg.logsender.exception.BatchValidationException;
@@ -38,6 +39,7 @@ import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResp
 import se.riv.informationsecurity.auditing.log.v2.LogType;
 import se.riv.informationsecurity.auditing.log.v2.ResultType;
 
+@Component
 @RequiredArgsConstructor
 public class LogMessageSendProcessor {
 

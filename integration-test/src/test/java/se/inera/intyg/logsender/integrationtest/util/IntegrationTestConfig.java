@@ -18,65 +18,58 @@
  */
 package se.inera.intyg.logsender.integrationtest.util;
 
-import jakarta.jms.ConnectionFactory;
 import jakarta.jms.Queue;
+import org.apache.activemq.RedeliveryPolicy;
 import org.apache.activemq.command.ActiveMQQueue;
-import org.apache.camel.spring.boot.CamelAutoConfiguration;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.autoconfigure.jms.activemq.ActiveMQConnectionFactoryCustomizer;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
-import org.springframework.jms.core.JmsTemplate;
 import se.inera.intyg.logsender.client.mock.MockLogSenderClientImpl;
-import se.inera.intyg.logsender.config.LogSenderAppConfig;
-import se.inera.intyg.logsender.config.LoggtjanstStubConfig;
-import se.inera.intyg.logsender.config.LogsenderProperties;
-import se.inera.intyg.logsender.routes.LogSenderRouteBuilder;
 
-@Configuration
+@TestConfiguration
 @EnableAutoConfiguration
-@EnableConfigurationProperties(LogsenderProperties.class)
-@Import({
-    LogSenderAppConfig.class,
-    CamelAutoConfiguration.class,
-    LogSenderRouteBuilder.class,
-    LoggtjanstStubConfig.class
-})
 public class IntegrationTestConfig {
 
   @Bean
-  @Primary  // Prefer this bean over storeLogStubResponder for StoreLogResponderInterface injection
+  @Primary
   public MockLogSenderClientImpl mockSendCertificateServiceClient() {
     return new MockLogSenderClientImpl();
   }
 
   @Bean
   public Queue newLogMessageQueue() {
-    ActiveMQQueue newLogMessageQueue = new ActiveMQQueue();
+    final var newLogMessageQueue = new ActiveMQQueue();
     newLogMessageQueue.setPhysicalName("newLogMessageQueue");
     return newLogMessageQueue;
   }
 
   @Bean
   public Queue newAggregatedLogMessageQueue() {
-    ActiveMQQueue newAggregatedLogMessageQueue = new ActiveMQQueue();
+    final var newAggregatedLogMessageQueue = new ActiveMQQueue();
     newAggregatedLogMessageQueue.setPhysicalName("newAggregatedLogMessageQueue");
     return newAggregatedLogMessageQueue;
   }
 
   @Bean
   public Queue newAggregatedLogMessageDLQ() {
-    ActiveMQQueue newAggregatedLogMessageDLQ = new ActiveMQQueue();
+    final var newAggregatedLogMessageDLQ = new ActiveMQQueue();
     newAggregatedLogMessageDLQ.setPhysicalName("DLQ.newAggregatedLogMessageQueue");
     return newAggregatedLogMessageDLQ;
   }
 
   @Bean
-  public JmsTemplate jmsTemplate(
-      @Qualifier("jmsConnectionFactory") ConnectionFactory connectionFactory) {
-    return new JmsTemplate(connectionFactory);
+  public ActiveMQConnectionFactoryCustomizer redeliveryPolicyCustomizer() {
+    return factory -> {
+      final var policy = new RedeliveryPolicy();
+      policy.setMaximumRedeliveries(1);
+      policy.setInitialRedeliveryDelay(100);
+      policy.setUseExponentialBackOff(true);
+      policy.setBackOffMultiplier(2);
+      policy.setMaximumRedeliveryDelay(5000);
+      factory.setRedeliveryPolicy(policy);
+      factory.setNonBlockingRedelivery(true);
+    };
   }
 }

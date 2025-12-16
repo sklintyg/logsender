@@ -25,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.camel.Exchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import se.inera.intyg.logsender.model.PdlLogMessage;
 import se.inera.intyg.logsender.exception.PermanentException;
 import se.inera.intyg.logsender.logging.MdcCloseableMap;
@@ -42,6 +43,7 @@ import se.inera.intyg.logsender.logging.MdcLogConstants;
  *
  * Created by eriklupander on 2016-02-29.
  */
+@Component
 @RequiredArgsConstructor
 public class LogMessageAggregationProcessor {
 

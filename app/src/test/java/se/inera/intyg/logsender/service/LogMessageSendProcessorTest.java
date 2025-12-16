@@ -25,7 +25,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.xml.ws.WebServiceException;
 import java.util.Arrays;
 import java.util.List;
@@ -42,6 +41,7 @@ import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
 import se.inera.intyg.logsender.exception.TemporaryException;
 import se.inera.intyg.logsender.helper.TestDataHelper;
 import se.inera.intyg.logsender.logging.MdcHelper;
+import se.inera.intyg.logsender.mapper.CustomObjectMapper;
 import se.inera.intyg.logsender.model.ActivityType;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
 import se.riv.informationsecurity.auditing.log.v2.ResultCodeType;
@@ -53,8 +53,7 @@ import se.riv.informationsecurity.auditing.log.v2.ResultType;
 @ExtendWith(MockitoExtension.class)
 class LogMessageSendProcessorTest {
 
-  private final ObjectMapper objectMapper = new ObjectMapper()
-      .registerModule(new JavaTimeModule());
+  private static final ObjectMapper objectMapper = new CustomObjectMapper();
 
   @Mock
   MdcHelper mdcHelper;

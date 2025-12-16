@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Inera AB (http://www.inera.se)
+ * Copyright (C) 2025 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -18,8 +18,6 @@
  */
 package se.inera.intyg.logsender.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import se.inera.intyg.logsender.client.LogSenderClient;
@@ -27,22 +25,12 @@ import se.inera.intyg.logsender.client.LogSenderClientImpl;
 import se.inera.intyg.logsender.converter.LogTypeFactory;
 import se.inera.intyg.logsender.converter.LogTypeFactoryImpl;
 import se.inera.intyg.logsender.logging.MdcHelper;
-import se.inera.intyg.logsender.service.LogMessageAggregationProcessor;
-import se.inera.intyg.logsender.service.LogMessageSendProcessor;
-import se.inera.intyg.logsender.service.LogMessageSplitProcessor;
 import se.inera.intyg.logsender.service.SoapIntegrationService;
 import se.inera.intyg.logsender.service.SoapIntegrationServiceImpl;
 import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
 
 @Configuration
 public class LogSenderBeanConfig {
-
-  @Bean
-  public ObjectMapper objectMapper() {
-    ObjectMapper objectMapper = new ObjectMapper();
-    objectMapper.registerModule(new JavaTimeModule());
-    return objectMapper;
-  }
 
   @Bean
   public LogSenderClient logSenderClient(LogsenderProperties properties,
@@ -54,25 +42,6 @@ public class LogSenderBeanConfig {
   public LogTypeFactory logTypeFactory() {
     return new LogTypeFactoryImpl();
   }
-
-  @Bean
-  public LogMessageSendProcessor logMessageSendProcessor(LogSenderClient logSenderClient,
-      LogTypeFactory logTypeFactory, ObjectMapper objectMapper, MdcHelper mdcHelper) {
-    return new LogMessageSendProcessor(logSenderClient, logTypeFactory, objectMapper, mdcHelper);
-  }
-
-  @Bean
-  public LogMessageAggregationProcessor logMessageAggregationProcessor(ObjectMapper objectMapper,
-      MdcHelper mdcHelper) {
-    return new LogMessageAggregationProcessor(objectMapper, mdcHelper);
-  }
-
-  @Bean
-  public LogMessageSplitProcessor logMessageSplitProcessor(ObjectMapper objectMapper,
-      MdcHelper mdcHelper) {
-    return new LogMessageSplitProcessor(objectMapper, mdcHelper);
-  }
-
 
   @Bean
   public SoapIntegrationService soapIntegrationService(

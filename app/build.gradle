@@ -20,6 +20,7 @@ dependencies {
     implementation "org.apache.cxf:cxf-rt-frontend-jaxws"
     implementation "org.apache.cxf:cxf-rt-rs-service-description"
     implementation "org.apache.cxf:cxf-rt-transports-http"
+    implementation "org.messaginghub:pooled-jms"
 
     implementation "se.inera.intyg.schemas:schemas-contract:${schemasContractVersion}"
     implementation "se.riv.informationsecurity.auditing.log:informationsecurity-auditing-log-schemas:${rivtaStoreLogSchemasVersion}"

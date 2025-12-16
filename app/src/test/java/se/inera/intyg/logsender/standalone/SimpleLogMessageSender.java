@@ -31,7 +31,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import se.inera.intyg.logsender.mapper.CustomObjectMapper;
 import se.inera.intyg.logsender.model.ActivityType;
 import se.inera.intyg.logsender.model.PdlLogMessage;
 import se.inera.intyg.logsender.helper.TestDataHelper;
@@ -66,7 +66,7 @@ public class SimpleLogMessageSender {
         PdlLogMessage pdlLogMessage =
             TestDataHelper.buildBasePdlLogMessage(ActivityType.CREATE, ValueInclude.INCLUDE, ValueInclude.INCLUDE);
         TextMessage message =
-            session.createTextMessage(new ObjectMapper().writeValueAsString(pdlLogMessage));
+            session.createTextMessage(new CustomObjectMapper().writeValueAsString(pdlLogMessage));
         // Here we are sending the message!
         producer.send(message);
         System.out.println("Sent message: '" + message.getText() + "'");

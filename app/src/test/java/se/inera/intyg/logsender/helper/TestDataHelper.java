@@ -20,8 +20,8 @@ package se.inera.intyg.logsender.helper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.LocalDateTime;
+import se.inera.intyg.logsender.mapper.CustomObjectMapper;
 import se.inera.intyg.logsender.model.ActivityPurpose;
 import se.inera.intyg.logsender.model.ActivityType;
 import se.inera.intyg.logsender.model.Enhet;
@@ -33,8 +33,7 @@ import se.inera.intyg.logsender.model.ResourceType;
 
 public class TestDataHelper {
 
-  private static final ObjectMapper objectMapper = new ObjectMapper()
-      .registerModule(new JavaTimeModule());
+  private static final ObjectMapper objectMapper = new CustomObjectMapper();
 
   public static PdlLogMessage buildBasePdlLogMessage(ActivityType activityType) {
     return buildBasePdlLogMessage(activityType, 1, ValueInclude.INCLUDE, ValueInclude.INCLUDE);
@@ -109,12 +108,11 @@ public class TestDataHelper {
   }
 
   private static String getUserName(ValueInclude userNameInclude) {
-    String name = switch (userNameInclude) {
+    return switch (userNameInclude) {
       case BLANK_WITH_SPACE -> " ";
       case INCLUDE -> "Stein Ivarsdottir";
       default -> null;
     };
-    return name;
   }
 
 }

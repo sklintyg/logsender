@@ -30,7 +30,9 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import org.springframework.stereotype.Component;
 
+@Component
 public class LogStoreObjectMapper extends ObjectMapper {
 
     public LogStoreObjectMapper() {

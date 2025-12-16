@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Inera AB (http://www.inera.se)
+ * Copyright (C) 2025 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -16,21 +16,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.inera.intyg.logsender.config;
+package se.inera.intyg.logsender.exception;
 
-import jakarta.jms.ConnectionFactory;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.jms.connection.JmsTransactionManager;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
+public class ModelException extends RuntimeException {
 
-@Configuration
-@EnableTransactionManagement
-public class LogSenderJmsConfig {
+    private static final long serialVersionUID = 1L;
 
-  @Bean
-  public PlatformTransactionManager transactionManager(ConnectionFactory connectionFactory) {
-    return new JmsTransactionManager(connectionFactory);
-  }
+    public ModelException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public ModelException(String message) {
+        super(message);
+    }
 }
