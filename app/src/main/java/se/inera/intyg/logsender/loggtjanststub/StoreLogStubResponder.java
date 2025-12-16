@@ -18,11 +18,10 @@
  */
 package se.inera.intyg.logsender.loggtjanststub;
 
-import java.util.List;
 import jakarta.xml.ws.WebServiceException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogType;
@@ -34,69 +33,77 @@ import se.riv.informationsecurity.auditing.log.v2.ResultType;
 /**
  * @author andreaskaltenbach
  */
+@Slf4j
+@RequiredArgsConstructor
 public class StoreLogStubResponder implements StoreLogResponderInterface {
 
-    private static final Logger LOG = LoggerFactory.getLogger(StoreLogStubResponder.class);
+  private final LogStore logStore;
+  private final StubState stubState;
 
-    @Autowired
-    private LogStore logStore;
+  @Override
+  public StoreLogResponseType storeLog(String logicalAddress, StoreLogType request) {
+    log.info("StoreLogStubResponder.storeLog called with {} log entries",
+        request != null && request.getLog() != null ? request.getLog().size() : 0);
+    StoreLogResponseType response = new StoreLogResponseType();
+    ResultType result = new ResultType();
 
-    @Autowired(required = false)
-    private StubState stubState;
+    if (stubState != null) {
 
-    @Override
-    public StoreLogResponseType storeLog(String logicalAddress, StoreLogType request) {
-        StoreLogResponseType response = new StoreLogResponseType();
-        ResultType result = new ResultType();
-
-        if (stubState != null) {
-
-            if (stubState.getArtificialLatency() > 0L) {
-                //CHECKSTYLE:OFF EmptyCatchBlock
-                try {
-                    Thread.sleep(stubState.getArtificialLatency());
-                } catch (InterruptedException e) {
-                }
-                //CHECKSTYLE:ON EmptyCatchBlock
-            }
-
-            if (!stubState.isActive()) {
-                throw new WebServiceException("Stub is faking unaccessible StoreLog service");
-            } else if (stubState.isActive() && stubState.isFakeError()) {
-                result.setResultCode(ResultCodeType.ERROR);
-                result.setResultText("Stub is faking errors.");
-                response.setResult(result);
-                return response;
-            }
-
-            if (stubState.getErrorState() != null && stubState.getErrorState() != ErrorState.NONE) {
-                switch (stubState.getErrorState()) {
-                    case ERROR:
-                        result.setResultCode(ResultCodeType.ERROR);
-                        break;
-                    case VALIDATION:
-                        result.setResultCode(ResultCodeType.VALIDATION_ERROR);
-                        break;
-                    default:
-                        result.setResultCode(ResultCodeType.OK);
-                        break;
-                }
-                response.setResult(result);
-                result.setResultText("Stub is triggering error: " + stubState.getErrorState().name());
-                return response;
-            }
+      if (stubState.getArtificialLatency() > 0L) {
+        //CHECKSTYLE:OFF EmptyCatchBlock
+        try {
+          Thread.sleep(stubState.getArtificialLatency());
+        } catch (InterruptedException e) {
+          //CHECKSTYLE:ON EmptyCatchBlock
         }
+      }
 
-        List<LogType> logItems = request.getLog();
-        for (LogType lt : logItems) {
-            logStore.addLogItem(lt);
-        }
-
-        result.setResultCode(ResultCodeType.OK);
-        result.setResultText("Done");
+      if (!stubState.isActive()) {
+        throw new WebServiceException("Stub is faking unaccessible StoreLog service");
+      } else if (stubState.isActive() && stubState.isFakeError()) {
+        result.setResultCode(ResultCodeType.ERROR);
+        result.setResultText("Stub is faking errors.");
         response.setResult(result);
         return response;
+      }
+
+      if (stubState.getErrorState() != null && stubState.getErrorState() != ErrorState.NONE) {
+        switch (stubState.getErrorState()) {
+          case ERROR:
+            result.setResultCode(ResultCodeType.ERROR);
+            break;
+          case VALIDATION:
+            result.setResultCode(ResultCodeType.VALIDATION_ERROR);
+            break;
+          default:
+            result.setResultCode(ResultCodeType.OK);
+            break;
+        }
+        response.setResult(result);
+        result.setResultText("Stub is triggering error: " + stubState.getErrorState().name());
+        return response;
+      }
     }
+
+    assert request != null;
+    List<LogType> logItems = request.getLog();
+    log.info("Storing {} log items to LogStore", logItems.size());
+
+    if (stubState != null) {
+      stubState.incrementBatchCount();
+    }
+
+    for (LogType lt : logItems) {
+      logStore.addLogItem(lt);
+      log.debug("Stored log item with ID: {}", lt.getLogId());
+    }
+
+    result.setResultCode(ResultCodeType.OK);
+    result.setResultText("Done");
+    response.setResult(result);
+    log.info("Successfully stored {} log entries", logItems.size());
+    return response;
+  }
 
 
 }

@@ -31,6 +31,7 @@ import se.inera.intyg.logsender.loggtjanststub.LoggtjanstStubRestApi;
 import se.inera.intyg.logsender.loggtjanststub.StoreLogStubResponder;
 import se.inera.intyg.logsender.loggtjanststub.StubState;
 import se.inera.intyg.logsender.loggtjanststub.json.LogStoreObjectMapper;
+import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
 
 
 @Configuration
@@ -53,12 +54,13 @@ public class LoggtjanstStubConfig {
   }
 
   @Bean
-  public StoreLogStubResponder storeLogStubResponder() {
-    return new StoreLogStubResponder();
+  public StoreLogResponderInterface storeLogStubResponder(LogStore logStore, StubState stubState) {
+    return new StoreLogStubResponder(logStore, stubState);
   }
 
   @Bean
-  public EndpointImpl storeLogEndpoint(Bus cxfBus, StoreLogStubResponder storeLogStubResponder) {
+  public EndpointImpl storeLogEndpoint(Bus cxfBus,
+      StoreLogResponderInterface storeLogStubResponder) {
     EndpointImpl endpoint = new EndpointImpl(cxfBus, storeLogStubResponder);
     endpoint.publish("/stubs/informationsecurity/auditing/log/StoreLog/v2/rivtabp21");
     return endpoint;

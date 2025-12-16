@@ -22,6 +22,7 @@ import se.inera.intyg.logsender.integrationtest.util.Containers;
 import se.inera.intyg.logsender.integrationtest.util.IntegrationTestConfig;
 import se.inera.intyg.logsender.integrationtest.util.JmsUtil;
 import se.inera.intyg.logsender.integrationtest.util.TestabilityUtil;
+import se.inera.intyg.logsender.model.ActivityType;
 
 /**
  * Comprehensive integration tests for Logsender using Testcontainers.
@@ -37,7 +38,6 @@ import se.inera.intyg.logsender.integrationtest.util.TestabilityUtil;
 @DisplayName("Logsender Integration Tests")
 public class LogsenderIT {
 
-  // Initialize containers BEFORE Spring context loads
   static {
     Containers.ensureRunning();
   }
@@ -55,13 +55,14 @@ public class LogsenderIT {
 
   @AfterAll
   static void afterAll() {
-    // Optionally stop containers - useful for CI/CD
-    // Containers.stopAll();
+    Containers.stopAll();
   }
 
   @BeforeEach
   void setUp() {
-    jmsUtil = new JmsUtil(jmsTemplate, properties.getQueue().getReceiveLogMessageEndpoint());
+    String queueUri = properties.getQueue().getReceiveLogMessageEndpoint();
+    String queueName = queueUri.replace("jms:queue:", "");
+    jmsUtil = new JmsUtil(jmsTemplate, queueName);
     testabilityUtil = new TestabilityUtil(restTemplate, port);
 
     jmsUtil.reset();
@@ -75,31 +76,30 @@ public class LogsenderIT {
     @Test
     @DisplayName("Should aggregate 5 messages into one batch")
     void shouldAggregateMessagesIntoBulk() {
-      // Given: 5 individual log messages (matching bulkSize)
       for (int i = 0; i < 5; i++) {
         jmsUtil.publishMessage();
       }
 
-      // When/Then: Should be aggregated into 1 batch and sent to stub
-      testabilityUtil.awaitMessageCount(1, Duration.ofSeconds(5));
+      testabilityUtil.awaitBatchCount(1, Duration.ofSeconds(5));
 
-      int messageCount = testabilityUtil.getMessageCount();
-      assertEquals(1, messageCount, "Expected exactly 1 aggregated message");
+      int batchCount = testabilityUtil.getBatchCount();
+      assertEquals(1, batchCount, "Expected exactly 1 aggregated message");
     }
 
     @Test
     @DisplayName("Should aggregate 10 messages into two batches")
     void shouldAggregateTenMessagesIntoTwoBatches() {
-      // Given: 10 individual log messages
       for (int i = 0; i < 10; i++) {
         jmsUtil.publishMessage();
       }
 
-      // When/Then: Should be aggregated into 2 batches
-      testabilityUtil.awaitMessageCount(2, Duration.ofSeconds(5));
+      testabilityUtil.awaitBatchCount(2, Duration.ofSeconds(5));
 
       int messageCount = testabilityUtil.getMessageCount();
-      assertEquals(2, messageCount, "Expected exactly 2 aggregated messages");
+      assertEquals(10, messageCount, "Expected 10 individual log entries");
+
+      int batchCount = testabilityUtil.getBatchCount();
+      assertEquals(2, batchCount, "Expected messages to be sent in 2 batches");
     }
 
     @Test
@@ -110,11 +110,13 @@ public class LogsenderIT {
         jmsUtil.publishMessage();
       }
 
-      // When/Then: Should wait for timeout (1000ms) then aggregate
-      testabilityUtil.awaitMessageCount(1, Duration.ofSeconds(3));
+      testabilityUtil.awaitBatchCount(1, Duration.ofSeconds(3));
 
       int messageCount = testabilityUtil.getMessageCount();
-      assertEquals(1, messageCount, "Expected 1 aggregated message after timeout");
+      assertEquals(3, messageCount, "Expected 3 individual log entries");
+
+      int batchCount = testabilityUtil.getBatchCount();
+      assertEquals(1, batchCount, "Expected messages to be sent in 1 batch after timeout");
     }
   }
 
@@ -125,26 +127,13 @@ public class LogsenderIT {
     @Test
     @DisplayName("Should split message with multiple resources")
     void shouldSplitMessageWithMultipleResources() {
-      // Given: 1 message with 5 resources
       jmsUtil.publishMessage();
 
-      // When/Then: Each resource becomes separate message, then aggregated
       testabilityUtil.awaitMessageCount(1, Duration.ofSeconds(5));
 
       assertThat(testabilityUtil.getMessageCount()).isGreaterThan(0);
     }
 
-    @Test
-    @DisplayName("Should handle empty resource list")
-    void shouldHandleEmptyResourceList() {
-      // Given: Message with no resources - this is an edge case
-      // Implementation depends on how your system handles this
-
-      // For now, just verify the system doesn't crash
-      jmsUtil.publishMessage();
-
-      // No assertion - just verifying no exception is thrown
-    }
   }
 
   @Nested
@@ -154,13 +143,12 @@ public class LogsenderIT {
     @Test
     @DisplayName("Should process READ activity type")
     void shouldProcessReadActivity() {
-      // Given
       for (int i = 0; i < 5; i++) {
         jmsUtil.publishMessage();
       }
 
-      // When/Then
-      testabilityUtil.awaitMessageCount(1, Duration.ofSeconds(5));
+      testabilityUtil.awaitMessageCount(5, Duration.ofSeconds(5));
+      testabilityUtil.awaitBatchCount(1, Duration.ofSeconds(5));
 
       var logs = testabilityUtil.getAllLogs();
       assertThat(logs.getBody()).isNotEmpty();
@@ -169,14 +157,15 @@ public class LogsenderIT {
     @Test
     @DisplayName("Should process CREATE activity type")
     void shouldProcessCreateActivity() {
-      // This test would use a different activity type
-      // Implementation depends on your TestDataHelper capabilities
 
       for (int i = 0; i < 5; i++) {
-        jmsUtil.publishMessage();
+        jmsUtil.publishMessage(ActivityType.CREATE);
       }
 
-      testabilityUtil.awaitMessageCount(1, Duration.ofSeconds(5));
+      testabilityUtil.awaitMessageCount(5, Duration.ofSeconds(5));
+      testabilityUtil.awaitBatchCount(1, Duration.ofSeconds(5));
+      var logs = testabilityUtil.getAllLogs();
+      assertThat(logs.getBody()).isNotEmpty();
     }
   }
 
@@ -185,18 +174,42 @@ public class LogsenderIT {
   class ErrorHandlingTests {
 
     @Test
-    @DisplayName("Should handle temporary failures with retry")
-    void shouldRetryOnTemporaryFailure() {
-      // This test would require configuring the mock to fail temporarily
-      // then succeed on retry
+    @DisplayName("Should handle stub offline - TemporaryException messages are logged and discarded")
+    void shouldHandleStubOfflineWithTemporaryException() throws InterruptedException {
+      testabilityUtil.setStubOffline();
 
-      // Given: Messages that will initially fail
       for (int i = 0; i < 5; i++) {
         jmsUtil.publishMessage();
       }
 
-      // When/Then: Eventually succeeds after retry
-      testabilityUtil.awaitMessageCount(1, Duration.ofSeconds(10));
+      Thread.sleep(3000);
+
+      int messageCount = testabilityUtil.getMessageCount();
+      assertEquals(0, messageCount, "No messages should be stored when stub is offline");
+
+      int dlqCount = jmsUtil.numberOfDLQMessages();
+      assertEquals(0, dlqCount,
+          "TemporaryException messages are logged and discarded, not sent to DLQ");
+
+    }
+
+    @Test
+    @DisplayName("Should handle validation errors and send to DLQ")
+    void shouldHandleValidationErrors() {
+      testabilityUtil.setErrorState("VALIDATION");
+
+      for (int i = 0; i < 5; i++) {
+        jmsUtil.publishMessage();
+      }
+
+      jmsUtil.awaitDlqMessageCount(1, Duration.ofSeconds(5));
+
+      int messageCount = testabilityUtil.getMessageCount();
+      assertEquals(0, messageCount, "No messages stored due to validation error");
+
+      int dlqCount = jmsUtil.numberOfDLQMessages();
+      assertEquals(1, dlqCount, "Batch with validation error should be in DLQ");
+
     }
   }
 
@@ -207,13 +220,10 @@ public class LogsenderIT {
     @Test
     @DisplayName("Should complete full message flow from JMS to stub")
     void shouldCompleteFullMessageFlow() {
-      // Given: A single message
       jmsUtil.publishMessage();
 
-      // When: Message is processed through the entire pipeline
       testabilityUtil.awaitMessageCount(1, Duration.ofSeconds(3));
 
-      // Then: Verify message reached the stub
       var response = testabilityUtil.getAllLogs();
       assertNotNull(response.getBody(), "Should have received logs in stub");
       assertThat(response.getBody().length).isGreaterThan(0);
@@ -222,16 +232,33 @@ public class LogsenderIT {
     @Test
     @DisplayName("Should handle concurrent message publishing")
     void shouldHandleConcurrentMessages() {
-      // Given: Multiple messages published rapidly
       for (int i = 0; i < 15; i++) {
         jmsUtil.publishMessage();
       }
 
-      // When/Then: All messages should be processed
-      testabilityUtil.awaitMessageCount(3, Duration.ofSeconds(5));
+      testabilityUtil.awaitMessageCount(15, Duration.ofSeconds(5));
 
       int messageCount = testabilityUtil.getMessageCount();
-      assertEquals(3, messageCount, "Expected 3 aggregated batches");
+      assertEquals(15, messageCount, "Expected 15 individual log entries");
+
+      int batchCount = testabilityUtil.getBatchCount();
+      assertEquals(3, batchCount, "Expected messages to be sent in 3 batches");
+    }
+
+    @Test
+    @DisplayName("Should not process messages before bulk timeout")
+    void shouldNotProcessMessagesBeforeBulkTimeout() throws InterruptedException {
+      for (int i = 0; i < 3; i++) {
+        jmsUtil.publishMessage();
+      }
+
+      Thread.sleep(200);
+
+      int messageCount = testabilityUtil.getMessageCount();
+      assertEquals(0, messageCount, "Expected 0 individual log entries");
+
+      int batchCount = testabilityUtil.getBatchCount();
+      assertEquals(0, batchCount, "Expected messages to be sent in 0 batches");
     }
   }
 
@@ -250,16 +277,15 @@ public class LogsenderIT {
     @Test
     @DisplayName("Should be able to reset stub state")
     void shouldResetStubState() {
-      // Given: Some messages processed
       for (int i = 0; i < 5; i++) {
         jmsUtil.publishMessage();
       }
-      testabilityUtil.awaitMessageCount(1, Duration.ofSeconds(5));
 
-      // When: Reset is called
+      testabilityUtil.awaitBatchCount(1, Duration.ofSeconds(5));
+      testabilityUtil.awaitMessageCount(5, Duration.ofSeconds(5));
+
       testabilityUtil.reset();
 
-      // Then: Stub should be empty
       int messageCount = testabilityUtil.getMessageCount();
       assertEquals(0, messageCount, "Stub should be empty after reset");
     }

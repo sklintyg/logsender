@@ -16,6 +16,7 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
+    testImplementation "codes.rafael.jaxb2_commons:jaxb2-basics"
     // Camel dependencies for testing
     testImplementation "org.apache.camel.springboot:camel-spring-boot-starter"
     testImplementation "org.apache.camel.springboot:camel-activemq-starter"

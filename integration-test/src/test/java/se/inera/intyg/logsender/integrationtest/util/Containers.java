@@ -1,13 +1,26 @@
 package se.inera.intyg.logsender.integrationtest.util;
 
 import org.testcontainers.activemq.ActiveMQContainer;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.utility.DockerImageName;
 
 public class Containers {
 
   public static ActiveMQContainer amqContainer;
+  public static GenericContainer<?> redisContainer;
 
   public static void ensureRunning() {
     amqContainer();
+    redisContainer();
+  }
+
+  public static void stopAll() {
+    if (amqContainer != null && amqContainer.isRunning()) {
+      amqContainer.stop();
+    }
+    if (redisContainer != null && redisContainer.isRunning()) {
+      redisContainer.stop();
+    }
   }
 
   private static void amqContainer() {
@@ -15,6 +28,7 @@ public class Containers {
       amqContainer = new ActiveMQContainer("apache/activemq-classic:5.18.3")
           .withUser("activemqUser")
           .withPassword("activemqPassword");
+
     }
 
     if (!amqContainer.isRunning()) {
@@ -28,6 +42,22 @@ public class Containers {
     );
   }
 
+  private static void redisContainer() {
+    if (redisContainer == null) {
+      redisContainer = new GenericContainer<>(DockerImageName.parse("redis:7-alpine"))
+          .withExposedPorts(6379)
+          .withCommand("redis-server", "--requirepass", "redis");
+    }
+
+    if (!redisContainer.isRunning()) {
+      redisContainer.start();
+    }
+
+    System.setProperty("spring.data.redis.host", redisContainer.getHost());
+    System.setProperty("spring.data.redis.port",
+        String.valueOf(redisContainer.getMappedPort(6379)));
+    System.setProperty("spring.data.redis.password", "redis");
+  }
 
   private static String withRedeliveryPolicy(String brokerUrl) {
     return brokerUrl + "?jms.nonBlockingRedelivery=true"

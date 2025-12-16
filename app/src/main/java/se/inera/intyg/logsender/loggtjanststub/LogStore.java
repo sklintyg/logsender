@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.support.collections.DefaultRedisMap;
@@ -33,7 +34,9 @@ import se.inera.intyg.logsender.loggtjanststub.json.LogStoreObjectMapper;
 import se.riv.informationsecurity.auditing.log.v2.LogType;
 
 @Repository
+@Slf4j
 public class LogStore {
+
 
   private static final String LOGSTORE = "logstore";
   private static final int MAX_SIZE = 300;
@@ -71,10 +74,12 @@ public class LogStore {
 
   void addLogItem(LogType lt) {
     int size = logEntries.size();
+    log.info("Adding log item with ID: {} (current size: {})", lt.getLogId(), size);
     if (size > MAX_SIZE && size % OVERFLOW_SIZE == 0) {
       cleanup();
     }
     logEntries.put(lt.getLogId(), toJson(lt));
+    log.info("Log item added. New size: {}", logEntries.size());
   }
 
   // Ugly hack to sort and remove the oldest log items. Shoud go from MAX_SIZE + OVERFLOW_SIZE -> MAX_SIZE.

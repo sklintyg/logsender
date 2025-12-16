@@ -2,9 +2,9 @@ package se.inera.intyg.logsender.integrationtest.util;
 
 import static org.awaitility.Awaitility.await;
 
-import jakarta.jms.Message;
 import java.time.Duration;
-import java.util.function.Predicate;
+import java.util.Enumeration;
+import org.springframework.jms.core.BrowserCallback;
 import org.springframework.jms.core.JmsTemplate;
 import se.inera.intyg.logsender.helper.TestDataHelper;
 import se.inera.intyg.logsender.model.ActivityType;
@@ -31,12 +31,27 @@ public class JmsUtil {
         TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ));
   }
 
-  public boolean awaitProcessedToDlq(String messageId, Duration timeout) {
+  public void publishMessage(ActivityType activityType) {
+    jmsTemplate.convertAndSend(queueName,
+        TestDataHelper.buildBasePdlLogMessageAsJson(activityType));
+  }
+
+
+  public void awaitDlqMessageCount(int expectedCount, Duration timeout) {
     await()
         .atMost(timeout)
         .pollInterval(Duration.ofMillis(200))
-        .until(() -> dlqContains(messageId));
-    return true;
+        .untilAsserted(() -> {
+          int actualCount = numberOfDLQMessages();
+          if (actualCount < expectedCount) {
+            throw new AssertionError(
+                String.format(
+                    "Expected %d messages in DLQ, but found %d after waiting %s.",
+                    expectedCount, actualCount, timeout
+                )
+            );
+          }
+        });
   }
 
   private void purgeQueue(String queueName) {
@@ -49,30 +64,17 @@ public class JmsUtil {
     }
   }
 
-  private boolean dlqContains(String messageId) {
-    final var pred = matchingMessageIdPredicate(messageId);
-    return Boolean.TRUE.equals(
-        jmsTemplate.browse(DLQ_QUEUE_NAME, (session, browser) -> {
-              var e = browser.getEnumeration();
-              while (e.hasMoreElements()) {
-                final var m = (Message) e.nextElement();
-                if (pred.test(m)) {
-                  return true;
-                }
-              }
-              return false;
-            }
-        )
-    );
-  }
 
-  private Predicate<Message> matchingMessageIdPredicate(String messageId) {
-    return m -> {
-      try {
-        return messageId.equals(m.getStringProperty("messageId"));
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
-    };
+  public Integer numberOfDLQMessages() {
+    return (Integer) jmsTemplate.browse(DLQ_QUEUE_NAME,
+        (BrowserCallback<Object>) (session, browser) -> {
+          int counter = 0;
+          Enumeration<?> msgs = browser.getEnumeration();
+          while (msgs.hasMoreElements()) {
+            msgs.nextElement();
+            counter++;
+          }
+          return counter;
+        });
   }
 }

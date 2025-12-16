@@ -45,23 +45,40 @@ public class LoggtjanstStubRestApi {
   }
 
   @DELETE
+  @Path("/logs")
   public Response deleteLogStore() {
     logStore.clear();
+    stubState.resetBatchCount();
     return Response.ok().build();
   }
 
   @GET
+  @Path("/batch-count")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getBatchCount() {
+    return Response.ok().entity("{\"batchCount\":" + stubState.getBatchCount() + "}").build();
+  }
+
+  @GET
   @Path("/online")
+  @Produces(MediaType.APPLICATION_JSON)
   public Response activateStub() {
     stubState.setActive(true);
-    return Response.ok().entity("OK").build();
+    return Response.ok().entity("{\"status\":\"OK\",\"active\":true}").build();
   }
 
   @GET
   @Path("/offline")
+  @Produces(MediaType.APPLICATION_JSON)
   public Response deactivateStub() {
     stubState.setActive(false);
-    return Response.ok().entity("OK").build();
+    return Response.ok().entity("{\"status\":\"OK\",\"active\":false}").build();
+  }
+
+  @GET
+  @Path("/logs")
+  public Response getAllLogs() {
+    return Response.ok().entity(logStore.getAll()).build();
   }
 
   /**
@@ -73,14 +90,17 @@ public class LoggtjanstStubRestApi {
    */
   @GET
   @Path("/error/{errorType}")
+  @Produces(MediaType.APPLICATION_JSON)
   public Response activateErrorState(@PathParam("errorType") String errorType) {
     try {
       ErrorState errorState = ErrorState.valueOf(errorType);
       stubState.setErrorState(errorState);
-      return Response.ok().entity("OK").build();
+      return Response.ok().entity("{\"status\":\"OK\",\"errorState\":\"" + errorType + "\"}")
+          .build();
     } catch (IllegalArgumentException e) {
       return Response.serverError().entity(
-              "Unknown ErrorState: " + errorType + ". Allowed values are NONE, ERROR, VALIDATION")
+              "{\"status\":\"ERROR\",\"message\":\"Unknown ErrorState: " + errorType
+                  + ". Allowed values are NONE, ERROR, VALIDATION\"}")
           .build();
     }
   }
