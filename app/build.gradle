@@ -16,9 +16,7 @@ dependencies {
     implementation "org.apache.camel.springboot:camel-activemq-starter"
     implementation "org.apache.camel.springboot:camel-jms-starter"
     implementation "org.apache.cxf:cxf-rt-features-logging"
-    implementation "org.apache.cxf:cxf-rt-frontend-jaxrs"
     implementation "org.apache.cxf:cxf-rt-frontend-jaxws"
-    implementation "org.apache.cxf:cxf-rt-rs-service-description"
     implementation "org.apache.cxf:cxf-rt-transports-http"
     implementation "org.messaginghub:pooled-jms"
 
