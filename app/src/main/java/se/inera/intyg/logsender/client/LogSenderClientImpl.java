@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import se.inera.intyg.logsender.config.LogsenderProperties;
 import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
 import se.inera.intyg.logsender.service.SoapIntegrationService;
@@ -32,6 +33,7 @@ import se.riv.informationsecurity.auditing.log.v2.LogType;
 import se.riv.informationsecurity.auditing.log.v2.ResultCodeType;
 import se.riv.informationsecurity.auditing.log.v2.ResultType;
 
+@Component
 @Slf4j
 @RequiredArgsConstructor
 public class LogSenderClientImpl implements LogSenderClient {
@@ -43,19 +45,19 @@ public class LogSenderClientImpl implements LogSenderClient {
   public StoreLogResponseType sendLogMessage(List<LogType> logEntries) {
 
     if (logEntries == null || logEntries.isEmpty()) {
-      StoreLogResponseType response = new StoreLogResponseType();
-      ResultType resultType = new ResultType();
+      final var response = new StoreLogResponseType();
+      final var resultType = new ResultType();
       resultType.setResultCode(ResultCodeType.INFO);
       resultType.setResultText("No log entries supplied, not invoking storeLog");
       response.setResult(resultType);
       return response;
     }
 
-    StoreLogType request = new StoreLogType();
+    final var request = new StoreLogType();
     request.getLog().addAll(logEntries);
 
     try {
-      StoreLogResponseType response = soapIntegrationService.storeLog(
+      final var response = soapIntegrationService.storeLog(
           properties.getLoggtjanst().getLogicalAddress(),
           request
       );

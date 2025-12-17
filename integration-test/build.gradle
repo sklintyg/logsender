@@ -43,7 +43,6 @@ test {
     enabled = false
 }
 
-
 testing {
     suites {
         integrationTest(JvmTestSuite) {
@@ -65,6 +64,10 @@ testing {
             targets.all {
                 testTask.configure {
                     shouldRunAfter(test)
+                    jvmArgs += [
+                            "-javaagent:${configurations.mockitoAgent.asPath}",
+                            "-Xshare:off"
+                    ]
                 }
             }
         }

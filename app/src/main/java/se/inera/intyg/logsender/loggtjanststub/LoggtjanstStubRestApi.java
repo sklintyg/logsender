@@ -1,108 +1,73 @@
-/*
- * Copyright (C) 2025 Inera AB (http://www.inera.se)
- *
- * This file is part of sklintyg (https://github.com/sklintyg).
- *
- * sklintyg is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * sklintyg is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
 package se.inera.intyg.logsender.loggtjanststub;
 
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import java.util.Collection;
-import org.springframework.beans.factory.annotation.Autowired;
 import se.riv.informationsecurity.auditing.log.v2.LogType;
 
-@Path("/")
+@RestController
+@RequestMapping("/api/loggtjanst-api")
+@Profile({"dev", "testability-api"})
+@RequiredArgsConstructor
 public class LoggtjanstStubRestApi {
 
-  @Autowired
-  private LogStore logStore;
+  private final LogStore logStore;
+  private final StubState stubState;
 
-  @Autowired
-  private StubState stubState;
-
-  @GET
-  @Produces(MediaType.APPLICATION_JSON)
+  @GetMapping
   public Collection<LogType> getAllLogEntries() {
     return logStore.getAll();
   }
 
-  @DELETE
-  @Path("/logs")
-  public Response deleteLogStore() {
+  @DeleteMapping("/logs")
+  public ResponseEntity<Void> deleteLogStore() {
     logStore.clear();
     stubState.resetBatchCount();
-    return Response.ok().build();
+    return ResponseEntity.ok().build();
   }
 
-  @GET
-  @Path("/batch-count")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response getBatchCount() {
-    return Response.ok().entity("{\"batchCount\":" + stubState.getBatchCount() + "}").build();
+  @GetMapping("/batch-count")
+  public ResponseEntity<String> getBatchCount() {
+    return ResponseEntity.ok("{\"batchCount\":" + stubState.getBatchCount() + "}");
   }
 
-  @GET
-  @Path("/online")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response activateStub() {
+  @GetMapping("/online")
+  public ResponseEntity<String> activateStub() {
     stubState.setActive(true);
-    return Response.ok().entity("{\"status\":\"OK\",\"active\":true}").build();
+    return ResponseEntity.ok("{\"status\":\"OK\",\"active\":true}");
   }
 
-  @GET
-  @Path("/offline")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response deactivateStub() {
+  @GetMapping("/offline")
+  public ResponseEntity<String> deactivateStub() {
     stubState.setActive(false);
-    return Response.ok().entity("{\"status\":\"OK\",\"active\":false}").build();
+    return ResponseEntity.ok("{\"status\":\"OK\",\"active\":false}");
   }
 
-  @GET
-  @Path("/logs")
-  public Response getAllLogs() {
-    return Response.ok().entity(logStore.getAll()).build();
+  @GetMapping("/logs")
+  public LogType[] getAllLogs() {
+    final var logs = logStore.getAll();
+    return logs.toArray(new LogType[0]);
   }
 
-  @GET
-  @Path("/error/{errorType}")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response activateErrorState(@PathParam("errorType") String errorType) {
+  @GetMapping("/error/{errorType}")
+  public ResponseEntity<String> activateErrorState(@PathVariable String errorType) {
     try {
-      ErrorState errorState = ErrorState.valueOf(errorType);
+      final var errorState = ErrorState.valueOf(errorType);
       stubState.setErrorState(errorState);
-      return Response.ok().entity("{\"status\":\"OK\",\"errorState\":\"" + errorType + "\"}")
-          .build();
+      return ResponseEntity.ok("{\"status\":\"OK\",\"errorState\":\"" + errorType + "\"}");
     } catch (IllegalArgumentException e) {
-      return Response.serverError().entity(
-              "{\"status\":\"ERROR\",\"message\":\"Unknown ErrorState: " + errorType
-                  + ". Allowed values are NONE, ERROR, VALIDATION\"}")
-          .build();
+      return ResponseEntity
+          .internalServerError()
+          .body("{\"status\":\"ERROR\",\"message\":\"Unknown ErrorState: " + errorType
+              + ". Allowed values are NONE, ERROR, VALIDATION\"}");
     }
   }
 
-
-  @GET
-  @Path("/latency/{latencyMillis}")
-  public Response setLatency(@PathParam("latencyMillis") Long latencyMillis) {
+  @GetMapping("/latency/{latencyMillis}")
+  public ResponseEntity<String> setLatency(@PathVariable Long latencyMillis) {
     stubState.setArtificialLatency(latencyMillis);
-    return Response.ok().entity("OK").build();
+    return ResponseEntity.ok("OK");
   }
 }

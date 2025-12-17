@@ -30,7 +30,6 @@ import se.riv.informationsecurity.auditing.log.v2.LogType;
 import se.riv.informationsecurity.auditing.log.v2.ResultCodeType;
 import se.riv.informationsecurity.auditing.log.v2.ResultType;
 
-
 @Slf4j
 @RequiredArgsConstructor
 public class StoreLogStubResponder implements StoreLogResponderInterface {
@@ -42,17 +41,17 @@ public class StoreLogStubResponder implements StoreLogResponderInterface {
   public StoreLogResponseType storeLog(String logicalAddress, StoreLogType request) {
     log.info("StoreLogStubResponder.storeLog called with {} log entries",
         request != null && request.getLog() != null ? request.getLog().size() : 0);
-    StoreLogResponseType response = new StoreLogResponseType();
-    ResultType result = new ResultType();
+    final var response = new StoreLogResponseType();
+    final var result = new ResultType();
 
     if (stubState != null) {
 
       if (stubState.getArtificialLatency() > 0L) {
-        //CHECKSTYLE:OFF EmptyCatchBlock
         try {
           Thread.sleep(stubState.getArtificialLatency());
         } catch (InterruptedException e) {
-          //CHECKSTYLE:ON EmptyCatchBlock
+          Thread.currentThread().interrupt(); // Restore interrupt status
+          log.warn("Sleep interrupted while applying artificial latency", e);
         }
       }
 

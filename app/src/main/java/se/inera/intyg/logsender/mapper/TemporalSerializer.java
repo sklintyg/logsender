@@ -27,15 +27,16 @@ import java.time.temporal.Temporal;
 
 public class TemporalSerializer extends StdSerializer<Temporal> {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
+  @Serial
+  private static final long serialVersionUID = 1L;
 
-    public TemporalSerializer() {
-        super(Temporal.class);
-    }
+  public TemporalSerializer() {
+    super(Temporal.class);
+  }
 
-    @Override
-    public void serialize(Temporal partial, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-        jgen.writeString(PartialDateAdapter.printPartialDate(partial));
-    }
+  @Override
+  public void serialize(Temporal partial, JsonGenerator jgen, SerializerProvider provider)
+      throws IOException {
+    jgen.writeString(PartialDateAdapter.printPartialDate(partial));
+  }
 }

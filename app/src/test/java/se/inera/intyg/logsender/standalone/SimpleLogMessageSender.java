@@ -18,13 +18,8 @@
  */
 package se.inera.intyg.logsender.standalone;
 
-import jakarta.jms.Connection;
-import jakarta.jms.ConnectionFactory;
-import jakarta.jms.Destination;
 import jakarta.jms.JMSException;
-import jakarta.jms.MessageProducer;
 import jakarta.jms.Session;
-import jakarta.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -33,45 +28,39 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import se.inera.intyg.logsender.mapper.CustomObjectMapper;
 import se.inera.intyg.logsender.model.ActivityType;
-import se.inera.intyg.logsender.model.PdlLogMessage;
 import se.inera.intyg.logsender.helper.TestDataHelper;
 import se.inera.intyg.logsender.helper.ValueInclude;
 
 /**
- * Stand-alone "application" that can connect to a local running ActiveMQ and send a PdlLogMessage (as json) to localhost:61616. Useful for
- * debugging / troubleshooting purposes when you don't want to start a Webcert or Rehabstod instance.
- *
- * The message is created using the {@link TestDataHelper#buildBasePdlLogMessage(ActivityType, ValueInclude, ValueInclude)}
- *
- * Created by eriklupander on 2017-10-24.
+ * Stand-alone "application" that can connect to a local running ActiveMQ and send a PdlLogMessage
+ * (as json) to localhost:61616. Useful for debugging / troubleshooting purposes when you don't want
+ * to start a Webcert or Rehabstod instance.
+ * <p>
+ * The message is created using the
+ * {@link TestDataHelper#buildBasePdlLogMessage(ActivityType, ValueInclude, ValueInclude)}
  */
-
 public class SimpleLogMessageSender {
 
-    private static String url = ActiveMQConnection.DEFAULT_BROKER_URL;
+  private static final String URL = ActiveMQConnection.DEFAULT_BROKER_URL;
 
-    private static String subject = "dev.logging.queue"; // Queue Name
+  public static void main(String[] args) throws JMSException, JsonProcessingException {
+    final var connectionFactory = new ActiveMQConnectionFactory(URL);
+    final var connection = connectionFactory.createConnection();
+    connection.start();
 
-    public static void main(String[] args) throws JMSException, JsonProcessingException {
-        ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(url);
-        Connection connection = connectionFactory.createConnection();
-        connection.start();
+    final var session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+    final var subject = "dev.logging.queue";
+    final var destination = session.createQueue(subject);
+    final var producer = session.createProducer(destination);
 
-        Session session = connection.createSession(false,
-            Session.AUTO_ACKNOWLEDGE);
+    final var pdlLogMessage = TestDataHelper
+        .buildBasePdlLogMessage(ActivityType.CREATE, ValueInclude.INCLUDE, ValueInclude.INCLUDE);
+    final var message = session.createTextMessage(
+        new CustomObjectMapper().writeValueAsString(pdlLogMessage));
+    producer.send(message);
+    System.out.println("Sent message: '" + message.getText() + "'");
 
-        Destination destination = session.createQueue(subject);
-        MessageProducer producer = session.createProducer(destination);
-
-        PdlLogMessage pdlLogMessage =
-            TestDataHelper.buildBasePdlLogMessage(ActivityType.CREATE, ValueInclude.INCLUDE, ValueInclude.INCLUDE);
-        TextMessage message =
-            session.createTextMessage(new CustomObjectMapper().writeValueAsString(pdlLogMessage));
-        // Here we are sending the message!
-        producer.send(message);
-        System.out.println("Sent message: '" + message.getText() + "'");
-
-        connection.close();
-    }
+    connection.close();
+  }
 
 }

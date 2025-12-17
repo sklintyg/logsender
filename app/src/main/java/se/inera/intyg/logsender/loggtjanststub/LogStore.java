@@ -25,30 +25,25 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.support.collections.DefaultRedisMap;
-import org.springframework.stereotype.Repository;
 import se.inera.intyg.logsender.loggtjanststub.json.LogStoreObjectMapper;
 import se.riv.informationsecurity.auditing.log.v2.LogType;
 
-@Repository
 @Slf4j
+@RequiredArgsConstructor
 public class LogStore {
+
+  private final StringRedisTemplate stringRedisTemplate;
+  private final LogStoreObjectMapper logStoreObjectMapper;
   
   private static final String LOGSTORE = "logstore";
   private static final int MAX_SIZE = 300;
-
   private static final int OVERFLOW_SIZE = 100;
 
   private Map<String, String> logEntries;
-
-  @Autowired
-  private StringRedisTemplate stringRedisTemplate;
-
-  @Autowired
-  private LogStoreObjectMapper logStoreObjectMapper;
 
   @PostConstruct
   public void init() {

@@ -47,9 +47,6 @@ import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResp
 import se.riv.informationsecurity.auditing.log.v2.ResultCodeType;
 import se.riv.informationsecurity.auditing.log.v2.ResultType;
 
-/**
- * Created by eriklupander on 2016-03-08.
- */
 @ExtendWith(MockitoExtension.class)
 class LogMessageSendProcessorTest {
 
@@ -59,110 +56,115 @@ class LogMessageSendProcessorTest {
   MdcHelper mdcHelper;
   @Mock
   private LogSenderClient logSenderClient;
+
   @Spy
   private LogTypeFactoryImpl logTypeFactory;
 
-
-  private LogMessageSendProcessor testee;
+  private LogMessageSendProcessor logMessageSendProcessor;
 
   @BeforeEach
   void setUp() {
     when(mdcHelper.spanId()).thenReturn("spanId");
     when(mdcHelper.traceId()).thenReturn("traceId");
 
-    // Instantiate the processor with all dependencies
-    testee = new LogMessageSendProcessor(logSenderClient, logTypeFactory, objectMapper, mdcHelper);
+    logMessageSendProcessor = new LogMessageSendProcessor(logSenderClient, logTypeFactory,
+        objectMapper, mdcHelper);
   }
 
   @Test
   void testSendLogMessagesWhenAllOk() throws Exception {
     when(logSenderClient.sendLogMessage(anyList())).thenReturn(buildResponse(ResultCodeType.OK));
-    testee.process(objectMapper.writeValueAsString(buildGroupedMessages()));
+    logMessageSendProcessor.process(objectMapper.writeValueAsString(buildGroupedMessages()));
     verify(logSenderClient, times(1)).sendLogMessage(anyList());
   }
 
   @Test
   void testSendLogMessagesThrowsPermanentExceptionWhenInvalidJsonIsSupplied() {
     assertThrows(BatchValidationException.class, () -> {
-      testee.process(objectMapper.writeValueAsString(buildInvalidGroupedMessages()));
-      verify(logSenderClient, times(1)).sendLogMessage(anyList());
+      logMessageSendProcessor.process(
+          objectMapper.writeValueAsString(buildInvalidGroupedMessages()));
     });
   }
 
   @Test
   void testSendLogMessagesThrowsBatchValidationExceptionWhenErrorOccured() {
+    when(logSenderClient.sendLogMessage(anyList())).thenReturn(
+        buildResponse(ResultCodeType.ERROR));
+
     assertThrows(BatchValidationException.class, () -> {
-      when(logSenderClient.sendLogMessage(anyList())).thenReturn(
-          buildResponse(ResultCodeType.ERROR));
-      testee.process(objectMapper.writeValueAsString(buildGroupedMessages()));
-      verify(logSenderClient, times(1)).sendLogMessage(anyList());
+      logMessageSendProcessor.process(objectMapper.writeValueAsString(buildGroupedMessages()));
     });
   }
 
   @Test
   void testSendLogMessagesThrowsBatchValidationExceptionWhenValidationErrorOccured() {
+    when(logSenderClient.sendLogMessage(anyList())).thenReturn(
+        buildResponse(ResultCodeType.VALIDATION_ERROR));
+
     assertThrows(BatchValidationException.class, () -> {
-      when(logSenderClient.sendLogMessage(anyList())).thenReturn(
-          buildResponse(ResultCodeType.VALIDATION_ERROR));
-      testee.process(objectMapper.writeValueAsString(buildGroupedMessages()));
-      verify(logSenderClient, times(1)).sendLogMessage(anyList());
+      logMessageSendProcessor.process(objectMapper.writeValueAsString(buildGroupedMessages()));
     });
   }
 
   @Test
   void testSendLogMessagesDoesNothingWhenInfoIsReturned() throws Exception {
     when(logSenderClient.sendLogMessage(anyList())).thenReturn(buildResponse(ResultCodeType.INFO));
-    testee.process(objectMapper.writeValueAsString(buildGroupedMessages()));
+    logMessageSendProcessor.process(objectMapper.writeValueAsString(buildGroupedMessages()));
     verify(logSenderClient, times(1)).sendLogMessage(anyList());
   }
 
   @Test
   void testSendLogMessagesThrowsBatchValidationExceptionWhenIllegalArgumentExceptionIsThrown() {
+    when(logSenderClient.sendLogMessage(anyList())).thenThrow(
+        new IllegalArgumentException("illegal"));
+
     assertThrows(BatchValidationException.class, () -> {
-      when(logSenderClient.sendLogMessage(anyList())).thenThrow(
-          new IllegalArgumentException("illegal"));
-      testee.process(objectMapper.writeValueAsString(buildGroupedMessages()));
-      verify(logSenderClient, times(1)).sendLogMessage(anyList());
+      logMessageSendProcessor.process(objectMapper.writeValueAsString(buildGroupedMessages()));
     });
+
+    verify(logSenderClient, times(1)).sendLogMessage(anyList());
   }
 
   @Test
   void testSendLogMessagesThrowsTemporaryExceptionWhenLoggtjanstExecutionExceptionIsThrwn() {
+    when(logSenderClient.sendLogMessage(anyList())).thenThrow(
+        new LoggtjanstExecutionException(null));
+
     assertThrows(TemporaryException.class, () -> {
-      when(logSenderClient.sendLogMessage(anyList())).thenThrow(
-          new LoggtjanstExecutionException(null));
-      testee.process(objectMapper.writeValueAsString(buildGroupedMessages()));
-      verify(logSenderClient, times(1)).sendLogMessage(anyList());
+      logMessageSendProcessor.process(objectMapper.writeValueAsString(buildGroupedMessages()));
     });
+
+    verify(logSenderClient, times(1)).sendLogMessage(anyList());
   }
 
   @Test
   void testSendLogMessagesThrowsTemporaryExceptionWhenWebServiceExceptionIsThrwn() {
+    when(logSenderClient.sendLogMessage(anyList())).thenThrow(new WebServiceException());
+
     assertThrows(TemporaryException.class, () -> {
-      when(logSenderClient.sendLogMessage(anyList())).thenThrow(new WebServiceException());
-      testee.process(objectMapper.writeValueAsString(buildGroupedMessages()));
-      verify(logSenderClient, times(1)).sendLogMessage(anyList());
+      logMessageSendProcessor.process(objectMapper.writeValueAsString(buildGroupedMessages()));
     });
+
+    verify(logSenderClient, times(1)).sendLogMessage(anyList());
   }
 
-
   private StoreLogResponseType buildResponse(ResultCodeType resultCodeType) {
-    StoreLogResponseType responseType = new StoreLogResponseType();
-    ResultType resultType = new ResultType();
+    final var responseType = new StoreLogResponseType();
+    final var resultType = new ResultType();
     resultType.setResultCode(resultCodeType);
     responseType.setResult(resultType);
     return responseType;
   }
 
   private List<String> buildGroupedMessages() {
-    String pdlLogMessage1 = TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ);
-    String pdlLogMessage2 = TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.PRINT);
+    final var pdlLogMessage1 = TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ);
+    final var pdlLogMessage2 = TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.PRINT);
     return Arrays.asList(pdlLogMessage1, pdlLogMessage2);
   }
 
   private List<String> buildInvalidGroupedMessages() {
-    String pdlLogMessage1 = TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ);
-    String pdlLogMessage2 = TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.PRINT);
+    final var pdlLogMessage1 = TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ);
+    final var pdlLogMessage2 = TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.PRINT);
     return Arrays.asList(pdlLogMessage1, pdlLogMessage2, "this-is-not-json");
   }
 }

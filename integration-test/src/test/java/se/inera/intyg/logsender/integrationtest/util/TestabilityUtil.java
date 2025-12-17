@@ -13,8 +13,8 @@ public class TestabilityUtil {
   private final int port;
   private final TestRestTemplate restTemplate;
 
-  public TestabilityUtil(TestRestTemplate restTemplate, int port) {
-    this.restTemplate = restTemplate;
+  public TestabilityUtil(int port) {
+    this.restTemplate = new TestRestTemplate();
     this.port = port;
   }
 
@@ -29,9 +29,9 @@ public class TestabilityUtil {
           return false; // Never fail fast, just used for logging
         })
         .untilAsserted(() -> {
-          int actualCount = getMessageCount();
+          final var actualCount = getMessageCount();
           if (actualCount < expectedCount) {
-            var logs = getAllLogs();
+            final var logs = getAllLogs();
             String logDetails = "";
             if (logs.getBody() != null && logs.getBody().length > 0) {
               logDetails = "\nReceived log IDs: " +
@@ -57,7 +57,7 @@ public class TestabilityUtil {
         .atMost(timeout)
         .pollInterval(Duration.ofMillis(200))
         .untilAsserted(() -> {
-          int actualCount = getBatchCount();
+          final var actualCount = getBatchCount();
           if (actualCount < expectedCount) {
             throw new AssertionError(
                 String.format(

@@ -24,23 +24,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+import java.io.Serial;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.Temporal;
 import org.springframework.stereotype.Component;
 
-
 /**
  * Customized Jackson ObjectMapper for the inera-certificate projects.
- *
- * -registers additional serializers and deserializers for date and time types
- * -registers a specialized serializer to represent certificate-specific data as JSON
- *
- * @author andreaskaltenbach
+ * <p>
+ * -registers additional serializers and deserializers for date and time types -registers a
+ * specialized serializer to represent certificate-specific data as JSON
  */
+
 @Component("objectMapper")
 public class CustomObjectMapper extends ObjectMapper {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   public CustomObjectMapper() {
@@ -53,6 +53,7 @@ public class CustomObjectMapper extends ObjectMapper {
 
   private static final class CustomModule extends SimpleModule {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private CustomModule() {

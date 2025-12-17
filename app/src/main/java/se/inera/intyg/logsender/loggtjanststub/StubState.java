@@ -20,11 +20,9 @@ package se.inera.intyg.logsender.loggtjanststub;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.stereotype.Component;
 
 @Getter
 @Setter
-@Component
 public class StubState {
 
   private boolean active = true;

@@ -24,27 +24,26 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import java.io.IOException;
+import java.io.Serial;
 import java.time.temporal.Temporal;
 
-/**
- * @author andreaskaltenbach
- */
 public class TemporalDeserializer extends StdDeserializer<Temporal> {
 
-    private static final long serialVersionUID = 1L;
+  @Serial
+  private static final long serialVersionUID = 1L;
 
-    public TemporalDeserializer() {
-        super(Temporal.class);
+  public TemporalDeserializer() {
+    super(Temporal.class);
+  }
+
+  @Override
+  public Temporal deserialize(JsonParser jp, DeserializationContext ctxt)
+      throws IOException {
+
+    if (jp.getCurrentToken() != VALUE_STRING) {
+      throw ctxt.wrongTokenException(jp, Temporal.class, VALUE_STRING, "expected JSON String");
     }
 
-    @Override
-    public Temporal deserialize(JsonParser jp, DeserializationContext ctxt)
-        throws IOException {
-
-        if (jp.getCurrentToken() != VALUE_STRING) {
-            throw ctxt.wrongTokenException(jp, Temporal.class, VALUE_STRING, "expected JSON String");
-        }
-
-        return PartialDateAdapter.parsePartialDate(jp.getText().trim());
-    }
+    return PartialDateAdapter.parsePartialDate(jp.getText().trim());
+  }
 }

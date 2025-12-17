@@ -35,7 +35,6 @@ import se.riv.informationsecurity.auditing.log.v2.ResultType;
 public class MockLogSenderClientImpl implements StoreLogResponderInterface {
 
   private AtomicInteger count = new AtomicInteger(0);
-
   private ConcurrentHashMap<String, AtomicInteger> attemptsPerMessage = new ConcurrentHashMap<>();
   private List<String> store = new CopyOnWriteArrayList<>();
 

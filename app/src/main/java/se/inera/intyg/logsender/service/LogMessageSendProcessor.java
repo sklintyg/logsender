@@ -44,11 +44,8 @@ import se.riv.informationsecurity.auditing.log.v2.ResultType;
 public class LogMessageSendProcessor {
 
   private final LogSenderClient logSenderClient;
-
   private final LogTypeFactory logTypeFactory;
-
   private final ObjectMapper objectMapper;
-
   private final MdcHelper mdcHelper;
 
   public void process(String groupedLogEntries)

@@ -39,62 +39,55 @@ import se.inera.intyg.logsender.logging.MdcHelper;
 import se.inera.intyg.logsender.mapper.CustomObjectMapper;
 import se.inera.intyg.logsender.model.ActivityType;
 
-/**
- * Created by eriklupander on 2016-03-08.
- */
-
 @ExtendWith(MockitoExtension.class)
 class LogMessageAggregationProcessorTest {
 
   private static final ObjectMapper objectMapper = new CustomObjectMapper();
 
   @Mock
-  MdcHelper mdcHelper;
-  private LogMessageAggregationProcessor testee;
+  private MdcHelper mdcHelper;
+
+  private LogMessageAggregationProcessor logMessageAggregationProcessor;
 
   @BeforeEach
   void setUp() {
     when(mdcHelper.spanId()).thenReturn("spanId");
     when(mdcHelper.traceId()).thenReturn("traceId");
 
-    testee = new LogMessageAggregationProcessor(objectMapper, mdcHelper);
+    logMessageAggregationProcessor = new LogMessageAggregationProcessor(objectMapper, mdcHelper);
   }
 
   @Test
   void testOkGroupedExchange() throws Exception {
-    String body = testee.process(buildGroupedExchange(1, 1));
-    List<?> output = objectMapper.readValue(body, ArrayList.class);
+    final var body = logMessageAggregationProcessor.process(buildGroupedExchange(1, 1));
+    final var output = objectMapper.readValue(body, ArrayList.class);
     assertEquals(1, output.size());
   }
 
-  /**
-   * Even though we have a splitter before this step, this step will forward with multiple resources
-   * - if they are for the same patient, it is valid.
-   */
   @Test
   void testGroupedExchangeWithMultipleResources() throws Exception {
-    String body = testee.process(buildGroupedExchange(3, 5));
-    List<?> output = objectMapper.readValue(body, ArrayList.class);
+    final var body = logMessageAggregationProcessor.process(buildGroupedExchange(3, 5));
+    final var output = objectMapper.readValue(body, ArrayList.class);
     assertEquals(3, output.size());
   }
 
   @Test
   void testEmptyGroupedExchange() {
     assertThrows(PermanentException.class, () ->
-        testee.process(buildGroupedExchange(0, 1)));
+        logMessageAggregationProcessor.process(buildGroupedExchange(0, 1)));
   }
 
 
   private Exchange buildGroupedExchange(int exchangeSize, int resourcesPerMessageSize) {
-    Exchange exchange = mock(Exchange.class);
-    Message outerMessage = buildOuterMsg(exchangeSize, resourcesPerMessageSize);
+    final var exchange = mock(Exchange.class);
+    final var outerMessage = buildOuterMsg(exchangeSize, resourcesPerMessageSize);
     when(exchange.getIn()).thenReturn(outerMessage);
     return exchange;
   }
 
   private Message buildOuterMsg(int exchangeSize, int resourcesPerMessageSize) {
-    Message outerMsg = mock(Message.class);
-    List<Exchange> outerBody = buildOuterBody(exchangeSize, resourcesPerMessageSize);
+    final var outerMsg = mock(Message.class);
+    final var outerBody = buildOuterBody(exchangeSize, resourcesPerMessageSize);
     when(outerMsg.getBody(List.class)).thenReturn(outerBody);
     return outerMsg;
   }
@@ -102,8 +95,8 @@ class LogMessageAggregationProcessorTest {
   private List<Exchange> buildOuterBody(int exchangeSize, int resourcesPerMessageSize) {
     List<Exchange> groupedMessages = new ArrayList<>();
     for (int i = 0; i < exchangeSize; i++) {
-      Exchange innerExchange = mock(Exchange.class);
-      Message innerMessage = buildInnerMessage(resourcesPerMessageSize);
+      final var innerExchange = mock(Exchange.class);
+      final var innerMessage = buildInnerMessage(resourcesPerMessageSize);
       when(innerExchange.getIn()).thenReturn(innerMessage);
       groupedMessages.add(innerExchange);
     }
@@ -111,7 +104,7 @@ class LogMessageAggregationProcessorTest {
   }
 
   private Message buildInnerMessage(int resourcesPerMessageSize) {
-    Message innerMessage = mock(Message.class);
+    final var innerMessage = mock(Message.class);
     when(innerMessage.getBody()).thenReturn(pdlLogMessageJson(resourcesPerMessageSize));
     return innerMessage;
   }

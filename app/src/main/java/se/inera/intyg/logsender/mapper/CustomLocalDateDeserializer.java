@@ -23,15 +23,16 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import java.io.IOException;
+import java.io.Serial;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 /**
- * This class is based on the LocalDateDeserializer class. It's content was copied
- * and slightly changed to support dates on the UTC format.
- *
+ * This class is based on the LocalDateDeserializer class. It's content was copied and slightly
+ * changed to support dates on the UTC format.
+ * <p>
  * Changes:
  * <li>
  * <ul>
@@ -47,63 +48,65 @@ import java.time.format.DateTimeFormatter;
  */
 public class CustomLocalDateDeserializer extends StdDeserializer<LocalDate> {
 
-    private static final long serialVersionUID = 1L;
+  @Serial
+  private static final long serialVersionUID = 1L;
 
-    public CustomLocalDateDeserializer() {
-        super(LocalDate.class);
-    }
+  public CustomLocalDateDeserializer() {
+    super(LocalDate.class);
+  }
 
-    /**
-     * <strong>Description copied from class: JsonDeserializer</strong>
-     * Method that can be called to ask implementation to deserialize json content into the value type this serializer
-     * handles.
-     * Returned instance is to be constructed by method itself.
-     *
-     * Pre-condition for this method is that the parser points to the
-     * first event that is part of value to deserializer (and which is never Json 'null' literal, more on this below):
-     * for simple
-     * types it may be the only value; and for structured types the Object start marker.
-     *
-     * Post-condition is that the parser will point to the last event that is part of deserialized value (or in case
-     * deserialization
-     * fails, event that was not recognized or usable, which may be the same event as the one it pointed to upon call).
-     *
-     * Note that this method is never called for JSON null literal, and thus deserializers need (and should) not check
-     * for it.
-     *
-     * @param jp - Parser used for reading Json content
-     * @param ctxt - Context that can be used to access information about this deserialization activity.
-     * @return Deserializer value as LocalDate
-     */
-    @Override
-    public LocalDate deserialize(JsonParser jp, DeserializationContext ctxt)
-        throws IOException {
+  /**
+   * <strong>Description copied from class: JsonDeserializer</strong>
+   * Method that can be called to ask implementation to deserialize json content into the value type
+   * this serializer handles. Returned instance is to be constructed by method itself.
+   * <p>
+   * Pre-condition for this method is that the parser points to the first event that is part of
+   * value to deserializer (and which is never Json 'null' literal, more on this below): for simple
+   * types it may be the only value; and for structured types the Object start marker.
+   * <p>
+   * Post-condition is that the parser will point to the last event that is part of deserialized
+   * value (or in case deserialization fails, event that was not recognized or usable, which may be
+   * the same event as the one it pointed to upon call).
+   * <p>
+   * Note that this method is never called for JSON null literal, and thus deserializers need (and
+   * should) not check for it.
+   *
+   * @param jp   - Parser used for reading Json content
+   * @param ctxt - Context that can be used to access information about this deserialization
+   *             activity.
+   * @return Deserializer value as LocalDate
+   */
+  @Override
+  public LocalDate deserialize(JsonParser jp, DeserializationContext ctxt)
+      throws IOException {
 
-        switch (jp.getCurrentToken()) {
-            case START_ARRAY:
-                // [yyyy,MM,dd]
-                jp.nextToken(); // VALUE_NUMBER_INT
-                int year = jp.getIntValue();
-                jp.nextToken(); // VALUE_NUMBER_INT
-                int month = jp.getIntValue();
-                jp.nextToken(); // VALUE_NUMBER_INT
-                int day = jp.getIntValue();
-                jp.nextToken(); //END_ARRAY
+    switch (jp.getCurrentToken()) {
+      case START_ARRAY:
+        // [yyyy,MM,dd]
+        jp.nextToken(); // VALUE_NUMBER_INT
+        int year = jp.getIntValue();
+        jp.nextToken(); // VALUE_NUMBER_INT
+        int month = jp.getIntValue();
+        jp.nextToken(); // VALUE_NUMBER_INT
+        int day = jp.getIntValue();
+        jp.nextToken(); //END_ARRAY
 
-                // We are only interested in year, month and day
-                // Skip the time and return at date
-                return LocalDate.of(year, month, day);
-            case VALUE_NUMBER_INT:
-                return Instant.ofEpochMilli(jp.getLongValue()).atZone(ZoneId.systemDefault()).toLocalDate();
-            case VALUE_STRING:
-                String str = jp.getText().trim();
-                if (str.isEmpty()) { // [JACKSON-360]
-                    return null;
-                }
-                return LocalDate.parse(str, str.contains("T") ? DateTimeFormatter.ISO_DATE_TIME : DateTimeFormatter.ISO_DATE);
-            default:
+        // We are only interested in year, month and day
+        // Skip the time and return at date
+        return LocalDate.of(year, month, day);
+      case VALUE_NUMBER_INT:
+        return Instant.ofEpochMilli(jp.getLongValue()).atZone(ZoneId.systemDefault()).toLocalDate();
+      case VALUE_STRING:
+        String str = jp.getText().trim();
+        if (str.isEmpty()) { // [JACKSON-360]
+          return null;
         }
-
-        throw ctxt.wrongTokenException(jp, LocalDate.class, JsonToken.START_ARRAY, "expected JSON Array, Number or String");
+        return LocalDate.parse(str,
+            str.contains("T") ? DateTimeFormatter.ISO_DATE_TIME : DateTimeFormatter.ISO_DATE);
+      default:
     }
+
+    throw ctxt.wrongTokenException(jp, LocalDate.class, JsonToken.START_ARRAY,
+        "expected JSON Array, Number or String");
+  }
 }

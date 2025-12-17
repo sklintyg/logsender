@@ -24,68 +24,70 @@ import java.time.format.DateTimeFormatter;
 
 public final class InternalDateAdapter {
 
-    private InternalDateAdapter() {
+  private InternalDateAdapter() {
+  }
+
+  /**
+   * Print the string wrapped by the InternalDate object.
+   *
+   * @param date the InternalDate-object
+   * @return the string wrapped
+   */
+  public static String printInternalDate(InternalDate date) {
+
+    if (date == null) {
+      return null;
     }
 
-    /**
-     * Print the string wrapped by the InternalDate object.
-     *
-     * @param date the InternalDate-object
-     * @return the string wrapped
-     */
-    public static String printInternalDate(InternalDate date) {
+    return date.getDate();
+  }
 
-        if (date == null) {
-            return null;
-        }
-
-        return date.getDate();
+  /**
+   * Attempt to parse a string to a LocalDate wrapped by an InternalDate, attempts several parsing
+   * strategies on the string, if none are successful the bare string will be wrapped allowing for
+   * non-valid dates to be saved as well.
+   *
+   * @return InternalDate wrapping either a valid LocalDate, or an arbitrary string
+   */
+  public static InternalDate parseInternalDate(String string) {
+    LocalDate localDate = getLocalDate(string);
+    if (localDate == null) {
+      return new InternalDate(string);
+    } else {
+      return new InternalDate(localDate);
     }
+  }
 
-    /**
-     * Attempt to parse a string to a LocalDate wrapped by an InternalDate, attempts several parsing strategies on the
-     * string, if none are successful the bare string will be wrapped allowing for non-valid dates to be saved as well.
-     *
-     * @return InternalDate wrapping either a valid LocalDate, or an arbitrary string
-     */
-    public static InternalDate parseInternalDate(String string) {
-        LocalDate localDate = getLocalDate(string);
-        if (localDate == null) {
-            return new InternalDate(string);
-        } else {
-            return new InternalDate(localDate);
-        }
+  /**
+   * Make an InternalDate from int values, ensures that two digits are used in all positions (i.e
+   * '09' not '9').
+   *
+   * @return InternalDate
+   */
+  public static InternalDate parseInternalDate(int year, int month, int day) {
+    // Build a nice datestring adding 0 to single digits etc.
+    DecimalFormat df = new DecimalFormat("00");
+    String dateString = String.format("%d-%s-%s", year, df.format(month), df.format(day));
+    return new InternalDate(dateString);
+  }
+
+  //CHECKSTYLE:OFF EmptyCatchBlock
+  private static LocalDate getLocalDate(String str) {
+    try {
+      return LocalDate.parse(str, DateTimeFormatter.ISO_DATE);
+
+    } catch (Exception e) {
     }
-
-    /**
-     * Make an InternalDate from int values, ensures that two digits are used in all positions (i.e '09' not '9').
-     *
-     * @return InternalDate
-     */
-    public static InternalDate parseInternalDate(int year, int month, int day) {
-        // Build a nice datestring adding 0 to single digits etc.
-        DecimalFormat df = new DecimalFormat("00");
-        String dateString = String.format("%d-%s-%s", year, df.format(month), df.format(day));
-        return new InternalDate(dateString);
+    try {
+      return LocalDate.parse(str, DateTimeFormatter.ISO_DATE_TIME);
+    } catch (Exception e) {
     }
-
-    //CHECKSTYLE:OFF EmptyCatchBlock
-    private static LocalDate getLocalDate(String str) {
-        try {
-            return LocalDate.parse(str, DateTimeFormatter.ISO_DATE);
-
-        } catch (Exception e) {
-        }
-        try {
-            return LocalDate.parse(str, DateTimeFormatter.ISO_DATE_TIME);
-        } catch (Exception e) {
-        }
-        try {
-            return LocalDate.parse(str, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
-        } catch (Exception e) {
-            return null;
-        }
+    try {
+      return LocalDate.parse(str, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
+    } catch (Exception e) {
+      return null;
     }
-    //CHECKSTYLE:ON EmptyCatchBlock
+  }
+  //CHECKSTYLE:ON EmptyCatchBlock
 
 }

@@ -22,17 +22,20 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import java.io.IOException;
+import java.io.Serial;
 
 public class InternalDateSerializer extends StdSerializer<InternalDate> {
 
-    private static final long serialVersionUID = 1L;
+  @Serial
+  private static final long serialVersionUID = 1L;
 
-    public InternalDateSerializer() {
-        super(InternalDate.class);
-    }
+  public InternalDateSerializer() {
+    super(InternalDate.class);
+  }
 
-    @Override
-    public void serialize(InternalDate date, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-        jgen.writeString(InternalDateAdapter.printInternalDate(date));
-    }
+  @Override
+  public void serialize(InternalDate date, JsonGenerator jgen, SerializerProvider provider)
+      throws IOException {
+    jgen.writeString(InternalDateAdapter.printInternalDate(date));
+  }
 }

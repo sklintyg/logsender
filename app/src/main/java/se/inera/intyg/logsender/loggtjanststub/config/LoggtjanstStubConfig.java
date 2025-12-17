@@ -16,31 +16,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.inera.intyg.logsender.config;
+package se.inera.intyg.logsender.loggtjanststub.config;
 
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
-import java.util.Collections;
 import org.apache.cxf.Bus;
-import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import se.inera.intyg.logsender.loggtjanststub.LogStore;
-import se.inera.intyg.logsender.loggtjanststub.LoggtjanstStubRestApi;
 import se.inera.intyg.logsender.loggtjanststub.StoreLogStubResponder;
 import se.inera.intyg.logsender.loggtjanststub.StubState;
 import se.inera.intyg.logsender.loggtjanststub.json.LogStoreObjectMapper;
 import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
 
-
 @Configuration
-@Profile({"dev & !test", "wc-all-stubs & !test", "wc-loggtjanst-stub & !test"})
+@Profile({"dev", "wc-all-stubs", "wc-loggtjanst-stub"})
 public class LoggtjanstStubConfig {
 
   @Bean
-  public LogStore logStore() {
-    return new LogStore();
+  public LogStore logStore(StringRedisTemplate stringRedisTemplate) {
+    return new LogStore(stringRedisTemplate, logStoreObjectMapper());
   }
 
   @Bean
@@ -61,40 +57,8 @@ public class LoggtjanstStubConfig {
   @Bean
   public EndpointImpl storeLogEndpoint(Bus cxfBus,
       StoreLogResponderInterface storeLogStubResponder) {
-    EndpointImpl endpoint = new EndpointImpl(cxfBus, storeLogStubResponder);
+    final var endpoint = new EndpointImpl(cxfBus, storeLogStubResponder);
     endpoint.publish("/stubs/informationsecurity/auditing/log/StoreLog/v2/rivtabp21");
     return endpoint;
   }
-
-  @Configuration
-  @Profile({"dev", "testability-api"})
-  public static class TestabilityApiConfig {
-
-    @Bean
-    public LoggtjanstStubRestApi loggtjanstStubRestApi() {
-      return new LoggtjanstStubRestApi();
-    }
-
-    @Bean
-    public JacksonJsonProvider jacksonJsonProvider(LogStoreObjectMapper logStoreObjectMapper) {
-      JacksonJsonProvider provider = new JacksonJsonProvider();
-      provider.setMapper(logStoreObjectMapper);
-      return provider;
-    }
-
-    @Bean
-    public JAXRSServerFactoryBean loggtjanstApiServer(Bus cxfBus,
-        LoggtjanstStubRestApi loggtjanstStubRestApi,
-        JacksonJsonProvider jacksonJsonProvider) {
-      JAXRSServerFactoryBean factory = new JAXRSServerFactoryBean();
-      factory.setBus(cxfBus);
-      factory.setAddress("/api/loggtjanst-api");
-      factory.setServiceBeans(Collections.singletonList(loggtjanstStubRestApi));
-      factory.setProviders(Collections.singletonList(jacksonJsonProvider));
-      factory.setExtensionMappings(Collections.singletonMap("json", "application/json"));
-      factory.create();
-      return factory;
-    }
-  }
 }
-

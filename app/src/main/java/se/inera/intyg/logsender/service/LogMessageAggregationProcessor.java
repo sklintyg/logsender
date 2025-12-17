@@ -36,7 +36,6 @@ import se.inera.intyg.logsender.logging.MdcLogConstants;
 @Slf4j
 public class LogMessageAggregationProcessor {
 
-
   private final ObjectMapper objectMapper;
 
   private final MdcHelper mdcHelper;

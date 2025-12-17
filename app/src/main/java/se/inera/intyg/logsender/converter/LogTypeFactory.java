@@ -21,10 +21,7 @@ package se.inera.intyg.logsender.converter;
 import se.inera.intyg.logsender.model.PdlLogMessage;
 import se.riv.informationsecurity.auditing.log.v2.LogType;
 
-/**
- * Created by eriklupander on 2016-02-29.
- */
 public interface LogTypeFactory {
 
-    LogType convert(PdlLogMessage source);
+  LogType convert(PdlLogMessage source);
 }

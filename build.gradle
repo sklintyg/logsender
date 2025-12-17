@@ -63,6 +63,7 @@ subprojects {
     }
 
     configurations {
+        mockitoAgent
         compileOnly {
             extendsFrom annotationProcessor
         }
@@ -73,6 +74,17 @@ subprojects {
         annotationProcessor platform("se.inera.intyg.bom:platform:${intygBomVersion}")
         testImplementation platform("se.inera.intyg.bom:platform:${intygBomVersion}")
         testAnnotationProcessor platform("se.inera.intyg.bom:platform:${intygBomVersion}")
+        mockitoAgent platform("se.inera.intyg.bom:platform:${intygBomVersion}")
+        mockitoAgent("org.mockito:mockito-core") { transitive = false }
+    }
+
+    tasks {
+        test {
+            jvmArgs += [
+                "-javaagent:${configurations.mockitoAgent.asPath}",
+                "-Xshare:off"
+            ]
+        }
     }
 
     jacocoTestReport {

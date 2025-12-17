@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import org.apache.camel.Message;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.support.DefaultMessage;
@@ -42,37 +41,36 @@ class LogMessageSplitProcessorTest {
   @Mock
   MdcHelper mdcHelper;
 
-  private LogMessageSplitProcessor testee;
+  private LogMessageSplitProcessor logMessageSplitProcessor;
 
   @BeforeEach
   void setUp() {
     when(mdcHelper.spanId()).thenReturn("spanId");
     when(mdcHelper.traceId()).thenReturn("traceId");
 
-    // Manually create instance with all dependencies
-    testee = new LogMessageSplitProcessor(mdcHelper);
+    logMessageSplitProcessor = new LogMessageSplitProcessor(mdcHelper);
   }
 
   @Test
   void testSingleResource() throws Exception {
-    List<Message> messages = testee.process(buildMessage(1));
+    final var messages = logMessageSplitProcessor.process(buildMessage(1));
     assertEquals(1, messages.size());
   }
 
   @Test
   void testMultipleResources() throws Exception {
-    List<Message> messages = testee.process(buildMessage(3));
+    final var messages = logMessageSplitProcessor.process(buildMessage(3));
     assertEquals(3, messages.size());
   }
 
   @Test
   void testNoResource() {
     assertThrows(PermanentException.class, () ->
-        testee.process(buildMessage(0)));
+        logMessageSplitProcessor.process(buildMessage(0)));
   }
 
   private Message buildMessage(int numberOfResources) {
-    DefaultMessage msg = new DefaultMessage(new DefaultCamelContext());
+    final var msg = new DefaultMessage(new DefaultCamelContext());
     msg.setBody(buildBody(numberOfResources));
     return msg;
   }

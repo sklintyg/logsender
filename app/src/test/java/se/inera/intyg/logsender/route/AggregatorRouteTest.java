@@ -26,12 +26,9 @@ import org.apache.camel.EndpointInject;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.AdviceWith;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.test.spring.junit5.CamelSpringBootTest;
-import org.apache.camel.test.spring.junit5.UseAdviceWith;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
@@ -40,13 +37,10 @@ import se.inera.intyg.logsender.helper.TestDataHelper;
 import se.inera.intyg.logsender.model.ActivityType;
 import se.inera.intyg.logsender.testconfig.UnitTestConfig;
 
-@CamelSpringBootTest
-@EnableAutoConfiguration
-@UseAdviceWith
 @SpringBootTest(classes = UnitTestConfig.class)
-@ActiveProfiles("test")
-@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
-public class AggregatorRouteTest {
+@ActiveProfiles({"test", "wc-loggtjanst-stub"})
+@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
+class AggregatorRouteTest {
 
   @Autowired
   private CamelContext camelContext;
@@ -55,19 +49,20 @@ public class AggregatorRouteTest {
   private ProducerTemplate producerTemplate;
 
   @EndpointInject("mock:bean:logMessageAggregationProcessor")
-  private MockEndpoint logMessageAggregationProcessor;
+  MockEndpoint logMessageAggregationProcessor;
 
   @EndpointInject("mock:direct:receiveAggregatedLogMessageEndpoint")
-  private MockEndpoint newAggregatedLogMessageQueue;
+  MockEndpoint newAggregatedLogMessageQueue;
 
   @EndpointInject("mock:direct:logMessagePermanentErrorHandlerEndpoint")
-  private MockEndpoint logMessagePermanentErrorHandlerEndpoint;
+  MockEndpoint logMessagePermanentErrorHandlerEndpoint;
 
   @EndpointInject("mock:direct:logMessageTemporaryErrorHandlerEndpoint")
   private MockEndpoint logMessageTemporaryErrorHandlerEndpoint;
 
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
+    MockEndpoint.resetMocks(camelContext);
     AdviceWith.adviceWith(camelContext, "aggregatorRoute", in ->
         in.mockEndpointsAndSkip("bean:logMessageAggregationProcessor",
             "direct:receiveAggregatedLogMessageEndpoint",
@@ -77,7 +72,7 @@ public class AggregatorRouteTest {
   }
 
   @Test
-  public void testNormalLogStoreRoute() throws InterruptedException {
+  void testNormalLogStoreRoute() throws InterruptedException {
     logMessageAggregationProcessor.expectedMessageCount(1);
     newAggregatedLogMessageQueue.expectedMessageCount(1);
     logMessagePermanentErrorHandlerEndpoint.expectedMessageCount(0);
@@ -96,7 +91,7 @@ public class AggregatorRouteTest {
   }
 
   @Test
-  public void testNoMessagesReceivedWhenMessageCountLessThanBatchSize()
+  void testNoMessagesReceivedWhenMessageCountLessThanBatchSize()
       throws InterruptedException {
     logMessageAggregationProcessor.expectedMessageCount(0);
     newAggregatedLogMessageQueue.expectedMessageCount(0);

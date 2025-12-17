@@ -18,34 +18,19 @@
  */
 package se.inera.intyg.logsender.testconfig;
 
-import org.apache.camel.spring.boot.CamelAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Primary;
 import se.inera.intyg.logsender.client.mock.MockLogSenderClientImpl;
-import se.inera.intyg.logsender.config.LogSenderBeanConfig;
 import se.inera.intyg.logsender.config.LogsenderProperties;
-import se.inera.intyg.logsender.mocks.MockTransactionManager;
-import se.inera.intyg.logsender.routes.LogSenderRouteBuilder;
 
-@Lazy
-@Configuration
+@TestConfiguration
 @EnableConfigurationProperties(LogsenderProperties.class)
-@Import({
-    LogSenderBeanConfig.class,
-    CamelAutoConfiguration.class,  // Camel autoconfiguration
-    LogSenderRouteBuilder.class    // The route being tested
-})
 public class UnitTestConfig {
 
   @Bean
-  public MockTransactionManager transactionManager() {
-    return new MockTransactionManager();
-  }
-
-  @Bean
+  @Primary
   public MockLogSenderClientImpl mockSendCertificateServiceClient() {
     return new MockLogSenderClientImpl();
   }

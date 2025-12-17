@@ -18,8 +18,7 @@
  */
 package se.inera.intyg.logsender.converter;
 
-import java.util.List;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import se.inera.intyg.logsender.model.Enhet;
 import se.inera.intyg.logsender.model.Patient;
 import se.inera.intyg.logsender.model.PdlLogMessage;
@@ -37,14 +36,14 @@ import se.riv.informationsecurity.auditing.log.v2.SystemType;
 import se.riv.informationsecurity.auditing.log.v2.UserType;
 
 
-@Service
+@Component
 public class LogTypeFactoryImpl implements LogTypeFactory {
 
   private static final LogTypeFactoryUtil util = LogTypeFactoryUtil.getInstance();
 
   @Override
   public LogType convert(PdlLogMessage source) {
-    LogType logType = new LogType();
+    final var logType = new LogType();
     logType.setLogId(source.getLogId());
 
     buildSystemType(source, logType);
@@ -53,7 +52,7 @@ public class LogTypeFactoryImpl implements LogTypeFactory {
 
     logType.setResources(new ResourcesType());
 
-    List<ResourceType> resources = source.getPdlResourceList()
+    final var resources = source.getPdlResourceList()
         .stream()
         .map(this::buildResource)
         .toList();
@@ -63,7 +62,7 @@ public class LogTypeFactoryImpl implements LogTypeFactory {
   }
 
   private void buildUserType(PdlLogMessage source, LogType logType) {
-    UserType user = new UserType();
+    final var user = new UserType();
     user.setUserId(util.trim(source.getUserId()));
     user.setCareProvider(careProvider(source.getUserCareUnit()));
     user.setCareUnit(careUnit(source.getUserCareUnit()));
@@ -77,7 +76,7 @@ public class LogTypeFactoryImpl implements LogTypeFactory {
   }
 
   private void buildSystemType(PdlLogMessage source, LogType logType) {
-    SystemType system = new SystemType();
+    final var system = new SystemType();
     system.setSystemId(util.trim(source.getSystemId()));
 
     system.setSystemName(util.trimToNull(source.getSystemName()));
@@ -86,7 +85,7 @@ public class LogTypeFactoryImpl implements LogTypeFactory {
   }
 
   private void buildActivityType(PdlLogMessage source, LogType logType) {
-    ActivityType activity = new ActivityType();
+    final var activity = new ActivityType();
     activity.setActivityType(source.getActivityType().getType());
     activity.setStartDate(source.getTimestamp());
     activity.setPurpose(source.getPurpose().getType());
@@ -99,18 +98,18 @@ public class LogTypeFactoryImpl implements LogTypeFactory {
   }
 
   private PatientType patient(Patient source) {
-    String id = util.trim(source.getPatientId());
+    final var id = util.trim(source.getPatientId());
 
-    final Personnummer personnummer = Personnummer.createPersonnummer(id)
+    final var personnummer = Personnummer.createPersonnummer(id)
         .orElseThrow(() -> new IllegalArgumentException(
             "PatientId must be a valid personnummer or samordningsnummer"));
 
-    IIType patientId = new IIType();
+    final var patientId = new IIType();
     patientId.setRoot(util.isSamordningsNummer(personnummer) ? util.getSamordningsNummerRoot()
         : util.getPersonnummerRoot());
     patientId.setExtension(util.trim(source.getPatientId()));
 
-    PatientType patient = new PatientType();
+    final var patient = new PatientType();
     patient.setPatientId(patientId);
 
     // optional according to XML schema
@@ -120,7 +119,7 @@ public class LogTypeFactoryImpl implements LogTypeFactory {
   }
 
   private CareUnitType careUnit(Enhet source) {
-    CareUnitType careUnit = new CareUnitType();
+    final var careUnit = new CareUnitType();
     careUnit.setCareUnitId(util.trim(source.getEnhetsId()));
 
     // optional according to XML schema
@@ -130,7 +129,7 @@ public class LogTypeFactoryImpl implements LogTypeFactory {
   }
 
   private CareProviderType careProvider(Enhet source) {
-    CareProviderType careProvider = new CareProviderType();
+    final var careProvider = new CareProviderType();
     careProvider.setCareProviderId(util.trim(source.getVardgivareId()));
 
     // optional according to XML schema
@@ -140,7 +139,7 @@ public class LogTypeFactoryImpl implements LogTypeFactory {
   }
 
   private ResourceType buildResource(PdlResource source) {
-    ResourceType resource = new ResourceType();
+    final var resource = new ResourceType();
     resource.setResourceType(source.getResourceType());
     resource.setCareProvider(careProvider(source.getResourceOwner()));
     resource.setCareUnit(careUnit(source.getResourceOwner()));

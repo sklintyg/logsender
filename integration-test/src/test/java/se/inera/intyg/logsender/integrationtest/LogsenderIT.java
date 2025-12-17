@@ -1,12 +1,12 @@
 package se.inera.intyg.logsender.integrationtest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static se.inera.intyg.logsender.integrationtest.helper.TestDataHelper.OBJECT_MAPPER;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.context.ActiveProfiles;
@@ -32,62 +31,38 @@ import se.inera.intyg.logsender.integrationtest.util.JmsUtil;
 import se.inera.intyg.logsender.integrationtest.util.TestabilityUtil;
 import se.inera.intyg.logsender.mapper.CustomObjectMapper;
 import se.inera.intyg.logsender.model.ActivityType;
-import se.inera.intyg.logsender.model.PdlLogMessage;
 
-/**
- * Comprehensive integration tests for Logsender using Testcontainers.
- * <p>
- * These tests verify the complete flow: 1. Messages are published to ActiveMQ (testcontainer) 2.
- * Logsender consumes, splits, and aggregates messages 3. Aggregated messages are sent to the
- * loggtjanst stub 4. Results are verified through the testability API
- * <p>
- * Infrastructure: - ActiveMQ (Testcontainer) - - Loggtjanst Stub (In-memory)
- */
-@ActiveProfiles({"integration-test", "dev", "testability-api"})
+@ActiveProfiles({"integration-test", "wc-loggtjanst-stub", "testability-api"})
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @DisplayName("Logsender Integration Tests")
-public class LogsenderIT {
+class LogsenderIT {
+
+  @Autowired
+  private LogsenderProperties properties;
+  @Autowired
+  private JmsTemplate jmsTemplate;
+
+  @LocalServerPort
+  private int port;
+
+  private JmsUtil jmsUtil;
+  private TestabilityUtil testabilityUtil;
 
   static {
     Containers.ensureRunning();
   }
 
-  @Autowired
-  private LogsenderProperties properties;
-  @Autowired
-  private TestRestTemplate restTemplate;
-  @Autowired
-  private JmsTemplate jmsTemplate;
-  @LocalServerPort
-  private int port;
-  private JmsUtil jmsUtil;
-  private TestabilityUtil testabilityUtil;
-
-  @AfterAll
-  static void afterAll() {
-    Containers.stopAll();
-  }
-
   @BeforeEach
   void setUp() {
     jmsUtil = new JmsUtil(jmsTemplate, properties);
-    testabilityUtil = new TestabilityUtil(restTemplate, port);
-
+    testabilityUtil = new TestabilityUtil(port);
     jmsUtil.reset();
     testabilityUtil.reset();
   }
 
-
-  private String buildPdlLogMessageWithInvalidResourceJson(int resources) throws IOException {
-    String bodyOfSix = TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ, resources);
-    ObjectNode jsonNode = (ObjectNode) new CustomObjectMapper().readTree(bodyOfSix);
-    ArrayNode pdlResourceList = (ArrayNode) jsonNode.get("pdlResourceList");
-
-    JsonNode invalidJsonNode = new TextNode("Some text that doesn't belong here");
-    ObjectNode resourceNode = (ObjectNode) pdlResourceList.get(2);
-    resourceNode.set("resourceOwner", invalidJsonNode);
-
-    return OBJECT_MAPPER.writeValueAsString(jsonNode);
+  @AfterAll
+  static void afterAll() {
+    Containers.stopAll();
   }
 
   @Nested
@@ -103,9 +78,9 @@ public class LogsenderIT {
 
       testabilityUtil.awaitBatchCount(1, Duration.ofSeconds(5));
 
-      int batchCount = testabilityUtil.getBatchCount();
+      final var batchCount = testabilityUtil.getBatchCount();
+      final var messageCount = testabilityUtil.getMessageCount();
       assertEquals(1, batchCount, "Expected exactly 1 aggregated message");
-      int messageCount = testabilityUtil.getMessageCount();
       assertEquals(5, messageCount, "Expected 10 individual log entries");
     }
 
@@ -118,27 +93,24 @@ public class LogsenderIT {
 
       testabilityUtil.awaitBatchCount(2, Duration.ofSeconds(5));
 
-      int messageCount = testabilityUtil.getMessageCount();
+      final var messageCount = testabilityUtil.getMessageCount();
+      final var batchCount = testabilityUtil.getBatchCount();
       assertEquals(10, messageCount, "Expected 10 individual log entries");
-
-      int batchCount = testabilityUtil.getBatchCount();
       assertEquals(2, batchCount, "Expected messages to be sent in 2 batches");
     }
 
     @Test
     @DisplayName("Should aggregate on timeout when less than bulk size")
     void shouldAggregateOnTimeout() {
-      // Given: Only 3 messages (less than bulkSize of 5)
       for (int i = 0; i < 3; i++) {
         jmsUtil.publishMessage();
       }
 
       testabilityUtil.awaitBatchCount(1, Duration.ofSeconds(5));
 
-      int messageCount = testabilityUtil.getMessageCount();
+      final var messageCount = testabilityUtil.getMessageCount();
+      final var batchCount = testabilityUtil.getBatchCount();
       assertEquals(3, messageCount, "Expected 3 individual log entries");
-
-      int batchCount = testabilityUtil.getBatchCount();
       assertEquals(1, batchCount, "Expected messages to be sent in 1 batch after timeout");
     }
   }
@@ -156,7 +128,6 @@ public class LogsenderIT {
 
       assertThat(testabilityUtil.getMessageCount()).isGreaterThan(0);
     }
-
   }
 
   @Nested
@@ -173,7 +144,7 @@ public class LogsenderIT {
       testabilityUtil.awaitMessageCount(5, Duration.ofSeconds(5));
       testabilityUtil.awaitBatchCount(1, Duration.ofSeconds(5));
 
-      var logs = testabilityUtil.getAllLogs();
+      final var logs = testabilityUtil.getAllLogs();
       assertThat(logs.getBody()).isNotEmpty();
     }
 
@@ -187,7 +158,8 @@ public class LogsenderIT {
 
       testabilityUtil.awaitMessageCount(5, Duration.ofSeconds(5));
       testabilityUtil.awaitBatchCount(1, Duration.ofSeconds(5));
-      var logs = testabilityUtil.getAllLogs();
+
+      final var logs = testabilityUtil.getAllLogs();
       assertThat(logs.getBody()).isNotEmpty();
     }
   }
@@ -199,7 +171,7 @@ public class LogsenderIT {
     @Test
     void ensureStubReceivesNoMessageAfterOneWithSixWhereOnIsInvalidHasBeenSent()
         throws IOException {
-      String body = buildPdlLogMessageWithInvalidResourceJson(6);
+      final var body = buildPdlLogMessageWithInvalidResourceJson(6);
 
       jmsUtil.publishMessage(body);
 
@@ -208,22 +180,23 @@ public class LogsenderIT {
 
     @Test
     @DisplayName("Should handle stub offline - TemporaryException messages are logged and discarded")
-    void shouldHandleStubOfflineWithTemporaryException() throws InterruptedException {
+    void shouldHandleStubOfflineWithTemporaryException() {
       testabilityUtil.setStubOffline();
 
       for (int i = 0; i < 5; i++) {
         jmsUtil.publishMessage();
       }
 
-      Thread.sleep(3000);
+      await()
+          .pollDelay(Duration.ofSeconds(3))
+          .atMost(Duration.ofSeconds(4))
+          .until(() -> true);
 
-      int messageCount = testabilityUtil.getMessageCount();
+      final var messageCount = testabilityUtil.getMessageCount();
+      final var dlqCount = jmsUtil.numberOfDLQMessages();
       assertEquals(0, messageCount, "No messages should be stored when stub is offline");
-
-      int dlqCount = jmsUtil.numberOfDLQMessages();
       assertEquals(0, dlqCount,
           "TemporaryException messages are logged and discarded, not sent to DLQ");
-
     }
 
     @Test
@@ -237,12 +210,10 @@ public class LogsenderIT {
 
       jmsUtil.awaitDlqMessageCount(1, Duration.ofSeconds(5));
 
-      int messageCount = testabilityUtil.getMessageCount();
+      final var messageCount = testabilityUtil.getMessageCount();
+      final var dlqCount = jmsUtil.numberOfDLQMessages();
       assertEquals(0, messageCount, "No messages stored due to validation error");
-
-      int dlqCount = jmsUtil.numberOfDLQMessages();
       assertEquals(1, dlqCount, "Batch with validation error should be in DLQ");
-
     }
 
     @Test
@@ -250,20 +221,17 @@ public class LogsenderIT {
       jmsUtil.publishMessage(ActivityType.READ);
       jmsUtil.publishMessage(ActivityType.READ);
 
-      PdlLogMessage pdlLogMessage = TestDataHelper.buildBasePdlLogMessage(ActivityType.READ,
+      final var pdlLogMessage = TestDataHelper.buildBasePdlLogMessage(ActivityType.READ,
           1, ValueInclude.INCLUDE, ValueInclude.INCLUDE);
       pdlLogMessage.setSystemId("invalid");
 
       jmsUtil.publishMessage(OBJECT_MAPPER.writeValueAsString(pdlLogMessage));
-
       jmsUtil.publishMessage(ActivityType.READ);
       jmsUtil.publishMessage(ActivityType.READ);
-
       jmsUtil.awaitDlqMessageCount(1, Duration.ofSeconds(5));
-      int dlqCount = jmsUtil.numberOfDLQMessages();
 
+      final var dlqCount = jmsUtil.numberOfDLQMessages();
       assertEquals(1, dlqCount, "Batch with validation error should be in DLQ");
-
     }
   }
 
@@ -278,7 +246,7 @@ public class LogsenderIT {
 
       testabilityUtil.awaitMessageCount(1, Duration.ofSeconds(3));
 
-      var response = testabilityUtil.getAllLogs();
+      final var response = testabilityUtil.getAllLogs();
       assertNotNull(response.getBody(), "Should have received logs in stub");
       assertThat(response.getBody().length).isGreaterThan(0);
     }
@@ -292,10 +260,9 @@ public class LogsenderIT {
 
       testabilityUtil.awaitMessageCount(15, Duration.ofSeconds(5));
 
-      int messageCount = testabilityUtil.getMessageCount();
+      final var messageCount = testabilityUtil.getMessageCount();
+      final var batchCount = testabilityUtil.getBatchCount();
       assertEquals(15, messageCount, "Expected 15 individual log entries");
-
-      int batchCount = testabilityUtil.getBatchCount();
       assertEquals(3, batchCount, "Expected messages to be sent in 3 batches");
     }
 
@@ -306,15 +273,13 @@ public class LogsenderIT {
         jmsUtil.publishMessage();
       }
 
-      int messageCount = testabilityUtil.getMessageCount();
+      final var messageCount = testabilityUtil.getMessageCount();
+      final var batchCount = testabilityUtil.getBatchCount();
       assertEquals(0, messageCount, "Expected 0 individual log entries");
-
-      int batchCount = testabilityUtil.getBatchCount();
       assertEquals(0, batchCount, "Expected messages to be sent in 0 batches");
 
-      //Fix race condition so the @BeforeEach clears the amq
+      // Fix race condition so the @BeforeEach clears the amq
       testabilityUtil.awaitMessageCount(3, Duration.ofSeconds(5));
-
     }
   }
 
@@ -339,12 +304,23 @@ public class LogsenderIT {
 
       testabilityUtil.awaitBatchCount(1, Duration.ofSeconds(5));
       testabilityUtil.awaitMessageCount(5, Duration.ofSeconds(5));
-
       testabilityUtil.reset();
 
-      int messageCount = testabilityUtil.getMessageCount();
+      final var messageCount = testabilityUtil.getMessageCount();
       assertEquals(0, messageCount, "Stub should be empty after reset");
     }
+  }
+
+  private String buildPdlLogMessageWithInvalidResourceJson(int resources) throws IOException {
+    final var bodyOfSix = TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ, resources);
+    final var jsonNode = (ObjectNode) new CustomObjectMapper().readTree(bodyOfSix);
+    final var pdlResourceList = (ArrayNode) jsonNode.get("pdlResourceList");
+
+    final var invalidJsonNode = new TextNode("Some text that doesn't belong here");
+    final var resourceNode = (ObjectNode) pdlResourceList.get(2);
+    resourceNode.set("resourceOwner", invalidJsonNode);
+
+    return OBJECT_MAPPER.writeValueAsString(jsonNode);
   }
 
 }
