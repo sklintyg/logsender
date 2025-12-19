@@ -1,0 +1,64 @@
+def applicationDir = "${rootProject.projectDir}/devops/dev"
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-activemq'
+
+    implementation "codes.rafael.jaxb2_commons:jaxb2-basics"
+    implementation "com.fasterxml.jackson.jakarta.rs:jackson-jakarta-rs-json-provider"
+    implementation "com.google.guava:guava"
+    implementation "jakarta.ws.rs:jakarta.ws.rs-api"
+    implementation "org.apache.camel.springboot:camel-spring-boot-starter"
+    implementation "org.apache.camel.springboot:camel-activemq-starter"
+    implementation "org.apache.camel.springboot:camel-jms-starter"
+    implementation "org.apache.cxf:cxf-rt-features-logging"
+    implementation "org.apache.cxf:cxf-rt-frontend-jaxws"
+    implementation "org.apache.cxf:cxf-rt-transports-http"
+    implementation "org.messaginghub:pooled-jms"
+
+    implementation "se.inera.intyg.schemas:schemas-contract:${schemasContractVersion}"
+    implementation "se.riv.informationsecurity.auditing.log:informationsecurity-auditing-log-schemas:${rivtaStoreLogSchemasVersion}"
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    runtimeOnly "org.glassfish.jaxb:jaxb-runtime"
+
+    testImplementation "jakarta.xml.bind:jakarta.xml.bind-api"
+    testImplementation "org.apache.activemq:activemq-broker"
+    testImplementation "org.apache.camel:camel-test-spring-junit5"
+    testImplementation "org.awaitility:awaitility"
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    testAnnotationProcessor 'org.projectlombok:lombok'
+}
+
+testing.suites {
+    test { useJUnitJupiter() }
+}
+
+bootRun {
+    systemProperty("application.dir", "${applicationDir}")
+    systemProperty("spring.profiles.active", "dev, testability-api")
+    systemProperty("spring.config.additional-location", "file:${applicationDir}/config/")
+}
+
+
+tasks.register("appRunDebug") {
+    println("######## Running logsender in Debug mode ########")
+    doFirst {
+        bootRun.configure {
+            jvmArgs = [
+                    "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8110"]
+        }
+    }
+    finalizedBy("bootRun")
+}
+
+tasks.register("appRun") {
+    println("######## Running logsender in normal mode ########")
+    finalizedBy("bootRun")
+}

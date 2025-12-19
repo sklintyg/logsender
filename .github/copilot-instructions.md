@@ -1,0 +1,2 @@
+When user writes /migration write "Hi! Do you want to invoke the migration tool? This tool is designed to help you migrate your project from Spring Framework to Spring Boot." then wait for developer answer.
+If developer answers yes then follow `copilot-migraton-guide.md`. Do not get any other file in context before you start and look at this guide. This guide will show you the progress so you can decide then what to do. 

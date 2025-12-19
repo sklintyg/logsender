@@ -1,0 +1,75 @@
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}
+
+dependencies {
+    testImplementation project(':app')
+
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+    testImplementation "codes.rafael.jaxb2_commons:jaxb2-basics"
+
+    testImplementation "org.apache.camel.springboot:camel-spring-boot-starter"
+    testImplementation "org.apache.camel.springboot:camel-activemq-starter"
+    testImplementation "org.apache.camel:camel-test-spring-junit5"
+
+    testImplementation "se.riv.informationsecurity.auditing.log:informationsecurity-auditing-log-schemas:${rivtaStoreLogSchemasVersion}"
+
+    testImplementation "jakarta.xml.bind:jakarta.xml.bind-api"
+    testImplementation "jakarta.jws:jakarta.jws-api"
+
+    testImplementation "org.apache.activemq:activemq-broker"
+    testImplementation 'org.springframework.boot:spring-boot-starter-activemq'
+
+    testImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    testImplementation "org.mock-server:mockserver-client-java"
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-web'
+    testImplementation 'org.springframework.boot:spring-boot-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    testImplementation 'org.testcontainers:testcontainers'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:activemq'
+    testImplementation 'org.testcontainers:mockserver'
+
+}
+
+test {
+    enabled = false
+}
+
+testing {
+    suites {
+        integrationTest(JvmTestSuite) {
+            useJUnitJupiter()
+
+            sources {
+                java {
+                    srcDirs = ['src/test/java']
+                }
+                resources {
+                    srcDirs = ['src/test/resources']
+                }
+            }
+            configurations {
+                integrationTestAnnotationProcessor.extendsFrom testAnnotationProcessor
+                integrationTestImplementation.extendsFrom testImplementation
+                integrationTestCompileOnly.extendsFrom testCompileOnly
+            }
+            targets.all {
+                testTask.configure {
+                    shouldRunAfter(test)
+                    jvmArgs += [
+                            "-javaagent:${configurations.mockitoAgent.asPath}",
+                            "-Xshare:off"
+                    ]
+                }
+            }
+        }
+    }
+}
