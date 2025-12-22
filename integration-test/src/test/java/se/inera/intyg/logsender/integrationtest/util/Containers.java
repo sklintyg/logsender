@@ -2,16 +2,19 @@ package se.inera.intyg.logsender.integrationtest.util;
 
 import org.testcontainers.activemq.ActiveMQContainer;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.Network;
 import org.testcontainers.utility.DockerImageName;
 
 public class Containers {
+
+  private static final Network network = Network.newNetwork();
 
   public static ActiveMQContainer amqContainer;
   public static GenericContainer<?> redisContainer;
 
   public static void ensureRunning() {
-    amqContainer();
     redisContainer();
+    amqContainer();
   }
 
   public static void stopAll() {
@@ -26,9 +29,10 @@ public class Containers {
   private static void amqContainer() {
     if (amqContainer == null) {
       amqContainer = new ActiveMQContainer("apache/activemq-classic:5.18.3")
+          .withNetwork(network)
+          .withNetworkAliases("activemq")
           .withUser("activemqUser")
           .withPassword("activemqPassword");
-
     }
 
     if (!amqContainer.isRunning()) {
@@ -45,6 +49,8 @@ public class Containers {
   private static void redisContainer() {
     if (redisContainer == null) {
       redisContainer = new GenericContainer<>(DockerImageName.parse("redis:7-alpine"))
+          .withNetwork(network)
+          .withNetworkAliases("redis")
           .withExposedPorts(6379)
           .withCommand("redis-server", "--requirepass", "redis");
     }
@@ -68,4 +74,3 @@ public class Containers {
         + "&jms.redeliveryPolicy.maximumRedeliveryDelay=500";
   }
 }
-

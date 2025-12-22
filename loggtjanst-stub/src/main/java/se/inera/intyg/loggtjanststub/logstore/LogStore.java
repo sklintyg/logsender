@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.inera.intyg.logsender.loggtjanststub;
+package se.inera.intyg.loggtjanststub.logstore;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.annotation.PostConstruct;
@@ -29,20 +29,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.support.collections.DefaultRedisMap;
-import se.inera.intyg.logsender.loggtjanststub.json.LogStoreObjectMapper;
+import se.inera.intyg.loggtjanststub.json.LogStoreObjectMapper;
 import se.riv.informationsecurity.auditing.log.v2.LogType;
 
 @Slf4j
 @RequiredArgsConstructor
 public class LogStore {
 
-  private final StringRedisTemplate stringRedisTemplate;
-  private final LogStoreObjectMapper logStoreObjectMapper;
-  
   private static final String LOGSTORE = "logstore";
   private static final int MAX_SIZE = 300;
   private static final int OVERFLOW_SIZE = 100;
-
+  private final StringRedisTemplate stringRedisTemplate;
+  private final LogStoreObjectMapper logStoreObjectMapper;
   private Map<String, String> logEntries;
 
   @PostConstruct
@@ -50,7 +48,7 @@ public class LogStore {
     logEntries = new DefaultRedisMap<>(LOGSTORE, stringRedisTemplate);
   }
 
-  List<LogType> getAll() {
+  public List<LogType> getAll() {
     return fromJson(logEntries.values());
   }
 
@@ -99,7 +97,7 @@ public class LogStore {
     }
   }
 
-  void clear() {
+  public void clear() {
     logEntries.clear();
   }
 }

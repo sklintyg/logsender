@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.inera.intyg.logsender.loggtjanststub;
+package se.inera.intyg.loggtjanststub.logstore;
 
 import jakarta.xml.ws.WebServiceException;
 import java.util.List;

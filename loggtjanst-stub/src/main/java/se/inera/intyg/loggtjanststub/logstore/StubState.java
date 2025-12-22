@@ -16,8 +16,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.inera.intyg.logsender.loggtjanststub;
+package se.inera.intyg.loggtjanststub.logstore;
 
-public enum ErrorState {
-  NONE, ERROR, VALIDATION
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class StubState {
+
+  private boolean active = true;
+  private boolean fakeError = false;
+  private long artificialLatency = 0L;
+  private ErrorState errorState = ErrorState.NONE;
+  private int batchCount = 0;
+
+  public void incrementBatchCount() {
+    this.batchCount++;
+  }
+
+  public void resetBatchCount() {
+    this.batchCount = 0;
+  }
 }

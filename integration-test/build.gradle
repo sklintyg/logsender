@@ -8,6 +8,7 @@ jar {
 
 dependencies {
     testImplementation project(':app')
+    testImplementation project(':loggtjanst-stub')
 
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'

@@ -1,6 +1,13 @@
 def applicationDir = "${rootProject.projectDir}/devops/dev"
 
+configurations {
+    developmentOnly
+}
+
 dependencies {
+    // Include loggtjanst-stub only when running locally with bootRun (not in production JAR)
+    developmentOnly project(':loggtjanst-stub')
+
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-aop'
@@ -41,6 +48,7 @@ testing.suites {
 }
 
 bootRun {
+    classpath += configurations.developmentOnly
     systemProperty("application.dir", "${applicationDir}")
     systemProperty("spring.profiles.active", "dev, testability-api")
     systemProperty("spring.config.additional-location", "file:${applicationDir}/config/")
