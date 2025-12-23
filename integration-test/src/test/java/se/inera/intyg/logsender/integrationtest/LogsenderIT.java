@@ -37,19 +37,22 @@ import se.inera.intyg.logsender.model.ActivityType;
 @DisplayName("Logsender Integration Tests")
 class LogsenderIT {
 
+  static {
+    Containers.ensureRunning();
+  }
+
   @Autowired
   private LogsenderProperties properties;
   @Autowired
   private JmsTemplate jmsTemplate;
-
   @LocalServerPort
   private int port;
-
   private JmsUtil jmsUtil;
   private TestabilityUtil testabilityUtil;
 
-  static {
-    Containers.ensureRunning();
+  @AfterAll
+  static void afterAll() {
+    Containers.stopAll();
   }
 
   @BeforeEach
@@ -60,9 +63,16 @@ class LogsenderIT {
     testabilityUtil.reset();
   }
 
-  @AfterAll
-  static void afterAll() {
-    Containers.stopAll();
+  private String buildPdlLogMessageWithInvalidResourceJson(int resources) throws IOException {
+    final var bodyOfSix = TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ, resources);
+    final var jsonNode = (ObjectNode) new CustomObjectMapper().readTree(bodyOfSix);
+    final var pdlResourceList = (ArrayNode) jsonNode.get("pdlResourceList");
+
+    final var invalidJsonNode = new TextNode("Some text that doesn't belong here");
+    final var resourceNode = (ObjectNode) pdlResourceList.get(2);
+    resourceNode.set("resourceOwner", invalidJsonNode);
+
+    return OBJECT_MAPPER.writeValueAsString(jsonNode);
   }
 
   @Nested
@@ -309,18 +319,6 @@ class LogsenderIT {
       final var messageCount = testabilityUtil.getMessageCount();
       assertEquals(0, messageCount, "Stub should be empty after reset");
     }
-  }
-
-  private String buildPdlLogMessageWithInvalidResourceJson(int resources) throws IOException {
-    final var bodyOfSix = TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ, resources);
-    final var jsonNode = (ObjectNode) new CustomObjectMapper().readTree(bodyOfSix);
-    final var pdlResourceList = (ArrayNode) jsonNode.get("pdlResourceList");
-
-    final var invalidJsonNode = new TextNode("Some text that doesn't belong here");
-    final var resourceNode = (ObjectNode) pdlResourceList.get(2);
-    resourceNode.set("resourceOwner", invalidJsonNode);
-
-    return OBJECT_MAPPER.writeValueAsString(jsonNode);
   }
 
 }

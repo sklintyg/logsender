@@ -18,6 +18,7 @@
  */
 package se.inera.intyg.logsender.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.xml.ws.WebServiceException;
 import java.io.IOException;
@@ -48,6 +49,7 @@ public class LogMessageSendProcessor {
   private final ObjectMapper objectMapper;
   private final MdcHelper mdcHelper;
 
+
   public void process(String groupedLogEntries)
       throws IOException, BatchValidationException, TemporaryException {
 
@@ -56,7 +58,8 @@ public class LogMessageSendProcessor {
         .put(MdcLogConstants.SPAN_ID_KEY, mdcHelper.spanId())
         .build()
     ) {
-      List<String> groupedList = objectMapper.readValue(groupedLogEntries, List.class);
+      List<String> groupedList = objectMapper.readValue(groupedLogEntries, new TypeReference<>() {
+      });
 
       List<LogType> logMessages = groupedList.stream()
           .map(this::jsonToPdlLogMessage)

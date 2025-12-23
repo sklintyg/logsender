@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package se.inera.intyg.logsender.loggtjanststub.config;
+package se.inera.intyg.loggtjanststub.config;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.jaxws.EndpointImpl;
@@ -24,14 +24,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import se.inera.intyg.logsender.loggtjanststub.LogStore;
-import se.inera.intyg.logsender.loggtjanststub.StoreLogStubResponder;
-import se.inera.intyg.logsender.loggtjanststub.StubState;
-import se.inera.intyg.logsender.loggtjanststub.json.LogStoreObjectMapper;
+import se.inera.intyg.loggtjanststub.json.LogStoreObjectMapper;
+import se.inera.intyg.loggtjanststub.logstore.LogStore;
+import se.inera.intyg.loggtjanststub.logstore.StoreLogStubResponder;
+import se.inera.intyg.loggtjanststub.logstore.StubState;
 import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
 
 @Configuration
-@Profile({"dev", "wc-all-stubs", "wc-loggtjanst-stub"})
+@Profile({"default", "dev", "wc-all-stubs", "wc-loggtjanst-stub"})
 public class LoggtjanstStubConfig {
 
   @Bean

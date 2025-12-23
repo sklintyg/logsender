@@ -40,7 +40,7 @@ public class LogMessageAggregationProcessor {
 
   private final MdcHelper mdcHelper;
 
-
+  @SuppressWarnings("unchecked")
   public String process(Exchange exchange) throws PermanentException, JsonProcessingException {
     try (MdcCloseableMap ignored = MdcCloseableMap.builder()
         .put(MdcLogConstants.TRACE_ID_KEY, mdcHelper.traceId())

@@ -23,7 +23,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import se.inera.intyg.logsender.config.LogsenderProperties;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"se.inera.intyg.logsender",
+    "se.inera.intyg.loggtjanststub"})
 @EnableConfigurationProperties(LogsenderProperties.class)
 public class LogsenderApplication {
 
