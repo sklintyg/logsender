@@ -1,56 +1,74 @@
 # LogSender
 
-För att logsender lokalt gäller följande:
+LogSender is a Spring Boot application that aggregates and sends log messages to the PDL (Patient Data Log) service.
 
-Läs vidare i gemensam dokumentation [devops/develop README-filen](https://github.com/sklintyg/devops/tree/release/2021-1/develop/README.md)
+## Running Locally
 
-## Aggregering av loggposter
-Kom ihåg att standardinställningen för aggregering av loggmeddelanden från producenter är 5 st, dvs. om man vill testa från lokal Webcert (https://wc.localtest.me) så kan man förslagsvis logga in, gå in på 191212121212, skapa ett Utkast och sedan klicka sig in och ut på Utkastet ytterligare 4 gånger via sidan för Ej signerade utkast. Varje "titt" på utkastet skapar en loggpost och efter totalt 5 st så kommer logsender sammanställa ett loggmeddelande utifrån samtliga aggregerade och skicka till PDL-tjänsten.
+For running LogSender locally, refer to the common documentation in [devops/develop README](https://github.com/sklintyg/devops/tree/release/2021-1/develop/README.md)
 
-## Kontrollera stubbe 
+## Log Entry Aggregation
 
-Lokalt är förstås tjänsten stubbad, man bör kunna kika på innehållet i stubben på:
+The default setting for aggregating log messages from producers is 5 entries. For example, when testing from local Webcert (https://wc.localtest.me):
 
-    http://localhost:8010/logsender/api/loggtjanst-api
-    
-## Stubbens Testbarhets-API 
-    
-Följande operationer kan utföras mha GET-anrop till stubben
-    
-Avaktivera stubbe
+1. Log in
+2. Navigate to patient 191212121212
+3. Create a draft certificate
+4. Open and close the draft 4 additional times via the "Unsigned drafts" page
 
-    http://localhost:8010/logsender/api/loggtjanst-api/offline
-    
-Återaktivera stubbe
+Each view of the draft creates a log entry. After 5 entries total, LogSender will compile a log message from all aggregated entries and send it to the PDL service.
 
-    http://localhost:8010/logsender/api/loggtjanst-api/online
-    
-Fejka fel (errorType = någon av NONE,ERROR,VALIDATION)
+## Checking the Stub
 
-    http://localhost:8010/logsender/api/loggtjanst-api/error/{errorType}
-    
-Fejka latency, (latencyMs = artificiell fördröjning i millisekunder)
+When running locally, the service is stubbed. You can view the stub contents at:
 
-     http://localhost:8010/logsender/api/loggtjanst-api/latency/{latencyMs}
+```
+http://localhost:8010/logsender/api/loggtjanst-api
+```
 
-## Se utgående SOAP-meddelanden
-Ibland vill man se exakt vilken XML som skickas till loggtjänsten i form av StoreLogRequests. För att slå på loggning av dessa, öppna logback-dev.xml och kommentera in:
+## Stub Testability API
 
-    <!-- Uncomment to get SOAP logging
-       <logger name="org.apache.cxf" level="INFO" />
-    -->
+The following operations can be performed using GET requests to the stub:
 
-## Titta på köer i develop
-Läs under ActiveMQ i [devops/develop README-filen](https://github.com/sklintyg/devops/tree/release/2021-1/develop/README.md)
+**Deactivate stub:**
+```
+http://localhost:8010/logsender/api/loggtjanst-api/offline
+```
 
-## Titta på köer i OpenShift
-Logga in i OpenShift och gå till `broker-amq-xxx` podden. Klicka på länken `Open Java Console`.
+**Reactivate stub:**
+```
+http://localhost:8010/logsender/api/loggtjanst-api/online
+```
 
-## Licens
+**Simulate errors** (errorType = NONE, ERROR, or VALIDATION):
+```
+http://localhost:8010/logsender/api/loggtjanst-api/error/{errorType}
+```
+
+**Simulate latency** (latencyMs = artificial delay in milliseconds):
+```
+http://localhost:8010/logsender/api/loggtjanst-api/latency/{latencyMs}
+```
+
+## Viewing Outgoing SOAP Messages
+
+To view the exact XML sent to the log service as StoreLogRequests, enable logging by opening `logback-dev.xml` and uncommenting:
+
+```xml
+<!-- Uncomment to get SOAP logging
+   <logger name="org.apache.cxf" level="INFO" />
+-->
+```
+
+## Viewing Queues in Development
+
+See the ActiveMQ section in [devops/develop README](https://github.com/sklintyg/devops/tree/release/2021-1/develop/README.md)
+
+## License
+
 Copyright (C) 2021 Inera AB (http://www.inera.se)
 
-Logsender is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+LogSender is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
-Logsender is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
+LogSender is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
 
-Se även [LICENSE.md](LICENSE.md). 
+See also [LICENSE.md](LICENSE.md). 

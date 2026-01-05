@@ -2,6 +2,7 @@ package se.inera.intyg.logsender.integrationtest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static se.inera.intyg.logsender.integrationtest.helper.TestDataHelper.OBJECT_MAPPER;
@@ -80,8 +81,10 @@ class LogsenderIT {
 
       final var batchCount = testabilityUtil.getBatchCount();
       final var messageCount = testabilityUtil.getMessageCount();
-      assertEquals(1, batchCount, "Expected exactly 1 aggregated message");
-      assertEquals(5, messageCount, "Expected 10 individual log entries");
+      assertAll(
+          () -> assertEquals(1, batchCount, "Expected exactly 1 aggregated message"),
+          () -> assertEquals(5, messageCount, "Expected 10 individual log entries")
+      );
     }
 
     @Test
@@ -95,8 +98,10 @@ class LogsenderIT {
 
       final var messageCount = testabilityUtil.getMessageCount();
       final var batchCount = testabilityUtil.getBatchCount();
-      assertEquals(10, messageCount, "Expected 10 individual log entries");
-      assertEquals(2, batchCount, "Expected messages to be sent in 2 batches");
+      assertAll(
+          () -> assertEquals(10, messageCount, "Expected 10 individual log entries"),
+          () -> assertEquals(2, batchCount, "Expected messages to be sent in 2 batches")
+      );
     }
 
     @Test
@@ -110,8 +115,10 @@ class LogsenderIT {
 
       final var messageCount = testabilityUtil.getMessageCount();
       final var batchCount = testabilityUtil.getBatchCount();
-      assertEquals(3, messageCount, "Expected 3 individual log entries");
-      assertEquals(1, batchCount, "Expected messages to be sent in 1 batch after timeout");
+      assertAll(
+          () -> assertEquals(3, messageCount, "Expected 3 individual log entries"),
+          () -> assertEquals(1, batchCount, "Expected messages to be sent in 1 batch after timeout")
+      );
     }
   }
 
