@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -38,8 +37,8 @@ public class LogStore {
 
   private final StringRedisTemplate stringRedisTemplate;
   private final LogStoreObjectMapper logStoreObjectMapper;
-  
-  private static final String LOGSTORE = "logstore";
+
+  private static final String LOGSTORE_KEY = "logstore";
   private static final int MAX_SIZE = 300;
   private static final int OVERFLOW_SIZE = 100;
 
@@ -47,7 +46,7 @@ public class LogStore {
 
   @PostConstruct
   public void init() {
-    logEntries = new DefaultRedisMap<>(LOGSTORE, stringRedisTemplate);
+    logEntries = new DefaultRedisMap<>(LOGSTORE_KEY, stringRedisTemplate);
   }
 
   List<LogType> getAll() {
@@ -55,7 +54,7 @@ public class LogStore {
   }
 
   private List<LogType> fromJson(Collection<String> values) {
-    return values.stream().map(this::fromJson).collect(Collectors.toList());
+    return values.stream().map(this::fromJson).toList();
   }
 
   private LogType fromJson(String json) {
@@ -67,7 +66,7 @@ public class LogStore {
   }
 
   void addLogItem(LogType lt) {
-    int size = logEntries.size();
+    final var size = logEntries.size();
     log.info("Adding log item with ID: {} (current size: {})", lt.getLogId(), size);
     if (size > MAX_SIZE && size % OVERFLOW_SIZE == 0) {
       cleanup();
@@ -79,8 +78,8 @@ public class LogStore {
   @SuppressWarnings("SynchronizeOnNonFinalField")
   private void cleanup() {
     synchronized (logEntries) {
-      Collection<String> values = logEntries.values();
-      List<LogType> logTypes = fromJson(values);
+      final var values = logEntries.values();
+      final var logTypes = fromJson(values);
       logEntries.clear();
 
       logTypes.stream()
