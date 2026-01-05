@@ -20,7 +20,6 @@ package se.inera.intyg.logsender.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
 
 import org.apache.camel.Message;
 import org.apache.camel.impl.DefaultCamelContext;
@@ -28,27 +27,19 @@ import org.apache.camel.support.DefaultMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import se.inera.intyg.logsender.exception.PermanentException;
 import se.inera.intyg.logsender.helper.TestDataHelper;
-import se.inera.intyg.logsender.logging.MdcHelper;
 import se.inera.intyg.logsender.model.ActivityType;
 
 @ExtendWith(MockitoExtension.class)
 class LogMessageSplitProcessorTest {
 
-  @Mock
-  MdcHelper mdcHelper;
-
   private LogMessageSplitProcessor logMessageSplitProcessor;
 
   @BeforeEach
   void setUp() {
-    when(mdcHelper.spanId()).thenReturn("spanId");
-    when(mdcHelper.traceId()).thenReturn("traceId");
-
-    logMessageSplitProcessor = new LogMessageSplitProcessor(mdcHelper);
+    logMessageSplitProcessor = new LogMessageSplitProcessor();
   }
 
   @Test

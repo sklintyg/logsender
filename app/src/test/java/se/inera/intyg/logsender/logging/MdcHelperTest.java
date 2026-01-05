@@ -7,22 +7,15 @@ import org.junit.jupiter.api.Test;
 
 class MdcHelperTest {
 
-  private MdcHelper mdcHelper;
-
-  @BeforeEach
-  void setUp() {
-    mdcHelper = new MdcHelper();
+  @Test
+  void shouldGenerateTraceId() {
+    final var result = MdcHelper.traceId();
+    assertNotNull(result);
   }
 
-    @Test
-    void shouldGenerateTraceId() {
-      final var result = mdcHelper.traceId();
-      assertNotNull(result);
-    }
-
-    @Test
-    void shouldGenerateSpanId() {
-      final var result = mdcHelper.spanId();
-      assertNotNull(result);
-    }
+  @Test
+  void shouldGenerateSpanId() {
+    final var result = MdcHelper.spanId();
+    assertNotNull(result);
+  }
 }

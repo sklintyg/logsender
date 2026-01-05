@@ -36,8 +36,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class MdcLoggingFilter implements Filter {
 
-  private final MdcHelper mdcHelper;
-
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {
@@ -45,8 +43,8 @@ public class MdcLoggingFilter implements Filter {
     final var httpRequest = (HttpServletRequest) request;
 
     try {
-      MDC.put(MdcLogConstants.TRACE_ID_KEY, mdcHelper.traceId());
-      MDC.put(MdcLogConstants.SPAN_ID_KEY, mdcHelper.spanId());
+      MDC.put(MdcLogConstants.TRACE_ID_KEY, MdcHelper.traceId());
+      MDC.put(MdcLogConstants.SPAN_ID_KEY, MdcHelper.spanId());
 
       MDC.put("request.uri", httpRequest.getRequestURI());
       MDC.put("request.method", httpRequest.getMethod());

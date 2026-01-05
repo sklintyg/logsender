@@ -31,11 +31,9 @@ import org.apache.camel.Message;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import se.inera.intyg.logsender.exception.PermanentException;
 import se.inera.intyg.logsender.helper.TestDataHelper;
-import se.inera.intyg.logsender.logging.MdcHelper;
 import se.inera.intyg.logsender.mapper.CustomObjectMapper;
 import se.inera.intyg.logsender.model.ActivityType;
 
@@ -44,17 +42,11 @@ class LogMessageAggregationProcessorTest {
 
   private static final ObjectMapper objectMapper = new CustomObjectMapper();
 
-  @Mock
-  private MdcHelper mdcHelper;
-
   private LogMessageAggregationProcessor logMessageAggregationProcessor;
 
   @BeforeEach
   void setUp() {
-    when(mdcHelper.spanId()).thenReturn("spanId");
-    when(mdcHelper.traceId()).thenReturn("traceId");
-
-    logMessageAggregationProcessor = new LogMessageAggregationProcessor(objectMapper, mdcHelper);
+    logMessageAggregationProcessor = new LogMessageAggregationProcessor(objectMapper);
   }
 
   @Test
