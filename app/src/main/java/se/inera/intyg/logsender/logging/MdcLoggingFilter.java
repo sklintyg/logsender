@@ -42,7 +42,7 @@ public class MdcLoggingFilter implements Filter {
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {
 
-    HttpServletRequest httpRequest = (HttpServletRequest) request;
+    final var httpRequest = (HttpServletRequest) request;
 
     try {
       MDC.put(MdcLogConstants.TRACE_ID_KEY, mdcHelper.traceId());
@@ -54,10 +54,6 @@ public class MdcLoggingFilter implements Filter {
       chain.doFilter(request, response);
 
     } finally {
-      MDC.remove(MdcLogConstants.TRACE_ID_KEY);
-      MDC.remove(MdcLogConstants.SPAN_ID_KEY);
-      MDC.remove("request.uri");
-      MDC.remove("request.method");
       MDC.clear();
     }
   }

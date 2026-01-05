@@ -38,7 +38,6 @@ final class LogTypeFactoryUtil {
     return instance;
   }
 
-
   public boolean isSamordningsNummer(Personnummer personNummer) {
 
     if (Optional.ofNullable(personNummer).isPresent()) {
@@ -61,7 +60,6 @@ final class LogTypeFactoryUtil {
   public String trim(String input) {
     return input != null ? input.trim() : null;
   }
-
 
   public String trimToNull(String input) {
     return input != null && !input.trim().isEmpty() ? input.trim() : null;
