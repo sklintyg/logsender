@@ -38,16 +38,13 @@ public class LogMessageAggregationProcessor {
 
   private final ObjectMapper objectMapper;
 
-  private final MdcHelper mdcHelper;
-
-
   public String process(Exchange exchange) throws PermanentException, JsonProcessingException {
     try (MdcCloseableMap ignored = MdcCloseableMap.builder()
-        .put(MdcLogConstants.TRACE_ID_KEY, mdcHelper.traceId())
-        .put(MdcLogConstants.SPAN_ID_KEY, mdcHelper.spanId())
+        .put(MdcLogConstants.TRACE_ID_KEY, MdcHelper.traceId())
+        .put(MdcLogConstants.SPAN_ID_KEY, MdcHelper.spanId())
         .build()
     ) {
-      List<Exchange> grouped = exchange.getIn().getBody(List.class);
+      final List<Exchange> grouped = exchange.getIn().getBody(List.class);
 
       if (grouped == null || grouped.isEmpty()) {
         log.info(
@@ -55,7 +52,7 @@ public class LogMessageAggregationProcessor {
         throw new PermanentException("No aggregated messages, no reason to retry");
       }
 
-      List<String> aggregatedList = grouped.stream()
+      final var aggregatedList = grouped.stream()
           .map(oneExchange -> (String) oneExchange.getIn().getBody())
           .toList();
 

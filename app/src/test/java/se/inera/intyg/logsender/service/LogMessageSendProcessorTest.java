@@ -40,7 +40,6 @@ import se.inera.intyg.logsender.exception.BatchValidationException;
 import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
 import se.inera.intyg.logsender.exception.TemporaryException;
 import se.inera.intyg.logsender.helper.TestDataHelper;
-import se.inera.intyg.logsender.logging.MdcHelper;
 import se.inera.intyg.logsender.mapper.CustomObjectMapper;
 import se.inera.intyg.logsender.model.ActivityType;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
@@ -53,8 +52,6 @@ class LogMessageSendProcessorTest {
   private static final ObjectMapper objectMapper = new CustomObjectMapper();
 
   @Mock
-  MdcHelper mdcHelper;
-  @Mock
   private LogSenderClient logSenderClient;
 
   @Spy
@@ -64,11 +61,8 @@ class LogMessageSendProcessorTest {
 
   @BeforeEach
   void setUp() {
-    when(mdcHelper.spanId()).thenReturn("spanId");
-    when(mdcHelper.traceId()).thenReturn("traceId");
-
     logMessageSendProcessor = new LogMessageSendProcessor(logSenderClient, logTypeFactory,
-        objectMapper, mdcHelper);
+        objectMapper);
   }
 
   @Test

@@ -46,19 +46,16 @@ public class LogMessageSplitProcessor {
 
   private final ObjectMapper objectMapper = new CustomObjectMapper();
 
-  private final MdcHelper mdcHelper;
-
-
   public List<Message> process(@Body Message body) throws IOException, PermanentException {
     try (MdcCloseableMap ignored = MdcCloseableMap.builder()
-        .put(MdcLogConstants.TRACE_ID_KEY, mdcHelper.traceId())
-        .put(MdcLogConstants.SPAN_ID_KEY, mdcHelper.spanId())
+        .put(MdcLogConstants.TRACE_ID_KEY, MdcHelper.traceId())
+        .put(MdcLogConstants.SPAN_ID_KEY, MdcHelper.spanId())
         .build()
     ) {
-      List<Message> answer = new ArrayList<>();
+      final var answer = new ArrayList<Message>();
 
       if (body != null) {
-        PdlLogMessage pdlLogMessage = objectMapper.readValue((String) body.getBody(),
+        final var pdlLogMessage = objectMapper.readValue((String) body.getBody(),
             PdlLogMessage.class);
         if (pdlLogMessage.getPdlResourceList().isEmpty()) {
           log.error("No resources in PDL log message {}, not proceeding.",
@@ -77,10 +74,10 @@ public class LogMessageSplitProcessor {
   private void splitIntoOnePdlLogMessagePerResource(List<Message> answer,
       PdlLogMessage pdlLogMessage) throws JsonProcessingException {
     for (PdlResource resource : pdlLogMessage.getPdlResourceList()) {
-      PdlLogMessage copiedPdlLogMsg = pdlLogMessage.copy(false);
+      final var copiedPdlLogMsg = pdlLogMessage.copy(false);
       copiedPdlLogMsg.getPdlResourceList().add(resource);
 
-      DefaultMessage message = new DefaultMessage(new DefaultCamelContext());
+      final var message = new DefaultMessage(new DefaultCamelContext());
       message.setBody(objectMapper.writeValueAsString(copiedPdlLogMsg));
       answer.add(message);
     }

@@ -34,8 +34,6 @@ import se.inera.intyg.logsender.logging.MdcCloseableMap;
 import se.inera.intyg.logsender.logging.MdcHelper;
 import se.inera.intyg.logsender.logging.MdcLogConstants;
 import se.inera.intyg.logsender.model.PdlLogMessage;
-import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
-import se.riv.informationsecurity.auditing.log.v2.LogType;
 import se.riv.informationsecurity.auditing.log.v2.ResultType;
 
 @Component
@@ -46,24 +44,23 @@ public class LogMessageSendProcessor {
   private final LogSenderClient logSenderClient;
   private final LogTypeFactory logTypeFactory;
   private final ObjectMapper objectMapper;
-  private final MdcHelper mdcHelper;
 
   public void process(String groupedLogEntries)
       throws IOException, BatchValidationException, TemporaryException {
 
     try (MdcCloseableMap ignored = MdcCloseableMap.builder()
-        .put(MdcLogConstants.TRACE_ID_KEY, mdcHelper.traceId())
-        .put(MdcLogConstants.SPAN_ID_KEY, mdcHelper.spanId())
+        .put(MdcLogConstants.TRACE_ID_KEY, MdcHelper.traceId())
+        .put(MdcLogConstants.SPAN_ID_KEY, MdcHelper.spanId())
         .build()
     ) {
-      List<String> groupedList = objectMapper.readValue(groupedLogEntries, List.class);
+      final List<String> groupedList = objectMapper.readValue(groupedLogEntries, List.class);
 
-      List<LogType> logMessages = groupedList.stream()
+      final var logMessages = groupedList.stream()
           .map(this::jsonToPdlLogMessage)
           .map(logTypeFactory::convert)
           .toList();
 
-      StoreLogResponseType response = logSenderClient.sendLogMessage(logMessages);
+      final var response = logSenderClient.sendLogMessage(logMessages);
 
       final ResultType result = response.getResult();
       final String resultText = result.getResultText();
