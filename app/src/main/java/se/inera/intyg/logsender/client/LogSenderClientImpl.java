@@ -58,7 +58,7 @@ public class LogSenderClientImpl implements LogSenderClient {
 
     try {
       final var response = soapIntegrationService.storeLog(
-          properties.loggtjanst().logicalAddress(),
+          properties.storeLog().logicalAddress(),
           request
       );
       if (response.getResult().getResultCode() == ResultCodeType.OK && (log.isDebugEnabled())) {

@@ -1,24 +1,25 @@
 app:
   aggregation:
-    bulkSize: 10
-    bulkTimeout: 60000
-  certificate:
-    type: JKS
-    truststoreType: JKS
-  loggtjanst:
-    logicalAddress: ''
-    endpointUrl: ${ntjp.base.url}/informationsecurity/auditing/log/StoreLog/v2/rivtabp21
+    bulk-size: 10
+    bulk-timeout: 60000
+  storeLog:
+    logical-address: ''
+    endpoint-url: ${app.store-log.ntjp-base-url}/informationsecurity/auditing/log/StoreLog/v2/rivtabp21
+    certificate:
+      type: JKS
+    truststore:
+      type: JKS
   queue:
-    receiveLogMessageEndpoint: activemq:queue:dev.webcert.log.queue
-    receiveAggregatedLogMessageEndpoint: activemq:queue:dev.webcert.aggregated.log.queue
-    receiveAggregatedLogMessageDlq: activemq:queue:DLQ.dev.webcert.aggregated.log.queue
+    receive-log-message-endpoint: activemq:queue:dev.webcert.log.queue
+    receive-aggregated-log-message-endpoint: activemq:queue:dev.webcert.aggregated.log.queue
+    receive-aggregated-log-message-dlq: activemq:queue:DLQ.dev.webcert.aggregated.log.queue
 
 camel:
   component:
     activemq:
-      cacheLevelName: CACHE_CONSUMER
-      errorHandlerLoggingLevel: OFF
-      errorHandlerLogStackTrace: false
+      cache-level-name: CACHE_CONSUMER
+      error-handler-logging-level: OFF
+      error-handler-log-stack-trace: false
       transacted: true
 
 logging:

@@ -28,26 +28,10 @@ import org.springframework.validation.annotation.Validated;
 @ConfigurationProperties(prefix = "app")
 @Validated
 public record LogsenderProperties(
-    @Valid Aggregation aggregation,
-    @Valid Queue queue,
-    @Valid Loggtjanst loggtjanst,
-    @Valid Certificate certificate
+    @NotNull @Valid Aggregation aggregation,
+    @NotNull @Valid Queue queue,
+    @NotNull @Valid StoreLog storeLog
 ) {
-
-  public LogsenderProperties {
-    if (aggregation == null) {
-      aggregation = new Aggregation(null, null);
-    }
-    if (queue == null) {
-      queue = new Queue(null, null, null);
-    }
-    if (loggtjanst == null) {
-      loggtjanst = new Loggtjanst(null, null);
-    }
-    if (certificate == null) {
-      certificate = new Certificate(null, null, null, null, null, null, null);
-    }
-  }
 
   public record Aggregation(
       @NotNull @Min(1) @Valid Integer bulkSize,
@@ -65,9 +49,12 @@ public record LogsenderProperties(
 
   }
 
-  public record Loggtjanst(
+  public record StoreLog(
       @NotBlank @Valid String logicalAddress,
-      @NotBlank @Valid String endpointUrl
+      @NotBlank @Valid String endpointUrl,
+      @NotBlank @Valid String ntjpBaseUrl,
+      @NotNull @Valid Certificate certificate,
+      @NotNull @Valid TrustStore trustStore
   ) {
 
   }
@@ -75,11 +62,16 @@ public record LogsenderProperties(
   public record Certificate(
       @NotBlank @Valid String file,
       @NotBlank @Valid String type,
-      @NotBlank @Valid String truststoreFile,
-      @NotBlank @Valid String truststoreType,
       @NotBlank @Valid String password,
-      @NotBlank @Valid String keyManagerPassword,
-      @NotBlank @Valid String truststorePassword
+      @NotBlank @Valid String keyManagerPassword
+  ) {
+
+  }
+
+  public record TrustStore(
+      @NotBlank @Valid String file,
+      @NotBlank @Valid String type,
+      @NotBlank @Valid String password
   ) {
 
   }

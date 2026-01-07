@@ -1,25 +1,23 @@
 app:
   aggregation:
-    bulkSize: 5
-    bulkTimeout: 60000
-  certificate:
-    file: ${application.dir}/certifikat/localhost.p12
-    keyManagerPassword: password
-    password: password
-    truststoreFile: ${application.dir}/certifikat/truststore.jks
-    truststorePassword: password
-    type: PKCS12
-  loggtjanst:
-    logicalAddress: SE000000000000-0000
+    bulk-size: 5
+    bulk-timeout: 60000
+  store-log:
+    logical-address: SE000000000000-0000
+    ntjp-base-url: http://localhost:${dev.http.port}/stubs
+    certificate:
+      file: ${application.dir}/certifikat/localhost.p12
+      key-manager-password: password
+      password: password
+      type: PKCS12
+    trust-store:
+      file: ${application.dir}/certifikat/truststore.jks
+      password: password
 
 logging:
   structured:
     format:
       console: ''
-
-ntjp:
-  base:
-    url: http://localhost:${dev.http.port}/stubs
 
 server:
   port: 8010

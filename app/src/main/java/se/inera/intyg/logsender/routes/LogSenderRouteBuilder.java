@@ -47,9 +47,6 @@ public class LogSenderRouteBuilder extends RouteBuilder {
    */
   @Override
   public void configure() {
-
-    log.info(properties.toString());
-
     errorHandler(defaultErrorHandler().logExhausted(false));
 
     // 1. Starts by splitting any inbound PdlLogMessage instances having more than one PdlResource into separate
