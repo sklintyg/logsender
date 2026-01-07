@@ -2,7 +2,6 @@ package se.inera.intyg.logsender.logging;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class MdcHelperTest {

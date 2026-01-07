@@ -74,7 +74,7 @@ public class LogSenderWsConfig {
   private JaxWsProxyFactoryBean createJaxWsProxyFactoryBean() {
     final var jaxWsProxyFactoryBean = new JAXWSSpringClientProxyFactoryBean();
     jaxWsProxyFactoryBean.setServiceClass(StoreLogResponderInterface.class);
-    jaxWsProxyFactoryBean.setAddress(properties.getLoggtjanst().getEndpointUrl());
+    jaxWsProxyFactoryBean.setAddress(properties.loggtjanst().endpointUrl());
     jaxWsProxyFactoryBean.getFeatures().add(loggingFeature());
     return jaxWsProxyFactoryBean;
   }
@@ -126,9 +126,9 @@ public class LogSenderWsConfig {
   private KeyManager[] setupKeyManagers()
       throws KeyStoreException, IOException, UnrecoverableKeyException,
       NoSuchAlgorithmException, CertificateException {
-    final var keyStoreFile = properties.getCertificate().getFile();
-    final var keyStorePassword = properties.getCertificate().getPassword().toCharArray();
-    final var keyStore = KeyStore.getInstance(properties.getCertificate().getType());
+    final var keyStoreFile = properties.certificate().file();
+    final var keyStorePassword = properties.certificate().password().toCharArray();
+    final var keyStore = KeyStore.getInstance(properties.certificate().type());
     try (FileInputStream keyStoreInputStream = new FileInputStream(keyStoreFile)) {
       keyStore.load(keyStoreInputStream, keyStorePassword);
     }
@@ -141,11 +141,9 @@ public class LogSenderWsConfig {
   private TrustManager[] setupTrustManagers()
       throws KeyStoreException, IOException, CertificateException,
       NoSuchAlgorithmException {
-    final var trustStoreFile = properties.getCertificate().getTruststoreFile();
-    final var trustStorePassword = properties.getCertificate().getTruststorePassword()
-        .toCharArray();
-    final var trustStore = KeyStore.getInstance(
-        properties.getCertificate().getTruststoreType());
+    final var trustStoreFile = properties.certificate().truststoreFile();
+    final var trustStorePassword = properties.certificate().truststorePassword().toCharArray();
+    final var trustStore = KeyStore.getInstance(properties.certificate().truststoreType());
     try (FileInputStream trustStoreInputStream = new FileInputStream(trustStoreFile)) {
       trustStore.load(trustStoreInputStream, trustStorePassword);
     }

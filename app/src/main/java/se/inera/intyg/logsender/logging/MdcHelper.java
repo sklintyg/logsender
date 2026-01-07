@@ -1,12 +1,7 @@
 package se.inera.intyg.logsender.logging;
 
-import java.nio.CharBuffer;
 import java.security.SecureRandom;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.IntStream;
-import org.springframework.stereotype.Component;
 
-@Component
 public class MdcHelper {
 
   private static final SecureRandom RNG = new SecureRandom();

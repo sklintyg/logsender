@@ -18,89 +18,69 @@
  */
 package se.inera.intyg.logsender.config;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
-@Setter
-@Getter
-@ConfigurationProperties(prefix = "logsender")
+@ConfigurationProperties(prefix = "app")
 @Validated
-public class LogsenderProperties {
+public record LogsenderProperties(
+    @Valid Aggregation aggregation,
+    @Valid Queue queue,
+    @Valid Loggtjanst loggtjanst,
+    @Valid Certificate certificate
+) {
 
-  private Aggregation aggregation = new Aggregation();
+  public LogsenderProperties {
+    if (aggregation == null) {
+      aggregation = new Aggregation(null, null);
+    }
+    if (queue == null) {
+      queue = new Queue(null, null, null);
+    }
+    if (loggtjanst == null) {
+      loggtjanst = new Loggtjanst(null, null);
+    }
+    if (certificate == null) {
+      certificate = new Certificate(null, null, null, null, null, null, null);
+    }
+  }
 
-  private Queue queue = new Queue();
-
-  private Loggtjanst loggtjanst = new Loggtjanst();
-
-  private Certificate certificate = new Certificate();
-
-  @Setter
-  @Getter
-  public static class Aggregation {
-
-    @NotNull
-    @Min(1)
-    private Integer bulkSize;
-
-    @NotNull
-    @Min(1000)
-    private Long bulkTimeout;
+  public record Aggregation(
+      @NotNull @Min(1) @Valid Integer bulkSize,
+      @NotNull @Min(1000) @Valid Long bulkTimeout
+  ) {
 
   }
 
-
-  @Setter
-  @Getter
-  public static class Queue {
-
-    @NotBlank
-    private String receiveLogMessageEndpoint;
-
-    @NotBlank
-    private String receiveAggregatedLogMessageEndpoint;
-
-    @NotBlank
-    private String receiveAggregatedLogMessageDlq;
+  @Validated
+  public record Queue(
+      @NotBlank @Valid String receiveLogMessageEndpoint,
+      @NotBlank @Valid String receiveAggregatedLogMessageEndpoint,
+      @NotBlank @Valid String receiveAggregatedLogMessageDlq
+  ) {
 
   }
 
-  @Setter
-  @Getter
-  public static class Loggtjanst {
-
-    @NotBlank
-    private String logicalAddress;
-
-    @NotBlank
-    private String endpointUrl;
+  public record Loggtjanst(
+      @NotBlank @Valid String logicalAddress,
+      @NotBlank @Valid String endpointUrl
+  ) {
 
   }
 
-  @Setter
-  @Getter
-  public static class Certificate {
-
-    private String file;
-
-    @NotBlank
-    private String type;
-
-    private String truststoreFile;
-
-    @NotBlank
-    private String truststoreType;
-
-    private String password;
-
-    private String keyManagerPassword;
-
-    private String truststorePassword;
+  public record Certificate(
+      @NotBlank @Valid String file,
+      @NotBlank @Valid String type,
+      @NotBlank @Valid String truststoreFile,
+      @NotBlank @Valid String truststoreType,
+      @NotBlank @Valid String password,
+      @NotBlank @Valid String keyManagerPassword,
+      @NotBlank @Valid String truststorePassword
+  ) {
 
   }
 }

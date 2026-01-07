@@ -35,6 +35,7 @@ public class LogSenderRouteBuilder extends RouteBuilder {
 
 
   private final LogsenderProperties properties;
+//  private final QueueProperties queueProperties;
 
   /*
    * This route depends on the MQ provider (currently ActiveMQ) for redelivery. Any temporary exception thrown
@@ -46,6 +47,9 @@ public class LogSenderRouteBuilder extends RouteBuilder {
    */
   @Override
   public void configure() {
+
+    log.info(properties.toString());
+
     errorHandler(defaultErrorHandler().logExhausted(false));
 
     // 1. Starts by splitting any inbound PdlLogMessage instances having more than one PdlResource into separate
@@ -53,20 +57,20 @@ public class LogSenderRouteBuilder extends RouteBuilder {
     // Then the route Aggregates (n) messages together and passes them to a custom bean which will transform the
     // content into a single list of PdlLogMessage.
     // The bean:logMessageAggregationProcessor outputs a List of PdlLogMessage which is passed to a JMS queue.
-    from(properties.getQueue().getReceiveLogMessageEndpoint()).routeId("aggregatorRoute")
+    from(properties.queue().receiveLogMessageEndpoint()).routeId("aggregatorRoute")
         .split().method("logMessageSplitProcessor")
         .aggregate(new GroupedExchangeAggregationStrategy())
         .constant(true)
-        .completionInterval(properties.getAggregation().getBulkTimeout())
+        .completionInterval(properties.aggregation().bulkTimeout())
         .completionPredicate(
-            header("CamelAggregatedSize").isEqualTo(properties.getAggregation().getBulkSize()))
+            header("CamelAggregatedSize").isEqualTo(properties.aggregation().bulkSize()))
         .to("bean:logMessageAggregationProcessor")
-        .to(properties.getQueue().getReceiveAggregatedLogMessageEndpoint())
+        .to(properties.queue().receiveAggregatedLogMessageEndpoint())
         .stop();
 
     // 2. In a transaction, reads from jms/AggregatedLogSenderQueue and uses custom bean:logMessageProcessor
     // to convert into ehr:logstore format and send. Exception handling delegates resends to AMQ.
-    from(properties.getQueue().getReceiveAggregatedLogMessageEndpoint()).routeId(
+    from(properties.queue().receiveAggregatedLogMessageEndpoint()).routeId(
             "aggregatedJmsToSenderRoute")
         .onException(TemporaryException.class).to("direct:logMessageTemporaryErrorHandlerEndpoint")
         .end()
@@ -91,7 +95,7 @@ public class LogSenderRouteBuilder extends RouteBuilder {
             simple(
                 "ENTER - Batch validation exception for LogMessage batch: ${exception.message}\n ${exception.stacktrace}")
                 .toString())
-        .to(properties.getQueue().getReceiveAggregatedLogMessageDlq())
+        .to(properties.queue().receiveAggregatedLogMessageDlq())
         .stop();
 
     from("direct:logMessageTemporaryErrorHandlerEndpoint").routeId("temporaryErrorLogging")

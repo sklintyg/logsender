@@ -1,0 +1,40 @@
+app:
+  aggregation:
+    bulkSize: 5
+    bulkTimeout: 1000
+  certificate:
+    file: ${user.dir}/src/test/resources/certifikat/localhost.p12
+    keyManagerPassword: password
+    password: password
+    truststoreFile: ${user.dir}/src/test/resources/certifikat/localhost.p12
+    truststorePassword: password
+    type: PKCS12
+  loggtjanst:
+    logicalAddress: 1234-1234
+    endpointUrl: http://localhost:8080/test/stubs
+  queue:
+    receiveLogMessageEndpoint: activemq:queue:newLogMessageQueue
+    receiveAggregatedLogMessageEndpoint: activemq:queue:newAggregatedLogMessageQueue
+    receiveAggregatedLogMessageDlq: activemq:queue:DLQ.newAggregatedLogMessageQueue
+
+logging:
+  structured:
+    format:
+      console: ''
+
+ntjp:
+  base:
+    url: http://localhost:${dev.http.port}/stubs
+
+server:
+  port: 8010
+
+spring:
+  activemq:
+    password: activemqPassword
+    user: activemqUser
+  application:
+    name: logsender-dev
+  data:
+    redis:
+      timeout: 2000ms

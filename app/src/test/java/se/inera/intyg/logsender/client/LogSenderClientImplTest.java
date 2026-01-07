@@ -65,7 +65,9 @@ class LogSenderClientImplTest {
 
     @BeforeEach
     void setup() {
-      when(properties.getLoggtjanst()).thenReturn(new Loggtjanst());
+      when(properties.loggtjanst()).thenReturn(
+          new Loggtjanst("logicalAddress", "http://loggtjanst-endpoint")
+      );
     }
 
     @Test

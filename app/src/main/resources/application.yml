@@ -1,0 +1,47 @@
+app:
+  aggregation:
+    bulkSize: 10
+    bulkTimeout: 60000
+  certificate:
+    type: JKS
+    truststoreType: JKS
+  loggtjanst:
+    logicalAddress: ''
+    endpointUrl: ${ntjp.base.url}/informationsecurity/auditing/log/StoreLog/v2/rivtabp21
+  queue:
+    receiveLogMessageEndpoint: activemq:queue:dev.webcert.log.queue
+    receiveAggregatedLogMessageEndpoint: activemq:queue:dev.webcert.aggregated.log.queue
+    receiveAggregatedLogMessageDlq: activemq:queue:DLQ.dev.webcert.aggregated.log.queue
+
+camel:
+  component:
+    activemq:
+      cacheLevelName: CACHE_CONSUMER
+      errorHandlerLoggingLevel: OFF
+      errorHandlerLogStackTrace: false
+      transacted: true
+
+logging:
+  structured:
+    format:
+      console: ecs
+
+spring:
+  activemq:
+    packages:
+      trust-all: false
+      trusted: se.inera.intyg
+    pool:
+      enabled: true
+      max-connections: 10
+  application:
+    name: logsender
+  data:
+    redis:
+      timeout: 2000ms
+  jms:
+    cache:
+      enabled: true
+      session-cache-size: 10
+  main:
+    banner-mode: console

@@ -19,9 +19,9 @@ public class JmsUtil {
 
   public JmsUtil(JmsTemplate jmsTemplate, LogsenderProperties properties) {
     this.jmsTemplate = jmsTemplate;
-    this.queueName = properties.getQueue().getReceiveLogMessageEndpoint()
+    this.queueName = properties.queue().receiveLogMessageEndpoint()
         .replace("activemq:queue:", "");
-    this.dlqQueueName = properties.getQueue().getReceiveAggregatedLogMessageDlq()
+    this.dlqQueueName = properties.queue().receiveAggregatedLogMessageDlq()
         .replace("activemq:queue:", "");
   }
 
