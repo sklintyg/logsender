@@ -32,10 +32,8 @@ import se.inera.intyg.logsender.exception.TemporaryException;
 @RequiredArgsConstructor
 @Slf4j
 public class LogSenderRouteBuilder extends RouteBuilder {
-
-
+  
   private final LogsenderProperties properties;
-//  private final QueueProperties queueProperties;
 
   /*
    * This route depends on the MQ provider (currently ActiveMQ) for redelivery. Any temporary exception thrown
