@@ -20,6 +20,7 @@ package se.inera.intyg.logsender.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static se.inera.intyg.logsender.helper.TestDataHelper.OBJECT_MAPPER;
 
 import org.apache.camel.Message;
 import org.apache.camel.impl.DefaultCamelContext;
@@ -39,7 +40,7 @@ class LogMessageSplitProcessorTest {
 
   @BeforeEach
   void setUp() {
-    logMessageSplitProcessor = new LogMessageSplitProcessor();
+    logMessageSplitProcessor = new LogMessageSplitProcessor(OBJECT_MAPPER);
   }
 
   @Test

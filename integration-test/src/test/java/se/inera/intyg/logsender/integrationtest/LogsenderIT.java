@@ -30,7 +30,6 @@ import se.inera.intyg.logsender.integrationtest.helper.ValueInclude;
 import se.inera.intyg.logsender.integrationtest.util.Containers;
 import se.inera.intyg.logsender.integrationtest.util.JmsUtil;
 import se.inera.intyg.logsender.integrationtest.util.TestabilityUtil;
-import se.inera.intyg.logsender.mapper.CustomObjectMapper;
 import se.inera.intyg.logsender.model.ActivityType;
 
 @ActiveProfiles({"integration-test", "testability"})
@@ -320,7 +319,7 @@ class LogsenderIT {
 
   private String buildPdlLogMessageWithInvalidResourceJson(int resources) throws IOException {
     final var bodyOfSix = TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ, resources);
-    final var jsonNode = (ObjectNode) new CustomObjectMapper().readTree(bodyOfSix);
+    final var jsonNode = (ObjectNode) OBJECT_MAPPER.readTree(bodyOfSix);
     final var pdlResourceList = (ArrayNode) jsonNode.get("pdlResourceList");
 
     final var invalidJsonNode = new TextNode("Some text that doesn't belong here");

@@ -18,18 +18,16 @@
  */
 package se.inera.intyg.logsender.standalone;
 
-import jakarta.jms.JMSException;
-import jakarta.jms.Session;
-
-import org.apache.activemq.ActiveMQConnection;
-import org.apache.activemq.ActiveMQConnectionFactory;
+import static se.inera.intyg.logsender.helper.TestDataHelper.OBJECT_MAPPER;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-
-import se.inera.intyg.logsender.mapper.CustomObjectMapper;
-import se.inera.intyg.logsender.model.ActivityType;
+import jakarta.jms.JMSException;
+import jakarta.jms.Session;
+import org.apache.activemq.ActiveMQConnection;
+import org.apache.activemq.ActiveMQConnectionFactory;
 import se.inera.intyg.logsender.helper.TestDataHelper;
 import se.inera.intyg.logsender.helper.ValueInclude;
+import se.inera.intyg.logsender.model.ActivityType;
 
 /**
  * Stand-alone "application" that can connect to a local running ActiveMQ and send a PdlLogMessage
@@ -56,7 +54,8 @@ public class SimpleLogMessageSender {
     final var pdlLogMessage = TestDataHelper
         .buildBasePdlLogMessage(ActivityType.CREATE, ValueInclude.INCLUDE, ValueInclude.INCLUDE);
     final var message = session.createTextMessage(
-        new CustomObjectMapper().writeValueAsString(pdlLogMessage));
+        OBJECT_MAPPER.writeValueAsString(pdlLogMessage)
+    );
     producer.send(message);
     System.out.println("Sent message: '" + message.getText() + "'");
 

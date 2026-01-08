@@ -35,4 +35,5 @@ public class LogSenderJmsConfig {
       @Qualifier("jmsConnectionFactory") ConnectionFactory connectionFactory) {
     return new JmsTransactionManager(connectionFactory);
   }
+
 }

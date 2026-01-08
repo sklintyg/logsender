@@ -1,17 +1,15 @@
 def applicationDir = "${rootProject.projectDir}/devops/dev"
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation 'org.springframework.boot:spring-boot-starter-activemq'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-activemq'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
 
     implementation "codes.rafael.jaxb2_commons:jaxb2-basics"
-    implementation "com.fasterxml.jackson.jakarta.rs:jackson-jakarta-rs-json-provider"
-    implementation "com.google.guava:guava"
-    implementation "jakarta.ws.rs:jakarta.ws.rs-api"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
     implementation "org.apache.camel.springboot:camel-spring-boot-starter"
     implementation "org.apache.camel.springboot:camel-activemq-starter"
     implementation "org.apache.camel.springboot:camel-jms-starter"
@@ -27,6 +25,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     runtimeOnly "org.glassfish.jaxb:jaxb-runtime"
 
+    testImplementation "com.google.guava:guava"
     testImplementation "jakarta.xml.bind:jakarta.xml.bind-api"
     testImplementation "org.apache.activemq:activemq-broker"
     testImplementation "org.apache.camel:camel-test-spring-junit5"

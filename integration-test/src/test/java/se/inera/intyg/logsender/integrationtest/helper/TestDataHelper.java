@@ -20,8 +20,8 @@ package se.inera.intyg.logsender.integrationtest.helper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.LocalDateTime;
-import se.inera.intyg.logsender.mapper.CustomObjectMapper;
 import se.inera.intyg.logsender.model.ActivityPurpose;
 import se.inera.intyg.logsender.model.ActivityType;
 import se.inera.intyg.logsender.model.Enhet;
@@ -33,8 +33,12 @@ import se.inera.intyg.logsender.model.ResourceType;
 
 public class TestDataHelper {
 
-  public static final ObjectMapper OBJECT_MAPPER = new CustomObjectMapper();
+  public static final ObjectMapper OBJECT_MAPPER;
 
+  static {
+    OBJECT_MAPPER = new ObjectMapper();
+    OBJECT_MAPPER.registerModule(new JavaTimeModule());
+  }
 
   public static String buildBasePdlLogMessageAsJson(ActivityType activityType) {
     try {

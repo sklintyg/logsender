@@ -22,8 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static se.inera.intyg.logsender.helper.TestDataHelper.OBJECT_MAPPER;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.camel.Exchange;
@@ -34,32 +34,29 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import se.inera.intyg.logsender.exception.PermanentException;
 import se.inera.intyg.logsender.helper.TestDataHelper;
-import se.inera.intyg.logsender.mapper.CustomObjectMapper;
 import se.inera.intyg.logsender.model.ActivityType;
 
 @ExtendWith(MockitoExtension.class)
 class LogMessageAggregationProcessorTest {
 
-  private static final ObjectMapper objectMapper = new CustomObjectMapper();
-
   private LogMessageAggregationProcessor logMessageAggregationProcessor;
 
   @BeforeEach
   void setUp() {
-    logMessageAggregationProcessor = new LogMessageAggregationProcessor(objectMapper);
+    logMessageAggregationProcessor = new LogMessageAggregationProcessor(OBJECT_MAPPER);
   }
 
   @Test
   void testOkGroupedExchange() throws Exception {
     final var body = logMessageAggregationProcessor.process(buildGroupedExchange(1, 1));
-    final var output = objectMapper.readValue(body, ArrayList.class);
+    final var output = OBJECT_MAPPER.readValue(body, ArrayList.class);
     assertEquals(1, output.size());
   }
 
   @Test
   void testGroupedExchangeWithMultipleResources() throws Exception {
     final var body = logMessageAggregationProcessor.process(buildGroupedExchange(3, 5));
-    final var output = objectMapper.readValue(body, ArrayList.class);
+    final var output = OBJECT_MAPPER.readValue(body, ArrayList.class);
     assertEquals(3, output.size());
   }
 
