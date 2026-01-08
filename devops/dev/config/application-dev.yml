@@ -1,0 +1,37 @@
+app:
+  aggregation:
+    bulk-size: 5
+    bulk-timeout: 60000
+  store-log:
+    logical-address: SE000000000000-0000
+    ntjp-base-url: http://localhost:${dev.http.port}/stubs
+    certificate:
+      file: ${application.dir}/certifikat/localhost.p12
+      key-manager-password: password
+      password: password
+      type: PKCS12
+    trust-store:
+      file: ${application.dir}/certifikat/truststore.jks
+      password: password
+
+logging:
+  structured:
+    format:
+      console: ''
+
+server:
+  port: 8010
+
+spring:
+  activemq:
+    broker-url: tcp://localhost:61616?jms.nonBlockingRedelivery=true&jms.redeliveryPolicy.maximumRedeliveries=3&jms.redeliveryPolicy.maximumRedeliveryDelay=6000&jms.redeliveryPolicy.initialRedeliveryDelay=4000&jms.redeliveryPolicy.useExponentialBackOff=true&jms.redeliveryPolicy.backOffMultiplier=2
+    password: activemqPassword
+    user: activemqUser
+  application:
+    name: logsender-dev
+  data:
+    redis:
+      host: localhost
+      password: redis
+      port: 6379
+

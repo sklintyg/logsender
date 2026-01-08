@@ -1,0 +1,38 @@
+app:
+  aggregation:
+    bulk-size: 5
+    bulk-timeout: 1000
+  store-log:
+    logical-address: 1234-1234
+    endpoint-url: ${app.store-log.ntjp-base-url}/test/stubs
+    ntjp-base-url: http://localhost:8080
+    certificate:
+      file: ${user.dir}/src/test/resources/certifikat/localhost.p12
+      key-manager-password: password
+      password: password
+    trust-store:
+      file: ${user.dir}/src/test/resources/certifikat/localhost.p12
+      password: password
+      type: PKCS12
+  queue:
+    receive-log-message-endpoint: activemq:queue:newLogMessageQueue
+    receive-aggregated-log-message-endpoint: activemq:queue:newAggregatedLogMessageQueue
+    receive-aggregated-log-message-dlq: activemq:queue:DLQ.newAggregatedLogMessageQueue
+
+logging:
+  structured:
+    format:
+      console: ''
+
+server:
+  port: 8010
+
+spring:
+  activemq:
+    password: activemqPassword
+    user: activemqUser
+  application:
+    name: logsender-dev
+  data:
+    redis:
+      timeout: 2000ms

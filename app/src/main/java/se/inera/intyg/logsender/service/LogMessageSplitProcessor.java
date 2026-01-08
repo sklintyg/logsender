@@ -38,7 +38,6 @@ import se.inera.intyg.logsender.mapper.CustomObjectMapper;
 import se.inera.intyg.logsender.model.PdlLogMessage;
 import se.inera.intyg.logsender.model.PdlResource;
 
-
 @Component
 @RequiredArgsConstructor
 @Slf4j

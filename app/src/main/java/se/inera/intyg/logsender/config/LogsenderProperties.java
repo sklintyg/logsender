@@ -18,89 +18,61 @@
  */
 package se.inera.intyg.logsender.config;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
-@Setter
-@Getter
-@ConfigurationProperties(prefix = "logsender")
+@ConfigurationProperties(prefix = "app")
 @Validated
-public class LogsenderProperties {
+public record LogsenderProperties(
+    @NotNull @Valid Aggregation aggregation,
+    @NotNull @Valid Queue queue,
+    @NotNull @Valid StoreLog storeLog
+) {
 
-  private Aggregation aggregation = new Aggregation();
-
-  private Queue queue = new Queue();
-
-  private Loggtjanst loggtjanst = new Loggtjanst();
-
-  private Certificate certificate = new Certificate();
-
-  @Setter
-  @Getter
-  public static class Aggregation {
-
-    @NotNull
-    @Min(1)
-    private Integer bulkSize;
-
-    @NotNull
-    @Min(1000)
-    private Long bulkTimeout;
+  public record Aggregation(
+      @NotNull @Min(1) @Valid Integer bulkSize,
+      @NotNull @Min(1000) @Valid Long bulkTimeout
+  ) {
 
   }
 
-
-  @Setter
-  @Getter
-  public static class Queue {
-
-    @NotBlank
-    private String receiveLogMessageEndpoint;
-
-    @NotBlank
-    private String receiveAggregatedLogMessageEndpoint;
-
-    @NotBlank
-    private String receiveAggregatedLogMessageDlq;
+  @Validated
+  public record Queue(
+      @NotBlank @Valid String receiveLogMessageEndpoint,
+      @NotBlank @Valid String receiveAggregatedLogMessageEndpoint,
+      @NotBlank @Valid String receiveAggregatedLogMessageDlq
+  ) {
 
   }
 
-  @Setter
-  @Getter
-  public static class Loggtjanst {
-
-    @NotBlank
-    private String logicalAddress;
-
-    @NotBlank
-    private String endpointUrl;
+  public record StoreLog(
+      @NotBlank @Valid String logicalAddress,
+      @NotBlank @Valid String endpointUrl,
+      @NotBlank @Valid String ntjpBaseUrl,
+      @NotNull @Valid Certificate certificate,
+      @NotNull @Valid TrustStore trustStore
+  ) {
 
   }
 
-  @Setter
-  @Getter
-  public static class Certificate {
+  public record Certificate(
+      @NotBlank @Valid String file,
+      @NotBlank @Valid String type,
+      @NotBlank @Valid String password,
+      @NotBlank @Valid String keyManagerPassword
+  ) {
 
-    private String file;
+  }
 
-    @NotBlank
-    private String type;
-
-    private String truststoreFile;
-
-    @NotBlank
-    private String truststoreType;
-
-    private String password;
-
-    private String keyManagerPassword;
-
-    private String truststorePassword;
+  public record TrustStore(
+      @NotBlank @Valid String file,
+      @NotBlank @Valid String type,
+      @NotBlank @Valid String password
+  ) {
 
   }
 }

@@ -39,7 +39,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import se.inera.intyg.logsender.config.LogsenderProperties;
-import se.inera.intyg.logsender.config.LogsenderProperties.Loggtjanst;
+import se.inera.intyg.logsender.config.LogsenderProperties.StoreLog;
 import se.inera.intyg.logsender.exception.LoggtjanstExecutionException;
 import se.inera.intyg.logsender.service.SoapIntegrationServiceImpl;
 import se.riv.informationsecurity.auditing.log.StoreLogResponder.v2.StoreLogResponseType;
@@ -65,7 +65,9 @@ class LogSenderClientImplTest {
 
     @BeforeEach
     void setup() {
-      when(properties.getLoggtjanst()).thenReturn(new Loggtjanst());
+      when(properties.storeLog()).thenReturn(
+          new StoreLog("logicalAddress", "http://loggtjanst-endpoint", null, null, null)
+      );
     }
 
     @Test

@@ -9,7 +9,7 @@ plugins {
 }
 
 ext {
-    intygBomVersion = System.properties['intygBomVersion'] ?: '0.0.1-SNAPSHOT'
+    intygBomVersion = '1.0.0.2'
     rivtaStoreLogSchemasVersion = "2.0.1.2"
     schemasContractVersion = "2.1.8.2"
     nvdMirror = 'https://vulnz-nvd-mirror-devtest.intyg.nordicmedtest.se'
@@ -59,8 +59,9 @@ subprojects {
     apply plugin: 'org.springframework.boot'
 
     java {
-        sourceCompatibility = javaVersion
-        targetCompatibility = javaVersion
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
     }
 
     configurations {
@@ -82,8 +83,8 @@ subprojects {
     tasks {
         test {
             jvmArgs += [
-                "-javaagent:${configurations.mockitoAgent.asPath}",
-                "-Xshare:off"
+                    "-javaagent:${configurations.mockitoAgent.asPath}",
+                    "-Xshare:off"
             ]
         }
     }

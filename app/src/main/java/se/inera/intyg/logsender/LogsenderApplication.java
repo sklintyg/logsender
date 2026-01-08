@@ -20,11 +20,10 @@ package se.inera.intyg.logsender;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import se.inera.intyg.logsender.config.LogsenderProperties;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
 @SpringBootApplication
-@EnableConfigurationProperties(LogsenderProperties.class)
+@ConfigurationPropertiesScan
 public class LogsenderApplication {
 
   public static void main(String[] args) {

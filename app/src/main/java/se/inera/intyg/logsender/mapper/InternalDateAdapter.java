@@ -77,10 +77,12 @@ public final class InternalDateAdapter {
       return LocalDate.parse(str, DateTimeFormatter.ISO_DATE);
 
     } catch (Exception e) {
+      // Leave empty because we try next format
     }
     try {
       return LocalDate.parse(str, DateTimeFormatter.ISO_DATE_TIME);
     } catch (Exception e) {
+      // Leave empty because we try next format
     }
     try {
       return LocalDate.parse(str, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
