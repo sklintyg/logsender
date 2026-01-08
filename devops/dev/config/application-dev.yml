@@ -15,6 +15,10 @@ app:
       password: password
 
 logging:
+  level:
+    org:
+      apache:
+        cxf: INFO
   structured:
     format:
       console: ''

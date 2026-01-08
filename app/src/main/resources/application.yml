@@ -2,7 +2,7 @@ app:
   aggregation:
     bulk-size: 10
     bulk-timeout: 60000
-  storeLog:
+  store-log:
     logical-address: ''
     endpoint-url: ${app.store-log.ntjp-base-url}/informationsecurity/auditing/log/StoreLog/v2/rivtabp21
     certificate:
@@ -23,6 +23,10 @@ camel:
       transacted: true
 
 logging:
+  level:
+    org:
+      apache:
+        cxf: WARN
   structured:
     format:
       console: ecs
