@@ -2,7 +2,7 @@ app:
   aggregation:
     bulk-size: 5
     bulk-timeout: 5000
-  storeLog:
+  store-log:
     logical-address: 1234-1234
     ntjp-base-url: http://localhost:${dev.http.port}/stubs
     certificate:
