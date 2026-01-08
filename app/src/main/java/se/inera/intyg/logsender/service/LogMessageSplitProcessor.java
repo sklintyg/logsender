@@ -34,7 +34,6 @@ import se.inera.intyg.logsender.exception.PermanentException;
 import se.inera.intyg.logsender.logging.MdcCloseableMap;
 import se.inera.intyg.logsender.logging.MdcHelper;
 import se.inera.intyg.logsender.logging.MdcLogConstants;
-import se.inera.intyg.logsender.mapper.CustomObjectMapper;
 import se.inera.intyg.logsender.model.PdlLogMessage;
 import se.inera.intyg.logsender.model.PdlResource;
 
@@ -43,7 +42,7 @@ import se.inera.intyg.logsender.model.PdlResource;
 @Slf4j
 public class LogMessageSplitProcessor {
 
-  private final ObjectMapper objectMapper = new CustomObjectMapper();
+  private final ObjectMapper objectMapper;
 
   public List<Message> process(@Body Message body) throws IOException, PermanentException {
     try (MdcCloseableMap ignored = MdcCloseableMap.builder()

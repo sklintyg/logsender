@@ -20,8 +20,8 @@ package se.inera.intyg.logsender.helper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.LocalDateTime;
-import se.inera.intyg.logsender.mapper.CustomObjectMapper;
 import se.inera.intyg.logsender.model.ActivityPurpose;
 import se.inera.intyg.logsender.model.ActivityType;
 import se.inera.intyg.logsender.model.Enhet;
@@ -33,7 +33,12 @@ import se.inera.intyg.logsender.model.ResourceType;
 
 public class TestDataHelper {
 
-  private static final ObjectMapper objectMapper = new CustomObjectMapper();
+  public static final ObjectMapper OBJECT_MAPPER;
+
+  static {
+    OBJECT_MAPPER = new ObjectMapper();
+    OBJECT_MAPPER.registerModule(new JavaTimeModule());
+  }
 
   public static PdlLogMessage buildBasePdlLogMessage(ActivityType activityType) {
     return buildBasePdlLogMessage(activityType, 1, ValueInclude.INCLUDE, ValueInclude.INCLUDE);
@@ -47,7 +52,7 @@ public class TestDataHelper {
 
   public static String buildBasePdlLogMessageAsJson(ActivityType activityType) {
     try {
-      return objectMapper.writeValueAsString(
+      return OBJECT_MAPPER.writeValueAsString(
           buildBasePdlLogMessage(activityType, 1, ValueInclude.INCLUDE, ValueInclude.INCLUDE));
     } catch (JsonProcessingException e) {
       throw new IllegalArgumentException(
@@ -58,7 +63,7 @@ public class TestDataHelper {
   public static String buildBasePdlLogMessageAsJson(ActivityType activityType,
       int numberOfResources) {
     try {
-      return objectMapper
+      return OBJECT_MAPPER
           .writeValueAsString(
               buildBasePdlLogMessage(activityType, numberOfResources, ValueInclude.INCLUDE,
                   ValueInclude.INCLUDE));
@@ -114,5 +119,4 @@ public class TestDataHelper {
       default -> null;
     };
   }
-
 }

@@ -18,8 +18,6 @@
  */
 package se.inera.intyg.logsender.loggtjanststub.config;
 
-import org.apache.cxf.Bus;
-import org.apache.cxf.jaxws.EndpointImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -54,11 +52,4 @@ public class LoggtjanstStubConfig {
     return new StoreLogStubResponder(logStore, stubState);
   }
 
-  @Bean
-  public EndpointImpl storeLogEndpoint(Bus cxfBus,
-      StoreLogResponderInterface storeLogStubResponder) {
-    final var endpoint = new EndpointImpl(cxfBus, storeLogStubResponder);
-    endpoint.publish("/stubs/informationsecurity/auditing/log/StoreLog/v2/rivtabp21");
-    return endpoint;
-  }
 }

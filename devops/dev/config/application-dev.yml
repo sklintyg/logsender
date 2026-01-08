@@ -1,7 +1,7 @@
 app:
   aggregation:
     bulk-size: 5
-    bulk-timeout: 60000
+    bulk-timeout: 10000
   store-log:
     logical-address: SE000000000000-0000
     ntjp-base-url: http://localhost:${dev.http.port}/stubs

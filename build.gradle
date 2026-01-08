@@ -9,7 +9,7 @@ plugins {
 }
 
 ext {
-    intygBomVersion = '1.0.0.2'
+    intygBomVersion = '1.0.0.3'
     rivtaStoreLogSchemasVersion = "2.0.1.2"
     schemasContractVersion = "2.1.8.2"
     nvdMirror = 'https://vulnz-nvd-mirror-devtest.intyg.nordicmedtest.se'

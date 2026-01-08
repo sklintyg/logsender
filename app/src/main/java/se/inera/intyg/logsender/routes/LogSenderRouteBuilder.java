@@ -32,7 +32,7 @@ import se.inera.intyg.logsender.exception.TemporaryException;
 @RequiredArgsConstructor
 @Slf4j
 public class LogSenderRouteBuilder extends RouteBuilder {
-  
+
   private final LogsenderProperties properties;
 
   /*
