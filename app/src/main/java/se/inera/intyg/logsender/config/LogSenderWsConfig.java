@@ -61,7 +61,7 @@ public class LogSenderWsConfig {
   private Environment env;
 
   @Bean
-  @Profile("!dev & !wc-all-stubs & !wc-loggtjanst-stub")
+  @Profile("!testability")
   @SchemaValidation(type = SchemaValidationType.BOTH)
   public StoreLogResponderInterface storeLogClient() throws UnrecoverableKeyException,
       CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {

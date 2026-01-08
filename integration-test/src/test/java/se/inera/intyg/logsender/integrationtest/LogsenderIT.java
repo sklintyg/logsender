@@ -33,7 +33,7 @@ import se.inera.intyg.logsender.integrationtest.util.TestabilityUtil;
 import se.inera.intyg.logsender.mapper.CustomObjectMapper;
 import se.inera.intyg.logsender.model.ActivityType;
 
-@ActiveProfiles({"integration-test", "wc-loggtjanst-stub", "testability-api"})
+@ActiveProfiles({"integration-test", "testability"})
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @DisplayName("Logsender Integration Tests")
 class LogsenderIT {

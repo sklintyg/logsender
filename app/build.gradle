@@ -42,7 +42,7 @@ testing.suites {
 
 bootRun {
     systemProperty("application.dir", "${applicationDir}")
-    systemProperty("spring.profiles.active", "dev, testability-api")
+    systemProperty("spring.profiles.active", "dev, testability")
     systemProperty("spring.config.additional-location", "file:${applicationDir}/config/")
 }
 
