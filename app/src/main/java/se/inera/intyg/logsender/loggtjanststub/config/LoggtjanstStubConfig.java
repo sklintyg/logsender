@@ -31,7 +31,7 @@ import se.inera.intyg.logsender.loggtjanststub.json.LogStoreObjectMapper;
 import se.riv.informationsecurity.auditing.log.StoreLog.v2.rivtabp21.StoreLogResponderInterface;
 
 @Configuration
-@Profile({"dev", "wc-all-stubs", "wc-loggtjanst-stub"})
+@Profile({"testability"})
 public class LoggtjanstStubConfig {
 
   @Bean

@@ -44,7 +44,7 @@ import se.inera.intyg.logsender.model.ActivityType;
 import se.inera.intyg.logsender.testconfig.UnitTestConfig;
 
 @SpringBootTest(classes = UnitTestConfig.class)
-@ActiveProfiles({"test", "wc-loggtjanst-stub"})
+@ActiveProfiles({"test", "testability"})
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 class ReceiveAggregatedLogMessageRouteTest {
 

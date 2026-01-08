@@ -1,15 +1,19 @@
 package se.inera.intyg.logsender.loggtjanststub;
 
+import java.util.Collection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import java.util.Collection;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import se.riv.informationsecurity.auditing.log.v2.LogType;
 
 @RestController
 @RequestMapping("/api/loggtjanst-api")
-@Profile({"dev", "testability-api"})
+@Profile({"testability"})
 @RequiredArgsConstructor
 public class LoggtjanstStubRestApi {
 
