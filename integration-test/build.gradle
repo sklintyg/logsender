@@ -21,7 +21,6 @@ dependencies {
     testImplementation "se.riv.informationsecurity.auditing.log:informationsecurity-auditing-log-schemas:${rivtaStoreLogSchemasVersion}"
 
     testImplementation "jakarta.xml.bind:jakarta.xml.bind-api"
-    testImplementation "jakarta.jws:jakarta.jws-api"
 
     testImplementation "org.apache.activemq:activemq-broker"
     testImplementation 'org.springframework.boot:spring-boot-starter-activemq'
