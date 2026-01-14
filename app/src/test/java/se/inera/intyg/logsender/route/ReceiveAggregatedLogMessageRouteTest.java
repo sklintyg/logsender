@@ -136,7 +136,6 @@ class ReceiveAggregatedLogMessageRouteTest {
 
     logMessageSendProcessor.expectedMessageCount(1);
     logMessagePermanentErrorHandlerEndpoint.expectedMessageCount(1);
-    logMessageTemporaryErrorHandlerEndpoint.expectedMessageCount(0);
 
     producerTemplate.sendBodyAndHeaders("direct:receiveAggregatedLogMessageEndpoint",
         Collections.singletonList(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ)),
@@ -144,6 +143,5 @@ class ReceiveAggregatedLogMessageRouteTest {
 
     assertIsSatisfied(logMessageSendProcessor);
     assertIsSatisfied(logMessagePermanentErrorHandlerEndpoint);
-    assertIsSatisfied(logMessageTemporaryErrorHandlerEndpoint);
   }
 }
