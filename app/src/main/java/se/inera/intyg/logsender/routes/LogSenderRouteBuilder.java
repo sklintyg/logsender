@@ -67,33 +67,14 @@ public class LogSenderRouteBuilder extends RouteBuilder {
     // to convert into ehr:logstore format and send. Exception handling delegates resends to AMQ.
     from(properties.queue().receiveAggregatedLogMessageEndpoint()).routeId(
             "aggregatedJmsToSenderRoute")
-        .onException(TemporaryException.class)
-        .logStackTrace(true)
-        .logHandled(true)
-        .choice()
-        .when(header("JMSRedelivered").isEqualTo("false"))
-        .log(LoggingLevel.ERROR, log,
-            simple(
-                "ENTER - Temporary exception for logMessage batch: ${exception.message}\n ${exception.stacktrace}")
-                .toString())
-        .otherwise()
-        .log(LoggingLevel.WARN, log,
-            simple(
-                "ENTER - Temporary exception (redelivered) for logMessage batch: ${exception.message}").toString())
+        .onException(TemporaryException.class).to("direct:logMessageTemporaryErrorHandlerEndpoint")
         .end()
-        .markRollbackOnly()
-        .end()
-        .onException(BatchValidationException.class)
-        .handled(true)
-        .to("direct:logMessageBatchValidationErrorHandlerEndpoint")
-        .end()
-        .onException(Exception.class)
-        .handled(true)
-        .to("direct:logMessagePermanentErrorHandlerEndpoint")
-        .end()
+        .onException(BatchValidationException.class).handled(true)
+        .to("direct:logMessageBatchValidationErrorHandlerEndpoint").end()
+        .onException(Exception.class).handled(true)
+        .to("direct:logMessagePermanentErrorHandlerEndpoint").end()
         .transacted()
-        .to("bean:logMessageSendProcessor")
-        .stop();
+        .to("bean:logMessageSendProcessor").stop();
 
     // Error handling
     from("direct:logMessagePermanentErrorHandlerEndpoint").routeId("permanentErrorLogging")
@@ -110,6 +91,19 @@ public class LogSenderRouteBuilder extends RouteBuilder {
                 "ENTER - Batch validation exception for LogMessage batch: ${exception.message}\n ${exception.stacktrace}")
                 .toString())
         .to(properties.queue().receiveAggregatedLogMessageDlq())
+        .stop();
+
+    from("direct:logMessageTemporaryErrorHandlerEndpoint").routeId("temporaryErrorLogging")
+        .choice()
+        .when(header("JMSRedelivered").isEqualTo("false"))
+        .log(LoggingLevel.ERROR, log,
+            simple(
+                "ENTER - Temporary exception for logMessage batch: ${exception.message}\n ${exception.stacktrace}")
+                .toString())
+        .otherwise()
+        .log(LoggingLevel.WARN, log,
+            simple(
+                "ENTER - Temporary exception (redelivered) for logMessage batch: ${exception.message}").toString())
         .stop();
   }
 }
