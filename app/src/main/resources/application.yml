@@ -65,6 +65,7 @@ spring:
       timeout: 2000ms
   jms:
     cache:
-      enabled: false
+      enabled: true
+      session-cache-size: 10
   main:
     banner-mode: console
