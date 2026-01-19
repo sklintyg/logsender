@@ -15,6 +15,9 @@ app:
     receive-aggregated-log-message-dlq: activemq:queue:DLQ.dev.webcert.aggregated.log.queue
 
 camel:
+  health:
+    enabled: true
+    exposure-level: full
   component:
     activemq:
       cache-level-name: CACHE_CONSUMER
@@ -30,6 +33,22 @@ logging:
   structured:
     format:
       console: ecs
+
+management:
+  endpoint:
+    heapdump:
+      access: read_only
+    threaddump:
+      access: read_only
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: health, heapdump, threaddump
+  health:
+    defaults:
+      enabled: true
 
 spring:
   activemq:
