@@ -30,17 +30,6 @@ logging:
     org:
       apache:
         cxf: WARN
-        camel:
-          component:
-            jms: DEBUG  # Camel JMS component caching and session management
-            activemq: DEBUG  # Camel ActiveMQ component specific logging
-        activemq: DEBUG  # ActiveMQ client library logging
-      messaginghub:
-        pooled:
-          jms: DEBUG  # pooled-jms connection pool logging
-    org.springframework.jms: DEBUG  # Spring JMS framework logging (cache, listeners, etc.)
-    org.springframework.transaction: DEBUG
-    org.springframework.jms.connection: TRACE  # JMS transaction coordination
   structured:
     format:
       console: ecs
