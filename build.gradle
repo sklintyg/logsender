@@ -1,31 +1,28 @@
 plugins {
-    alias(libs.plugins.org.springframework.boot)
-    alias(libs.plugins.org.sonarqube)
-    alias(libs.plugins.org.owasp.dependencycheck)
-    alias(libs.plugins.org.cyclonedx.bom)
     alias(libs.plugins.com.github.ben.manes.versions)
-    id 'test-report-aggregation'
-    id 'application'
+    alias(libs.plugins.org.cyclonedx.bom)
+    alias(libs.plugins.org.sonarqube)
+    alias(libs.plugins.org.springframework.boot)
 }
 
 ext {
-    intygBomVersion = '1.0.0.3'
-    rivtaStoreLogSchemasVersion = "2.0.1.2"
-    schemasContractVersion = "2.1.8.2"
-    nvdMirror = 'https://vulnz-nvd-mirror-devtest.intyg.nordicmedtest.se'
+    rivtaStoreLogSchemasVersion = "2.0.1.3"
+    schemasContractVersion = "2.2.0.1"
 }
-
-application {
-    mainClass = 'se.inera.intyg.logsender.LogsenderApplication'
-}
-
-group = 'se.inera.intyg.logsender'
-version = System.properties['buildVersion'] ?: '0-SNAPSHOT'
 
 apply from: 'gradle/configureIntygBom.gradle'
 
+springBoot {
+    mainClass = 'se.inera.intyg.logsender.LogsenderApplication'
+}
+
 allprojects {
     apply plugin: 'java'
+    apply plugin: 'test-report-aggregation'
+
+    group = 'se.inera.intyg.logsender'
+    version = System.properties['buildVersion'] ?: '0-SNAPSHOT'
+
     repositories {
         mavenLocal()
         maven { url = "https://nexus.drift.inera.se/repository/it-public/" }
@@ -33,34 +30,13 @@ allprojects {
     }
 }
 
-sonar {
-    properties {
-        property "sonar.projectKey", "intyg-logsender"
-        property "sonar.projectName", "intyg-logsender"
-        property "sonar.dependencyCheck.jsonReportPath", "${layout.buildDirectory.get()}/reports/dependency-check-report.json" as String
-        property "sonar.dependencyCheck.htmlReportPath", "${layout.buildDirectory.get()}/reports/dependency-check-report.html" as String
-    }
-}
-
-dependencyCheck {
-    formats = ['HTML', 'JSON']
-    nvd.setDatafeedUrl(nvdMirror)
-    analyzers.setAssemblyEnabled(false)
-    analyzers.setNodeEnabled(false)
-    analyzers.setCentralEnabled(false)
-    analyzers.ossIndex.setUsername(project.properties.get('ossIndexUsername'))
-    analyzers.ossIndex.setPassword(project.properties.get('ossIndexPassword'))
-}
-
 
 subprojects {
-    apply plugin: 'java'
     apply plugin: 'jacoco'
-    apply plugin: 'org.springframework.boot'
 
     java {
         toolchain {
-            languageVersion = JavaLanguageVersion.of(21)
+            languageVersion = JavaLanguageVersion.of(javaVersion)
         }
     }
 
@@ -69,6 +45,11 @@ subprojects {
         compileOnly {
             extendsFrom annotationProcessor
         }
+    }
+
+    compileJava {
+        options.encoding = "UTF-8"
+        options.compilerArgs.add("-parameters")
     }
 
     dependencies {
@@ -80,12 +61,18 @@ subprojects {
         mockitoAgent("org.mockito:mockito-core") { transitive = false }
     }
 
-    tasks {
-        test {
-            jvmArgs += [
-                    "-javaagent:${configurations.mockitoAgent.asPath}",
-                    "-Xshare:off"
-            ]
+    test {
+        jvmArgs += [
+                "-javaagent:${configurations.mockitoAgent.asPath}",
+                "-Xshare:off"
+        ]
+    }
+
+    testing {
+        suites {
+            test {
+                useJUnitJupiter()
+            }
         }
     }
 
@@ -106,6 +93,10 @@ subprojects {
             }))
         }
     }
+
+    tasks.matching { it.name == "cyclonedxDirectBom" }.configureEach { t ->
+        t.includeConfigs = ['^runtimeClasspath$']
+    }
 }
 
 reporting {
@@ -115,8 +106,15 @@ reporting {
         }
     }
 
-    dependencies {
-        testReportAggregation project(':app')
-        testReportAggregation project(':integration-test')
+    subprojects.collect { subproject -> subproject.name }.each { subprojectName ->
+        dependencies { testReportAggregation project(":${subprojectName}") }
     }
 }
+
+sonar {
+    properties {
+        property "sonar.projectKey", "intyg-logsender"
+        property "sonar.projectName", "intyg-logsender"
+    }
+}
+
