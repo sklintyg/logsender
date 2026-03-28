@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -30,7 +30,6 @@ import se.inera.intyg.logsender.model.PdlLogMessage;
 import se.inera.intyg.logsender.model.PdlResource;
 import se.inera.intyg.logsender.model.ResourceType;
 
-
 public class TestDataHelper {
 
   public static final ObjectMapper OBJECT_MAPPER;
@@ -50,20 +49,20 @@ public class TestDataHelper {
     }
   }
 
-  public static String buildBasePdlLogMessageAsJson(ActivityType activityType,
-      int numberOfResources) {
+  public static String buildBasePdlLogMessageAsJson(
+      ActivityType activityType, int numberOfResources) {
     try {
-      return OBJECT_MAPPER
-          .writeValueAsString(
-              buildBasePdlLogMessage(activityType, numberOfResources, ValueInclude.INCLUDE,
-                  ValueInclude.INCLUDE));
+      return OBJECT_MAPPER.writeValueAsString(
+          buildBasePdlLogMessage(
+              activityType, numberOfResources, ValueInclude.INCLUDE, ValueInclude.INCLUDE));
     } catch (JsonProcessingException e) {
       throw new IllegalArgumentException(
           "Could not build test data log message, JSON could not be produced: " + e.getMessage());
     }
   }
 
-  public static PdlLogMessage buildBasePdlLogMessage(ActivityType activityType,
+  public static PdlLogMessage buildBasePdlLogMessage(
+      ActivityType activityType,
       int numberOfResources,
       ValueInclude patientNameInclude,
       ValueInclude userNameInclude) {
@@ -94,11 +93,12 @@ public class TestDataHelper {
   }
 
   private static Patient buildPatient(ValueInclude patientNameInclude) {
-    String patientName = switch (patientNameInclude) {
-      case BLANK_WITH_SPACE -> " ";
-      case INCLUDE -> "Tolvan Tolvansson";
-      default -> null;
-    };
+    String patientName =
+        switch (patientNameInclude) {
+          case BLANK_WITH_SPACE -> " ";
+          case INCLUDE -> "Tolvan Tolvansson";
+          default -> null;
+        };
     return new Patient("19121212-1212", patientName);
   }
 
@@ -109,5 +109,4 @@ public class TestDataHelper {
       default -> null;
     };
   }
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -57,8 +57,7 @@ class LogMessageSplitProcessorTest {
 
   @Test
   void testNoResource() {
-    assertThrows(PermanentException.class, () ->
-        logMessageSplitProcessor.process(buildMessage(0)));
+    assertThrows(PermanentException.class, () -> logMessageSplitProcessor.process(buildMessage(0)));
   }
 
   private Message buildMessage(int numberOfResources) {

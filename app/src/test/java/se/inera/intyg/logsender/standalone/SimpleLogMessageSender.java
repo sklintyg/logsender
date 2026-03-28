@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -33,9 +33,9 @@ import se.inera.intyg.logsender.model.ActivityType;
  * Stand-alone "application" that can connect to a local running ActiveMQ and send a PdlLogMessage
  * (as json) to localhost:61616. Useful for debugging / troubleshooting purposes when you don't want
  * to start a Webcert or Rehabstod instance.
- * <p>
- * The message is created using the
- * {@link TestDataHelper#buildBasePdlLogMessage(ActivityType, ValueInclude, ValueInclude)}
+ *
+ * <p>The message is created using the {@link TestDataHelper#buildBasePdlLogMessage(ActivityType,
+ * ValueInclude, ValueInclude)}
  */
 public class SimpleLogMessageSender {
 
@@ -51,15 +51,13 @@ public class SimpleLogMessageSender {
     final var destination = session.createQueue(subject);
     final var producer = session.createProducer(destination);
 
-    final var pdlLogMessage = TestDataHelper
-        .buildBasePdlLogMessage(ActivityType.CREATE, ValueInclude.INCLUDE, ValueInclude.INCLUDE);
-    final var message = session.createTextMessage(
-        OBJECT_MAPPER.writeValueAsString(pdlLogMessage)
-    );
+    final var pdlLogMessage =
+        TestDataHelper.buildBasePdlLogMessage(
+            ActivityType.CREATE, ValueInclude.INCLUDE, ValueInclude.INCLUDE);
+    final var message = session.createTextMessage(OBJECT_MAPPER.writeValueAsString(pdlLogMessage));
     producer.send(message);
     System.out.println("Sent message: '" + message.getText() + "'");
 
     connection.close();
   }
-
 }

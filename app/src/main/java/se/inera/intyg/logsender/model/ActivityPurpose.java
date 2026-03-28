@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -22,7 +22,6 @@ import lombok.Getter;
 
 @Getter
 public enum ActivityPurpose {
-
   CARE_TREATMENT("Vård och behandling");
 
   private final String type;
@@ -30,5 +29,4 @@ public enum ActivityPurpose {
   ActivityPurpose(String type) {
     this.type = type;
   }
-
 }

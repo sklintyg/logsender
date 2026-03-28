@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -31,8 +31,7 @@ final class LogTypeFactoryUtil {
 
   private static final LogTypeFactoryUtil instance = new LogTypeFactoryUtil();
 
-  private LogTypeFactoryUtil() {
-  }
+  private LogTypeFactoryUtil() {}
 
   static LogTypeFactoryUtil getInstance() {
     return instance;
@@ -64,5 +63,4 @@ final class LogTypeFactoryUtil {
   public String trimToNull(String input) {
     return input != null && !input.trim().isEmpty() ? input.trim() : null;
   }
-
 }

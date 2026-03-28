@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -22,11 +22,9 @@ import java.io.Serial;
 
 public class BatchValidationException extends Exception {
 
-  @Serial
-  private static final long serialVersionUID = -3184379031315261252L;
+  @Serial private static final long serialVersionUID = -3184379031315261252L;
 
   public BatchValidationException(String message) {
     super(message);
   }
-
 }

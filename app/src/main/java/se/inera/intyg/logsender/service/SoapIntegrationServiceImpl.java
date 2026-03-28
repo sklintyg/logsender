@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -33,8 +33,10 @@ public class SoapIntegrationServiceImpl implements SoapIntegrationService {
   private final StoreLogResponderInterface storeLogResponder;
 
   @Override
-  @PerformanceLogging(eventAction = "store-log-message", eventType = MdcLogConstants.EVENT_TYPE_CHANGE)
+  @PerformanceLogging(
+      eventAction = "store-log-message",
+      eventType = MdcLogConstants.EVENT_TYPE_CHANGE)
   public StoreLogResponseType storeLog(String logicalAddress, StoreLogType request) {
-      return storeLogResponder.storeLog(logicalAddress, request);
+    return storeLogResponder.storeLog(logicalAddress, request);
   }
 }

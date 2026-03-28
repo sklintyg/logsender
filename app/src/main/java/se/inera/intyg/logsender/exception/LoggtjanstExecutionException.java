@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -18,16 +18,13 @@
  */
 package se.inera.intyg.logsender.exception;
 
-
 import java.io.Serial;
 
 public class LoggtjanstExecutionException extends RuntimeException {
 
-  @Serial
-  private static final long serialVersionUID = -6996998722601503134L;
+  @Serial private static final long serialVersionUID = -6996998722601503134L;
 
   public LoggtjanstExecutionException(Throwable cause) {
     super(cause);
   }
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -39,7 +39,8 @@ public class StoreLogStubResponder implements StoreLogResponderInterface {
 
   @Override
   public StoreLogResponseType storeLog(String logicalAddress, StoreLogType request) {
-    log.info("StoreLogStubResponder.storeLog called with {} log entries",
+    log.info(
+        "StoreLogStubResponder.storeLog called with {} log entries",
         request != null && request.getLog() != null ? request.getLog().size() : 0);
     final var response = new StoreLogResponseType();
     final var result = new ResultType();
@@ -85,8 +86,9 @@ public class StoreLogStubResponder implements StoreLogResponderInterface {
     assert request != null;
     List<LogType> logItems = request.getLog();
 
-    boolean hasInvalid = logItems.stream()
-        .anyMatch(item -> Objects.equals(item.getSystem().getSystemId(), "invalid"));
+    boolean hasInvalid =
+        logItems.stream()
+            .anyMatch(item -> Objects.equals(item.getSystem().getSystemId(), "invalid"));
 
     if (hasInvalid) {
       log.info("Storelog called with artificial \"invalid\" log entries");
@@ -113,6 +115,4 @@ public class StoreLogStubResponder implements StoreLogResponderInterface {
     log.info("Successfully stored {} log entries", logItems.size());
     return response;
   }
-
-
 }

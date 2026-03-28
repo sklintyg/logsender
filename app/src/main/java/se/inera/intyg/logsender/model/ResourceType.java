@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -18,12 +18,10 @@
  */
 package se.inera.intyg.logsender.model;
 
-
 import lombok.Getter;
 
 @Getter
 public enum ResourceType {
-
   RESOURCE_TYPE_INTYG("Intyg"),
 
   RESOURCE_TYPE_SJUKFALL("Sjukfall"),
@@ -46,5 +44,4 @@ public enum ResourceType {
   ResourceType(String resourceTypeName) {
     this.resourceTypeName = resourceTypeName;
   }
-
 }

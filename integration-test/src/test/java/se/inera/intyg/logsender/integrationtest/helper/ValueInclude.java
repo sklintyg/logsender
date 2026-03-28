@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -20,9 +20,11 @@ package se.inera.intyg.logsender.integrationtest.helper;
 
 /**
  * Enum used to tell the TestDataHelper whether to use a full patient name, a " " or null.
- * <p>
- * Created by eriklupander on 2017-10-24.
+ *
+ * <p>Created by eriklupander on 2017-10-24.
  */
 public enum ValueInclude {
-  INCLUDE, BLANK_WITH_SPACE, NULL
+  INCLUDE,
+  BLANK_WITH_SPACE,
+  NULL
 }

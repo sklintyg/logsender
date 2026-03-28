@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -51,57 +51,52 @@ import se.riv.informationsecurity.auditing.log.v2.ResultType;
 @ExtendWith(MockitoExtension.class)
 class LogSenderClientImplTest {
 
-  @Mock
-  private SoapIntegrationServiceImpl soapIntegrationService;
+  @Mock private SoapIntegrationServiceImpl soapIntegrationService;
 
-  @Mock
-  private LogsenderProperties properties;
+  @Mock private LogsenderProperties properties;
 
-  @InjectMocks
-  private LogSenderClientImpl logSenderClient;
+  @InjectMocks private LogSenderClientImpl logSenderClient;
 
   @Nested
   class MockedTests {
 
     @BeforeEach
     void setup() {
-      when(properties.storeLog()).thenReturn(
-          new StoreLog("logicalAddress", "http://loggtjanst-endpoint", null, null, null)
-      );
+      when(properties.storeLog())
+          .thenReturn(
+              new StoreLog("logicalAddress", "http://loggtjanst-endpoint", null, null, null));
     }
 
     @Test
     void testSendOk() {
-      when(soapIntegrationService.storeLog(any(), any(StoreLogType.class))).thenReturn(
-          buildOkResponse());
+      when(soapIntegrationService.storeLog(any(), any(StoreLogType.class)))
+          .thenReturn(buildOkResponse());
       final var response = logSenderClient.sendLogMessage(buildLogEntries());
 
       assertAll(
           () -> assertNotNull(response),
-          () -> assertEquals(ResultCodeType.OK, response.getResult().getResultCode())
-      );
+          () -> assertEquals(ResultCodeType.OK, response.getResult().getResultCode()));
     }
 
     @Test
     void testSendError() {
-      when(soapIntegrationService.storeLog(any(), any(StoreLogType.class))).thenReturn(
-          buildErrorResponse());
+      when(soapIntegrationService.storeLog(any(), any(StoreLogType.class)))
+          .thenReturn(buildErrorResponse());
       final var response = logSenderClient.sendLogMessage(buildLogEntries());
 
       assertAll(
           () -> assertNotNull(response),
-          () -> assertEquals(ResultCodeType.ERROR, response.getResult().getResultCode())
-      );
+          () -> assertEquals(ResultCodeType.ERROR, response.getResult().getResultCode()));
     }
 
     @Test
     void testWebServiceExceptionCausesLoggtjanstExecutionException() {
-      when(soapIntegrationService.storeLog(any(), any(StoreLogType.class))).thenThrow(
-          new WebServiceException("error"));
+      when(soapIntegrationService.storeLog(any(), any(StoreLogType.class)))
+          .thenThrow(new WebServiceException("error"));
 
       final var logEntries = buildLogEntries();
-      assertThrows(LoggtjanstExecutionException.class,
-          () -> logSenderClient.sendLogMessage(logEntries));
+      assertThrows(
+          LoggtjanstExecutionException.class, () -> logSenderClient.sendLogMessage(logEntries));
     }
   }
 
@@ -113,8 +108,7 @@ class LogSenderClientImplTest {
     assertAll(
         () -> assertNotNull(response),
         () -> assertEquals(ResultCodeType.INFO, response.getResult().getResultCode()),
-        () -> assertNotNull(response.getResult().getResultText())
-    );
+        () -> assertNotNull(response.getResult().getResultText()));
   }
 
   @Test
@@ -125,8 +119,7 @@ class LogSenderClientImplTest {
     assertAll(
         () -> assertNotNull(response),
         () -> assertEquals(ResultCodeType.INFO, response.getResult().getResultCode()),
-        () -> assertNotNull(response.getResult().getResultText())
-    );
+        () -> assertNotNull(response.getResult().getResultText()));
   }
 
   private StoreLogResponseType buildOkResponse() {

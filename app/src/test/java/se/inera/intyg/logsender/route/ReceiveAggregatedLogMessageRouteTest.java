@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -48,11 +48,9 @@ import se.inera.intyg.logsender.testconfig.UnitTestConfig;
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 class ReceiveAggregatedLogMessageRouteTest {
 
-  @Autowired
-  private CamelContext camelContext;
+  @Autowired private CamelContext camelContext;
 
-  @Autowired
-  private ProducerTemplate producerTemplate;
+  @Autowired private ProducerTemplate producerTemplate;
 
   @EndpointInject("mock:bean:logMessageSendProcessor")
   MockEndpoint logMessageSendProcessor;
@@ -66,9 +64,14 @@ class ReceiveAggregatedLogMessageRouteTest {
   @BeforeEach
   void setup() throws Exception {
     MockEndpoint.resetMocks(camelContext);
-    AdviceWith.adviceWith(camelContext, "aggregatedJmsToSenderRoute", in ->
-        in.mockEndpointsAndSkip("direct:logMessageTemporaryErrorHandlerEndpoint",
-            "bean:logMessageSendProcessor", "direct:logMessagePermanentErrorHandlerEndpoint"));
+    AdviceWith.adviceWith(
+        camelContext,
+        "aggregatedJmsToSenderRoute",
+        in ->
+            in.mockEndpointsAndSkip(
+                "direct:logMessageTemporaryErrorHandlerEndpoint",
+                "bean:logMessageSendProcessor",
+                "direct:logMessagePermanentErrorHandlerEndpoint"));
     camelContext.start();
   }
 
@@ -78,7 +81,8 @@ class ReceiveAggregatedLogMessageRouteTest {
     logMessagePermanentErrorHandlerEndpoint.expectedMessageCount(0);
     logMessageTemporaryErrorHandlerEndpoint.expectedMessageCount(0);
 
-    producerTemplate.sendBodyAndHeaders("direct:receiveAggregatedLogMessageEndpoint",
+    producerTemplate.sendBodyAndHeaders(
+        "direct:receiveAggregatedLogMessageEndpoint",
         Collections.singletonList(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ)),
         ImmutableMap.of());
 
@@ -89,15 +93,17 @@ class ReceiveAggregatedLogMessageRouteTest {
 
   @Test
   void testPermanentException() throws InterruptedException {
-    logMessageSendProcessor.whenAnyExchangeReceived(exchange -> {
-      throw new PermanentException("");
-    });
+    logMessageSendProcessor.whenAnyExchangeReceived(
+        exchange -> {
+          throw new PermanentException("");
+        });
 
     logMessageSendProcessor.expectedMessageCount(1);
     logMessagePermanentErrorHandlerEndpoint.expectedMessageCount(1);
     logMessageTemporaryErrorHandlerEndpoint.expectedMessageCount(0);
 
-    producerTemplate.sendBodyAndHeaders("direct:receiveAggregatedLogMessageEndpoint",
+    producerTemplate.sendBodyAndHeaders(
+        "direct:receiveAggregatedLogMessageEndpoint",
         Collections.singletonList(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ)),
         ImmutableMap.of());
 
@@ -108,9 +114,10 @@ class ReceiveAggregatedLogMessageRouteTest {
 
   @Test
   void testTemporaryException() throws InterruptedException {
-    logMessageSendProcessor.whenAnyExchangeReceived(exchange -> {
-      throw new TemporaryException("");
-    });
+    logMessageSendProcessor.whenAnyExchangeReceived(
+        exchange -> {
+          throw new TemporaryException("");
+        });
 
     logMessageSendProcessor.expectedMessageCount(1);
     logMessagePermanentErrorHandlerEndpoint.expectedMessageCount(0);
@@ -118,10 +125,13 @@ class ReceiveAggregatedLogMessageRouteTest {
 
     final var pdlLogMessage = TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ);
 
-    assertThrows(CamelExecutionException.class, () ->
-        producerTemplate.sendBodyAndHeaders("direct:receiveAggregatedLogMessageEndpoint",
-            Collections.singletonList(pdlLogMessage),
-            ImmutableMap.of()));
+    assertThrows(
+        CamelExecutionException.class,
+        () ->
+            producerTemplate.sendBodyAndHeaders(
+                "direct:receiveAggregatedLogMessageEndpoint",
+                Collections.singletonList(pdlLogMessage),
+                ImmutableMap.of()));
 
     assertIsSatisfied(logMessageSendProcessor);
     assertIsSatisfied(logMessagePermanentErrorHandlerEndpoint);
@@ -130,15 +140,17 @@ class ReceiveAggregatedLogMessageRouteTest {
 
   @Test
   void testWebServiceException() throws Exception {
-    logMessageSendProcessor.whenAnyExchangeReceived(exchange -> {
-      throw new WebServiceException("");
-    });
+    logMessageSendProcessor.whenAnyExchangeReceived(
+        exchange -> {
+          throw new WebServiceException("");
+        });
 
     logMessageSendProcessor.expectedMessageCount(1);
     logMessagePermanentErrorHandlerEndpoint.expectedMessageCount(1);
     logMessageTemporaryErrorHandlerEndpoint.expectedMessageCount(0);
 
-    producerTemplate.sendBodyAndHeaders("direct:receiveAggregatedLogMessageEndpoint",
+    producerTemplate.sendBodyAndHeaders(
+        "direct:receiveAggregatedLogMessageEndpoint",
         Collections.singletonList(TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ)),
         ImmutableMap.of());
 

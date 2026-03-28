@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -30,50 +30,32 @@ import org.springframework.validation.annotation.Validated;
 public record LogsenderProperties(
     @NotNull @Valid Aggregation aggregation,
     @NotNull @Valid Queue queue,
-    @NotNull @Valid StoreLog storeLog
-) {
+    @NotNull @Valid StoreLog storeLog) {
 
   public record Aggregation(
-      @NotNull @Min(1) @Valid Integer bulkSize,
-      @NotNull @Min(1000) @Valid Long bulkTimeout
-  ) {
-
-  }
+      @NotNull @Min(1) @Valid Integer bulkSize, @NotNull @Min(1000) @Valid Long bulkTimeout) {}
 
   @Validated
   public record Queue(
       @NotBlank @Valid String receiveLogMessageEndpoint,
       @NotBlank @Valid String receiveAggregatedLogMessageEndpoint,
-      @NotBlank @Valid String receiveAggregatedLogMessageDlq
-  ) {
-
-  }
+      @NotBlank @Valid String receiveAggregatedLogMessageDlq) {}
 
   public record StoreLog(
       @NotBlank @Valid String logicalAddress,
       @NotBlank @Valid String endpointUrl,
       @NotBlank @Valid String ntjpBaseUrl,
       @NotNull @Valid Certificate certificate,
-      @NotNull @Valid TrustStore trustStore
-  ) {
-
-  }
+      @NotNull @Valid TrustStore trustStore) {}
 
   public record Certificate(
       @NotBlank @Valid String file,
       @NotBlank @Valid String type,
       @NotBlank @Valid String password,
-      @NotBlank @Valid String keyManagerPassword
-  ) {
-
-  }
+      @NotBlank @Valid String keyManagerPassword) {}
 
   public record TrustStore(
       @NotBlank @Valid String file,
       @NotBlank @Valid String type,
-      @NotBlank @Valid String password
-  ) {
-
-  }
+      @NotBlank @Valid String password) {}
 }
-

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -48,18 +48,16 @@ import se.riv.informationsecurity.auditing.log.v2.ResultType;
 @ExtendWith(MockitoExtension.class)
 class LogMessageSendProcessorTest {
 
-  @Mock
-  private LogSenderClient logSenderClient;
+  @Mock private LogSenderClient logSenderClient;
 
-  @Spy
-  private LogTypeFactoryImpl logTypeFactory;
+  @Spy private LogTypeFactoryImpl logTypeFactory;
 
   private LogMessageSendProcessor logMessageSendProcessor;
 
   @BeforeEach
   void setUp() {
-    logMessageSendProcessor = new LogMessageSendProcessor(logSenderClient, logTypeFactory,
-        OBJECT_MAPPER);
+    logMessageSendProcessor =
+        new LogMessageSendProcessor(logSenderClient, logTypeFactory, OBJECT_MAPPER);
   }
 
   @Test
@@ -71,30 +69,35 @@ class LogMessageSendProcessorTest {
 
   @Test
   void testSendLogMessagesThrowsPermanentExceptionWhenInvalidJsonIsSupplied() {
-    assertThrows(BatchValidationException.class, () -> {
-      logMessageSendProcessor.process(
-          OBJECT_MAPPER.writeValueAsString(buildInvalidGroupedMessages()));
-    });
+    assertThrows(
+        BatchValidationException.class,
+        () -> {
+          logMessageSendProcessor.process(
+              OBJECT_MAPPER.writeValueAsString(buildInvalidGroupedMessages()));
+        });
   }
 
   @Test
   void testSendLogMessagesThrowsBatchValidationExceptionWhenErrorOccured() {
-    when(logSenderClient.sendLogMessage(anyList())).thenReturn(
-        buildResponse(ResultCodeType.ERROR));
+    when(logSenderClient.sendLogMessage(anyList())).thenReturn(buildResponse(ResultCodeType.ERROR));
 
-    assertThrows(BatchValidationException.class, () -> {
-      logMessageSendProcessor.process(OBJECT_MAPPER.writeValueAsString(buildGroupedMessages()));
-    });
+    assertThrows(
+        BatchValidationException.class,
+        () -> {
+          logMessageSendProcessor.process(OBJECT_MAPPER.writeValueAsString(buildGroupedMessages()));
+        });
   }
 
   @Test
   void testSendLogMessagesThrowsBatchValidationExceptionWhenValidationErrorOccured() {
-    when(logSenderClient.sendLogMessage(anyList())).thenReturn(
-        buildResponse(ResultCodeType.VALIDATION_ERROR));
+    when(logSenderClient.sendLogMessage(anyList()))
+        .thenReturn(buildResponse(ResultCodeType.VALIDATION_ERROR));
 
-    assertThrows(BatchValidationException.class, () -> {
-      logMessageSendProcessor.process(OBJECT_MAPPER.writeValueAsString(buildGroupedMessages()));
-    });
+    assertThrows(
+        BatchValidationException.class,
+        () -> {
+          logMessageSendProcessor.process(OBJECT_MAPPER.writeValueAsString(buildGroupedMessages()));
+        });
   }
 
   @Test
@@ -106,24 +109,28 @@ class LogMessageSendProcessorTest {
 
   @Test
   void testSendLogMessagesThrowsBatchValidationExceptionWhenIllegalArgumentExceptionIsThrown() {
-    when(logSenderClient.sendLogMessage(anyList())).thenThrow(
-        new IllegalArgumentException("illegal"));
+    when(logSenderClient.sendLogMessage(anyList()))
+        .thenThrow(new IllegalArgumentException("illegal"));
 
-    assertThrows(BatchValidationException.class, () -> {
-      logMessageSendProcessor.process(OBJECT_MAPPER.writeValueAsString(buildGroupedMessages()));
-    });
+    assertThrows(
+        BatchValidationException.class,
+        () -> {
+          logMessageSendProcessor.process(OBJECT_MAPPER.writeValueAsString(buildGroupedMessages()));
+        });
 
     verify(logSenderClient, times(1)).sendLogMessage(anyList());
   }
 
   @Test
   void testSendLogMessagesThrowsTemporaryExceptionWhenLoggtjanstExecutionExceptionIsThrwn() {
-    when(logSenderClient.sendLogMessage(anyList())).thenThrow(
-        new LoggtjanstExecutionException(null));
+    when(logSenderClient.sendLogMessage(anyList()))
+        .thenThrow(new LoggtjanstExecutionException(null));
 
-    assertThrows(TemporaryException.class, () -> {
-      logMessageSendProcessor.process(OBJECT_MAPPER.writeValueAsString(buildGroupedMessages()));
-    });
+    assertThrows(
+        TemporaryException.class,
+        () -> {
+          logMessageSendProcessor.process(OBJECT_MAPPER.writeValueAsString(buildGroupedMessages()));
+        });
 
     verify(logSenderClient, times(1)).sendLogMessage(anyList());
   }
@@ -132,9 +139,11 @@ class LogMessageSendProcessorTest {
   void testSendLogMessagesThrowsTemporaryExceptionWhenWebServiceExceptionIsThrwn() {
     when(logSenderClient.sendLogMessage(anyList())).thenThrow(new WebServiceException());
 
-    assertThrows(TemporaryException.class, () -> {
-      logMessageSendProcessor.process(OBJECT_MAPPER.writeValueAsString(buildGroupedMessages()));
-    });
+    assertThrows(
+        TemporaryException.class,
+        () -> {
+          logMessageSendProcessor.process(OBJECT_MAPPER.writeValueAsString(buildGroupedMessages()));
+        });
 
     verify(logSenderClient, times(1)).sendLogMessage(anyList());
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -31,7 +31,6 @@ import se.riv.informationsecurity.auditing.log.v2.LogType;
 import se.riv.informationsecurity.auditing.log.v2.ResultCodeType;
 import se.riv.informationsecurity.auditing.log.v2.ResultType;
 
-
 public class MockLogSenderClientImpl implements StoreLogResponderInterface {
 
   private AtomicInteger count = new AtomicInteger(0);
@@ -54,7 +53,11 @@ public class MockLogSenderClientImpl implements StoreLogResponderInterface {
     increaseAttemptsPerMessage(storeLogRequestType);
 
     // Use the ActivityType.EMERGENCY_ACCESS to fake failures that should trigger a resend.
-    if (storeLogRequestType.getLog().get(0).getActivity().getActivityType()
+    if (storeLogRequestType
+        .getLog()
+        .get(0)
+        .getActivity()
+        .getActivityType()
         .equals(ActivityType.EMERGENCY_ACCESS.getType())) {
       throw new WebServiceException(
           "This is an expected error since we got the EMERGENCY_ACCESS type");
