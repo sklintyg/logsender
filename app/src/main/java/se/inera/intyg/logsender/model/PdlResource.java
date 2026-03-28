@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -22,7 +22,6 @@ import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 
-
 @Setter
 @Getter
 public class PdlResource implements Serializable {
@@ -30,5 +29,4 @@ public class PdlResource implements Serializable {
   private Patient patient;
   private String resourceType;
   private Enhet resourceOwner;
-
 }

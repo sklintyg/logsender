@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -48,17 +48,15 @@ public class LogMessageSendProcessor {
   public void process(String groupedLogEntries)
       throws IOException, BatchValidationException, TemporaryException {
 
-    try (MdcCloseableMap ignored = MdcCloseableMap.builder()
-        .put(MdcLogConstants.TRACE_ID_KEY, MdcHelper.traceId())
-        .put(MdcLogConstants.SPAN_ID_KEY, MdcHelper.spanId())
-        .build()
-    ) {
+    try (MdcCloseableMap ignored =
+        MdcCloseableMap.builder()
+            .put(MdcLogConstants.TRACE_ID_KEY, MdcHelper.traceId())
+            .put(MdcLogConstants.SPAN_ID_KEY, MdcHelper.spanId())
+            .build()) {
       final List<String> groupedList = objectMapper.readValue(groupedLogEntries, List.class);
 
-      final var logMessages = groupedList.stream()
-          .map(this::jsonToPdlLogMessage)
-          .map(logTypeFactory::convert)
-          .toList();
+      final var logMessages =
+          groupedList.stream().map(this::jsonToPdlLogMessage).map(logTypeFactory::convert).toList();
 
       final var response = logSenderClient.sendLogMessage(logMessages);
 
@@ -72,9 +70,11 @@ public class LogMessageSendProcessor {
         case ERROR, VALIDATION_ERROR:
           log.error(
               "Loggtjänsten rejected PDL message batch with {}, batch will be moved to DLQ. Result text: '{}'",
-              resultCodeValue, resultText);
+              resultCodeValue,
+              resultText);
           throw new BatchValidationException(
-              "Loggtjänsten rejected PDL message batch with error: " + resultText
+              "Loggtjänsten rejected PDL message batch with error: "
+                  + resultText
                   + ". Batch will be moved directly to DLQ.");
         case INFO:
           log.warn(

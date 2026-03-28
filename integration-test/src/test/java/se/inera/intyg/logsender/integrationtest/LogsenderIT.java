@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.logsender.integrationtest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,13 +55,10 @@ import se.inera.intyg.logsender.model.ActivityType;
 @DisplayName("Logsender Integration Tests")
 class LogsenderIT {
 
-  @Autowired
-  private LogsenderProperties properties;
-  @Autowired
-  private JmsTemplate jmsTemplate;
+  @Autowired private LogsenderProperties properties;
+  @Autowired private JmsTemplate jmsTemplate;
 
-  @LocalServerPort
-  private int port;
+  @LocalServerPort private int port;
 
   private JmsUtil jmsUtil;
   private TestabilityUtil testabilityUtil;
@@ -82,8 +97,7 @@ class LogsenderIT {
       final var messageCount = testabilityUtil.getMessageCount();
       assertAll(
           () -> assertEquals(1, batchCount, "Expected exactly 1 aggregated message"),
-          () -> assertEquals(5, messageCount, "Expected 10 individual log entries")
-      );
+          () -> assertEquals(5, messageCount, "Expected 10 individual log entries"));
     }
 
     @Test
@@ -99,8 +113,7 @@ class LogsenderIT {
       final var batchCount = testabilityUtil.getBatchCount();
       assertAll(
           () -> assertEquals(10, messageCount, "Expected 10 individual log entries"),
-          () -> assertEquals(2, batchCount, "Expected messages to be sent in 2 batches")
-      );
+          () -> assertEquals(2, batchCount, "Expected messages to be sent in 2 batches"));
     }
 
     @Test
@@ -116,8 +129,8 @@ class LogsenderIT {
       final var batchCount = testabilityUtil.getBatchCount();
       assertAll(
           () -> assertEquals(3, messageCount, "Expected 3 individual log entries"),
-          () -> assertEquals(1, batchCount, "Expected messages to be sent in 1 batch after timeout")
-      );
+          () ->
+              assertEquals(1, batchCount, "Expected messages to be sent in 1 batch after timeout"));
     }
   }
 
@@ -185,7 +198,8 @@ class LogsenderIT {
     }
 
     @Test
-    @DisplayName("Should handle stub offline - TemporaryException messages are logged and discarded")
+    @DisplayName(
+        "Should handle stub offline - TemporaryException messages are logged and discarded")
     void shouldHandleStubOfflineWithTemporaryException() {
       testabilityUtil.setStubOffline();
 
@@ -193,16 +207,13 @@ class LogsenderIT {
         jmsUtil.publishMessage();
       }
 
-      await()
-          .pollDelay(Duration.ofSeconds(3))
-          .atMost(Duration.ofSeconds(4))
-          .until(() -> true);
+      await().pollDelay(Duration.ofSeconds(3)).atMost(Duration.ofSeconds(4)).until(() -> true);
 
       final var messageCount = testabilityUtil.getMessageCount();
       final var dlqCount = jmsUtil.numberOfDLQMessages();
       assertEquals(0, messageCount, "No messages should be stored when stub is offline");
-      assertEquals(0, dlqCount,
-          "TemporaryException messages are logged and discarded, not sent to DLQ");
+      assertEquals(
+          0, dlqCount, "TemporaryException messages are logged and discarded, not sent to DLQ");
     }
 
     @Test
@@ -227,8 +238,9 @@ class LogsenderIT {
       jmsUtil.publishMessage(ActivityType.READ);
       jmsUtil.publishMessage(ActivityType.READ);
 
-      final var pdlLogMessage = TestDataHelper.buildBasePdlLogMessage(ActivityType.READ,
-          1, ValueInclude.INCLUDE, ValueInclude.INCLUDE);
+      final var pdlLogMessage =
+          TestDataHelper.buildBasePdlLogMessage(
+              ActivityType.READ, 1, ValueInclude.INCLUDE, ValueInclude.INCLUDE);
       pdlLogMessage.setSystemId("invalid");
 
       jmsUtil.publishMessage(OBJECT_MAPPER.writeValueAsString(pdlLogMessage));
@@ -328,5 +340,4 @@ class LogsenderIT {
 
     return OBJECT_MAPPER.writeValueAsString(jsonNode);
   }
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -45,19 +45,19 @@ public class LogMessageSplitProcessor {
   private final ObjectMapper objectMapper;
 
   public List<Message> process(@Body Message body) throws IOException, PermanentException {
-    try (MdcCloseableMap ignored = MdcCloseableMap.builder()
-        .put(MdcLogConstants.TRACE_ID_KEY, MdcHelper.traceId())
-        .put(MdcLogConstants.SPAN_ID_KEY, MdcHelper.spanId())
-        .build()
-    ) {
+    try (MdcCloseableMap ignored =
+        MdcCloseableMap.builder()
+            .put(MdcLogConstants.TRACE_ID_KEY, MdcHelper.traceId())
+            .put(MdcLogConstants.SPAN_ID_KEY, MdcHelper.spanId())
+            .build()) {
       final var answer = new ArrayList<Message>();
 
       if (body != null) {
-        final var pdlLogMessage = objectMapper.readValue((String) body.getBody(),
-            PdlLogMessage.class);
+        final var pdlLogMessage =
+            objectMapper.readValue((String) body.getBody(), PdlLogMessage.class);
         if (pdlLogMessage.getPdlResourceList().isEmpty()) {
-          log.error("No resources in PDL log message {}, not proceeding.",
-              pdlLogMessage.getLogId());
+          log.error(
+              "No resources in PDL log message {}, not proceeding.", pdlLogMessage.getLogId());
           throw new PermanentException("No resources in PDL log message, discarding message.");
         } else if (pdlLogMessage.getPdlResourceList().size() == 1) {
           answer.add(body);
@@ -69,8 +69,8 @@ public class LogMessageSplitProcessor {
     }
   }
 
-  private void splitIntoOnePdlLogMessagePerResource(List<Message> answer,
-      PdlLogMessage pdlLogMessage) throws JsonProcessingException {
+  private void splitIntoOnePdlLogMessagePerResource(
+      List<Message> answer, PdlLogMessage pdlLogMessage) throws JsonProcessingException {
     for (PdlResource resource : pdlLogMessage.getPdlResourceList()) {
       final var copiedPdlLogMsg = pdlLogMessage.copy(false);
       copiedPdlLogMsg.getPdlResourceList().add(resource);

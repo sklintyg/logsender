@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -62,10 +62,10 @@ class LogMessageAggregationProcessorTest {
 
   @Test
   void testEmptyGroupedExchange() {
-    assertThrows(PermanentException.class, () ->
-        logMessageAggregationProcessor.process(buildGroupedExchange(0, 1)));
+    assertThrows(
+        PermanentException.class,
+        () -> logMessageAggregationProcessor.process(buildGroupedExchange(0, 1)));
   }
-
 
   private Exchange buildGroupedExchange(int exchangeSize, int resourcesPerMessageSize) {
     final var exchange = mock(Exchange.class);

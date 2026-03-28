@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -47,13 +47,18 @@ public class LogSenderRouteBuilder extends RouteBuilder {
   public void configure() {
     errorHandler(defaultErrorHandler().logExhausted(false));
 
-    // 1. Starts by splitting any inbound PdlLogMessage instances having more than one PdlResource into separate
+    // 1. Starts by splitting any inbound PdlLogMessage instances having more than one PdlResource
+    // into separate
     // PdlLogMessage instances, one per each PdlResource.
-    // Then the route Aggregates (n) messages together and passes them to a custom bean which will transform the
+    // Then the route Aggregates (n) messages together and passes them to a custom bean which will
+    // transform the
     // content into a single list of PdlLogMessage.
-    // The bean:logMessageAggregationProcessor outputs a List of PdlLogMessage which is passed to a JMS queue.
-    from(properties.queue().receiveLogMessageEndpoint()).routeId("aggregatorRoute")
-        .split().method("logMessageSplitProcessor")
+    // The bean:logMessageAggregationProcessor outputs a List of PdlLogMessage which is passed to a
+    // JMS queue.
+    from(properties.queue().receiveLogMessageEndpoint())
+        .routeId("aggregatorRoute")
+        .split()
+        .method("logMessageSplitProcessor")
         .aggregate(new GroupedExchangeAggregationStrategy())
         .constant(true)
         .completionInterval(properties.aggregation().bulkTimeout())
@@ -63,47 +68,65 @@ public class LogSenderRouteBuilder extends RouteBuilder {
         .to(properties.queue().receiveAggregatedLogMessageEndpoint())
         .stop();
 
-    // 2. In a transaction, reads from jms/AggregatedLogSenderQueue and uses custom bean:logMessageProcessor
+    // 2. In a transaction, reads from jms/AggregatedLogSenderQueue and uses custom
+    // bean:logMessageProcessor
     // to convert into ehr:logstore format and send. Exception handling delegates resends to AMQ.
-    from(properties.queue().receiveAggregatedLogMessageEndpoint()).routeId(
-            "aggregatedJmsToSenderRoute")
-        .onException(TemporaryException.class).to("direct:logMessageTemporaryErrorHandlerEndpoint")
+    from(properties.queue().receiveAggregatedLogMessageEndpoint())
+        .routeId("aggregatedJmsToSenderRoute")
+        .onException(TemporaryException.class)
+        .to("direct:logMessageTemporaryErrorHandlerEndpoint")
         .end()
-        .onException(BatchValidationException.class).handled(true)
-        .to("direct:logMessageBatchValidationErrorHandlerEndpoint").end()
-        .onException(Exception.class).handled(true)
-        .to("direct:logMessagePermanentErrorHandlerEndpoint").end()
+        .onException(BatchValidationException.class)
+        .handled(true)
+        .to("direct:logMessageBatchValidationErrorHandlerEndpoint")
+        .end()
+        .onException(Exception.class)
+        .handled(true)
+        .to("direct:logMessagePermanentErrorHandlerEndpoint")
+        .end()
         .transacted()
-        .to("bean:logMessageSendProcessor").stop();
+        .to("bean:logMessageSendProcessor")
+        .stop();
 
     // Error handling
-    from("direct:logMessagePermanentErrorHandlerEndpoint").routeId("permanentErrorLogging")
-        .log(LoggingLevel.ERROR, log,
+    from("direct:logMessagePermanentErrorHandlerEndpoint")
+        .routeId("permanentErrorLogging")
+        .log(
+            LoggingLevel.ERROR,
+            log,
             simple(
-                "ENTER - Permanent exception for LogMessage batch: ${exception.message}\n ${exception.stacktrace}")
+                    "ENTER - Permanent exception for LogMessage batch: ${exception.message}\n ${exception.stacktrace}")
                 .toString())
         .stop();
 
-    from("direct:logMessageBatchValidationErrorHandlerEndpoint").routeId(
-            "batchValidationErrorLogging")
-        .log(LoggingLevel.ERROR, log,
+    from("direct:logMessageBatchValidationErrorHandlerEndpoint")
+        .routeId("batchValidationErrorLogging")
+        .log(
+            LoggingLevel.ERROR,
+            log,
             simple(
-                "ENTER - Batch validation exception for LogMessage batch: ${exception.message}\n ${exception.stacktrace}")
+                    "ENTER - Batch validation exception for LogMessage batch: ${exception.message}\n ${exception.stacktrace}")
                 .toString())
         .to(properties.queue().receiveAggregatedLogMessageDlq())
         .stop();
 
-    from("direct:logMessageTemporaryErrorHandlerEndpoint").routeId("temporaryErrorLogging")
+    from("direct:logMessageTemporaryErrorHandlerEndpoint")
+        .routeId("temporaryErrorLogging")
         .choice()
         .when(header("JMSRedelivered").isEqualTo("false"))
-        .log(LoggingLevel.ERROR, log,
+        .log(
+            LoggingLevel.ERROR,
+            log,
             simple(
-                "ENTER - Temporary exception for logMessage batch: ${exception.message}\n ${exception.stacktrace}")
+                    "ENTER - Temporary exception for logMessage batch: ${exception.message}\n ${exception.stacktrace}")
                 .toString())
         .otherwise()
-        .log(LoggingLevel.WARN, log,
+        .log(
+            LoggingLevel.WARN,
+            log,
             simple(
-                "ENTER - Temporary exception (redelivered) for logMessage batch: ${exception.message}").toString())
+                    "ENTER - Temporary exception (redelivered) for logMessage batch: ${exception.message}")
+                .toString())
         .stop();
   }
 }

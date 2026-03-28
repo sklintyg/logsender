@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -29,8 +29,7 @@ import lombok.Setter;
 @RequiredArgsConstructor
 public class Patient implements Serializable {
 
-  @Serial
-  private static final long serialVersionUID = -3089443403583678480L;
+  @Serial private static final long serialVersionUID = -3089443403583678480L;
 
   private String patientId;
   private String patientNamn;
@@ -39,5 +38,4 @@ public class Patient implements Serializable {
     this.patientId = patientId;
     this.patientNamn = patientNamn;
   }
-
 }

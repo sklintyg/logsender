@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -22,8 +22,7 @@ import java.io.Serial;
 
 public class TemporaryException extends Exception {
 
-  @Serial
-  private static final long serialVersionUID = -8184379033317261358L;
+  @Serial private static final long serialVersionUID = -8184379033317261358L;
 
   public TemporaryException(String message) {
     super(message);
@@ -32,5 +31,4 @@ public class TemporaryException extends Exception {
   public TemporaryException(Throwable cause) {
     super(cause);
   }
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -42,11 +42,9 @@ import se.inera.intyg.logsender.testconfig.UnitTestConfig;
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 class AggregatorRouteTest {
 
-  @Autowired
-  private CamelContext camelContext;
+  @Autowired private CamelContext camelContext;
 
-  @Autowired
-  private ProducerTemplate producerTemplate;
+  @Autowired private ProducerTemplate producerTemplate;
 
   @EndpointInject("mock:bean:logMessageAggregationProcessor")
   MockEndpoint logMessageAggregationProcessor;
@@ -63,11 +61,15 @@ class AggregatorRouteTest {
   @BeforeEach
   void setup() throws Exception {
     MockEndpoint.resetMocks(camelContext);
-    AdviceWith.adviceWith(camelContext, "aggregatorRoute", in ->
-        in.mockEndpointsAndSkip("bean:logMessageAggregationProcessor",
-            "direct:receiveAggregatedLogMessageEndpoint",
-            "direct:logMessageTemporaryErrorHandlerEndpoint",
-            "direct:logMessagePermanentErrorHandlerEndpoint"));
+    AdviceWith.adviceWith(
+        camelContext,
+        "aggregatorRoute",
+        in ->
+            in.mockEndpointsAndSkip(
+                "bean:logMessageAggregationProcessor",
+                "direct:receiveAggregatedLogMessageEndpoint",
+                "direct:logMessageTemporaryErrorHandlerEndpoint",
+                "direct:logMessagePermanentErrorHandlerEndpoint"));
     camelContext.start();
   }
 
@@ -79,7 +81,8 @@ class AggregatorRouteTest {
     logMessageTemporaryErrorHandlerEndpoint.expectedMessageCount(0);
 
     for (int a = 0; a < 5; a++) {
-      producerTemplate.sendBodyAndHeaders("direct:receiveLogMessageEndpoint",
+      producerTemplate.sendBodyAndHeaders(
+          "direct:receiveLogMessageEndpoint",
           TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ),
           ImmutableMap.of());
     }
@@ -91,15 +94,15 @@ class AggregatorRouteTest {
   }
 
   @Test
-  void testNoMessagesReceivedWhenMessageCountLessThanBatchSize()
-      throws InterruptedException {
+  void testNoMessagesReceivedWhenMessageCountLessThanBatchSize() throws InterruptedException {
     logMessageAggregationProcessor.expectedMessageCount(0);
     newAggregatedLogMessageQueue.expectedMessageCount(0);
     logMessagePermanentErrorHandlerEndpoint.expectedMessageCount(0);
     logMessageTemporaryErrorHandlerEndpoint.expectedMessageCount(0);
 
     for (int a = 0; a < 4; a++) {
-      producerTemplate.sendBodyAndHeaders("direct:receiveLogMessageEndpoint",
+      producerTemplate.sendBodyAndHeaders(
+          "direct:receiveLogMessageEndpoint",
           TestDataHelper.buildBasePdlLogMessageAsJson(ActivityType.READ),
           ImmutableMap.of());
     }

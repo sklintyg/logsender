@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -57,15 +57,13 @@ public class LogSenderClientImpl implements LogSenderClient {
     request.getLog().addAll(logEntries);
 
     try {
-      final var response = soapIntegrationService.storeLog(
-          properties.storeLog().logicalAddress(),
-          request
-      );
+      final var response =
+          soapIntegrationService.storeLog(properties.storeLog().logicalAddress(), request);
       if (response.getResult().getResultCode() == ResultCodeType.OK && (log.isDebugEnabled())) {
-        log.debug("Successfully sent {} PDL log entries for ID's: {}", logEntries.size(),
-            logEntries.stream()
-                .map(LogType::getLogId)
-                .collect(Collectors.joining(", ")));
+        log.debug(
+            "Successfully sent {} PDL log entries for ID's: {}",
+            logEntries.size(),
+            logEntries.stream().map(LogType::getLogId).collect(Collectors.joining(", ")));
       }
       return response;
     } catch (WebServiceException e) {

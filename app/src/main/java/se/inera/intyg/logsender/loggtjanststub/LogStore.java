@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -83,8 +83,9 @@ public class LogStore {
       logEntries.clear();
 
       logTypes.stream()
-          .sorted((lt1, lt2) -> lt2.getActivity().getStartDate()
-              .compareTo(lt1.getActivity().getStartDate()))
+          .sorted(
+              (lt1, lt2) ->
+                  lt2.getActivity().getStartDate().compareTo(lt1.getActivity().getStartDate()))
           .limit(MAX_SIZE)
           .forEach(lt -> logEntries.put(lt.getLogId(), toJson(lt)));
     }

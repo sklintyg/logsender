@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -30,7 +30,6 @@ import se.inera.intyg.logsender.logging.MdcCloseableMap;
 import se.inera.intyg.logsender.logging.MdcHelper;
 import se.inera.intyg.logsender.logging.MdcLogConstants;
 
-
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -39,11 +38,11 @@ public class LogMessageAggregationProcessor {
   private final ObjectMapper objectMapper;
 
   public String process(Exchange exchange) throws PermanentException, JsonProcessingException {
-    try (MdcCloseableMap ignored = MdcCloseableMap.builder()
-        .put(MdcLogConstants.TRACE_ID_KEY, MdcHelper.traceId())
-        .put(MdcLogConstants.SPAN_ID_KEY, MdcHelper.spanId())
-        .build()
-    ) {
+    try (MdcCloseableMap ignored =
+        MdcCloseableMap.builder()
+            .put(MdcLogConstants.TRACE_ID_KEY, MdcHelper.traceId())
+            .put(MdcLogConstants.SPAN_ID_KEY, MdcHelper.spanId())
+            .build()) {
       final List<Exchange> grouped = exchange.getIn().getBody(List.class);
 
       if (grouped == null || grouped.isEmpty()) {
@@ -52,9 +51,8 @@ public class LogMessageAggregationProcessor {
         throw new PermanentException("No aggregated messages, no reason to retry");
       }
 
-      final var aggregatedList = grouped.stream()
-          .map(oneExchange -> (String) oneExchange.getIn().getBody())
-          .toList();
+      final var aggregatedList =
+          grouped.stream().map(oneExchange -> (String) oneExchange.getIn().getBody()).toList();
 
       return objectMapper.writeValueAsString(aggregatedList);
     }

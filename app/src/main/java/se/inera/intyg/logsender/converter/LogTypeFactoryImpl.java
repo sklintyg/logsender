@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -35,7 +35,6 @@ import se.riv.informationsecurity.auditing.log.v2.ResourcesType;
 import se.riv.informationsecurity.auditing.log.v2.SystemType;
 import se.riv.informationsecurity.auditing.log.v2.UserType;
 
-
 @Component
 public class LogTypeFactoryImpl implements LogTypeFactory {
 
@@ -52,10 +51,7 @@ public class LogTypeFactoryImpl implements LogTypeFactory {
 
     logType.setResources(new ResourcesType());
 
-    final var resources = source.getPdlResourceList()
-        .stream()
-        .map(this::buildResource)
-        .toList();
+    final var resources = source.getPdlResourceList().stream().map(this::buildResource).toList();
     logType.getResources().getResource().addAll(resources);
 
     return logType;
@@ -100,13 +96,18 @@ public class LogTypeFactoryImpl implements LogTypeFactory {
   private PatientType patient(Patient source) {
     final var id = util.trim(source.getPatientId());
 
-    final var personnummer = Personnummer.createPersonnummer(id)
-        .orElseThrow(() -> new IllegalArgumentException(
-            "PatientId must be a valid personnummer or samordningsnummer"));
+    final var personnummer =
+        Personnummer.createPersonnummer(id)
+            .orElseThrow(
+                () ->
+                    new IllegalArgumentException(
+                        "PatientId must be a valid personnummer or samordningsnummer"));
 
     final var patientId = new IIType();
-    patientId.setRoot(util.isSamordningsNummer(personnummer) ? util.getSamordningsNummerRoot()
-        : util.getPersonnummerRoot());
+    patientId.setRoot(
+        util.isSamordningsNummer(personnummer)
+            ? util.getSamordningsNummerRoot()
+            : util.getPersonnummerRoot());
     patientId.setExtension(util.trim(source.getPatientId()));
 
     final var patient = new PatientType();

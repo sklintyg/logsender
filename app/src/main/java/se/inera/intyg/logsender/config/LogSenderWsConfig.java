@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -57,14 +57,17 @@ public class LogSenderWsConfig {
   private static final int LOG_MESSAGE_SIZE = 1024;
   private final LogsenderProperties properties;
 
-  @Resource
-  private Environment env;
+  @Resource private Environment env;
 
   @Bean
   @Profile("!testability")
   @SchemaValidation(type = SchemaValidationType.BOTH)
-  public StoreLogResponderInterface storeLogClient() throws UnrecoverableKeyException,
-      CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
+  public StoreLogResponderInterface storeLogClient()
+      throws UnrecoverableKeyException,
+          CertificateException,
+          NoSuchAlgorithmException,
+          KeyStoreException,
+          IOException {
     final var jaxWsProxyFactoryBean = createJaxWsProxyFactoryBean();
     final var storeLogClient = (StoreLogResponderInterface) jaxWsProxyFactoryBean.create();
     setClient(storeLogClient);
@@ -88,7 +91,10 @@ public class LogSenderWsConfig {
 
   private void setClient(StoreLogResponderInterface storeLogClient)
       throws UnrecoverableKeyException,
-      CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
+          CertificateException,
+          NoSuchAlgorithmException,
+          KeyStoreException,
+          IOException {
     final var client = ClientProxy.getClient(storeLogClient);
     if (!Arrays.asList(this.env.getActiveProfiles()).contains("dev")) {
       final var httpConduit = (HTTPConduit) client.getConduit();
@@ -97,8 +103,11 @@ public class LogSenderWsConfig {
   }
 
   private HttpConduitConfig configureTlsParameters()
-      throws UnrecoverableKeyException, CertificateException,
-      NoSuchAlgorithmException, KeyStoreException, IOException {
+      throws UnrecoverableKeyException,
+          CertificateException,
+          NoSuchAlgorithmException,
+          KeyStoreException,
+          IOException {
     final var config = new HttpConduitConfig();
     config.setClientPolicy(setupHTTPClientPolicy());
     config.setTlsClientParameters(setupTLSClientParameters());
@@ -113,8 +122,12 @@ public class LogSenderWsConfig {
     return httpClientPolicy;
   }
 
-  private TLSClientParameters setupTLSClientParameters() throws KeyStoreException, IOException,
-      NoSuchAlgorithmException, CertificateException, UnrecoverableKeyException {
+  private TLSClientParameters setupTLSClientParameters()
+      throws KeyStoreException,
+          IOException,
+          NoSuchAlgorithmException,
+          CertificateException,
+          UnrecoverableKeyException {
     final var tlsClientParameters = new TLSClientParameters();
     tlsClientParameters.setDisableCNCheck(true);
     tlsClientParameters.setCipherSuitesFilter(setupCipherSuitesFilter());
@@ -124,31 +137,33 @@ public class LogSenderWsConfig {
   }
 
   private KeyManager[] setupKeyManagers()
-      throws KeyStoreException, IOException, UnrecoverableKeyException,
-      NoSuchAlgorithmException, CertificateException {
+      throws KeyStoreException,
+          IOException,
+          UnrecoverableKeyException,
+          NoSuchAlgorithmException,
+          CertificateException {
     final var keyStoreFile = properties.storeLog().certificate().file();
     final var keyStorePassword = properties.storeLog().certificate().password().toCharArray();
     final var keyStore = KeyStore.getInstance(properties.storeLog().certificate().type());
     try (FileInputStream keyStoreInputStream = new FileInputStream(keyStoreFile)) {
       keyStore.load(keyStoreInputStream, keyStorePassword);
     }
-    final var keyManagerFactory = KeyManagerFactory.getInstance(
-        KeyManagerFactory.getDefaultAlgorithm());
+    final var keyManagerFactory =
+        KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
     keyManagerFactory.init(keyStore, keyStorePassword);
     return keyManagerFactory.getKeyManagers();
   }
 
   private TrustManager[] setupTrustManagers()
-      throws KeyStoreException, IOException, CertificateException,
-      NoSuchAlgorithmException {
+      throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
     final var trustStoreFile = properties.storeLog().trustStore().file();
     final var trustStorePassword = properties.storeLog().trustStore().password().toCharArray();
     final var trustStore = KeyStore.getInstance(properties.storeLog().trustStore().type());
     try (FileInputStream trustStoreInputStream = new FileInputStream(trustStoreFile)) {
       trustStore.load(trustStoreInputStream, trustStorePassword);
     }
-    final var trustManagerFactory = TrustManagerFactory.getInstance(
-        TrustManagerFactory.getDefaultAlgorithm());
+    final var trustManagerFactory =
+        TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
     trustManagerFactory.init(trustStore);
     return trustManagerFactory.getTrustManagers();
   }
