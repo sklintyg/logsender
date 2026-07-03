@@ -18,9 +18,6 @@
  */
 package se.inera.intyg.logsender.helper;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.LocalDateTime;
 import se.inera.intyg.logsender.model.ActivityPurpose;
 import se.inera.intyg.logsender.model.ActivityType;
@@ -29,15 +26,14 @@ import se.inera.intyg.logsender.model.Patient;
 import se.inera.intyg.logsender.model.PdlLogMessage;
 import se.inera.intyg.logsender.model.PdlResource;
 import se.inera.intyg.logsender.model.ResourceType;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 public class TestDataHelper {
 
-  public static final ObjectMapper OBJECT_MAPPER;
-
-  static {
-    OBJECT_MAPPER = new ObjectMapper();
-    OBJECT_MAPPER.registerModule(new JavaTimeModule());
-  }
+  // Jackson 3 has built-in java.time support, so no JavaTimeModule registration is needed.
+  public static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().build();
 
   public static PdlLogMessage buildBasePdlLogMessage(ActivityType activityType) {
     return buildBasePdlLogMessage(activityType, 1, ValueInclude.INCLUDE, ValueInclude.INCLUDE);
@@ -52,7 +48,7 @@ public class TestDataHelper {
     try {
       return OBJECT_MAPPER.writeValueAsString(
           buildBasePdlLogMessage(activityType, 1, ValueInclude.INCLUDE, ValueInclude.INCLUDE));
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw new IllegalArgumentException(
           "Could not build test data log message, JSON could not be produced: " + e.getMessage());
     }
@@ -64,7 +60,7 @@ public class TestDataHelper {
       return OBJECT_MAPPER.writeValueAsString(
           buildBasePdlLogMessage(
               activityType, numberOfResources, ValueInclude.INCLUDE, ValueInclude.INCLUDE));
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw new IllegalArgumentException(
           "Could not build test data log message, JSON could not be produced: " + e.getMessage());
     }

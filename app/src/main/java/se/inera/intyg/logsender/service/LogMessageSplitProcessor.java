@@ -18,8 +18,6 @@
  */
 package se.inera.intyg.logsender.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +34,7 @@ import se.inera.intyg.logsender.logging.MdcHelper;
 import se.inera.intyg.logsender.logging.MdcLogConstants;
 import se.inera.intyg.logsender.model.PdlLogMessage;
 import se.inera.intyg.logsender.model.PdlResource;
+import tools.jackson.databind.ObjectMapper;
 
 @Component
 @RequiredArgsConstructor
@@ -70,7 +69,7 @@ public class LogMessageSplitProcessor {
   }
 
   private void splitIntoOnePdlLogMessagePerResource(
-      List<Message> answer, PdlLogMessage pdlLogMessage) throws JsonProcessingException {
+      List<Message> answer, PdlLogMessage pdlLogMessage) {
     for (PdlResource resource : pdlLogMessage.getPdlResourceList()) {
       final var copiedPdlLogMsg = pdlLogMessage.copy(false);
       copiedPdlLogMsg.getPdlResourceList().add(resource);

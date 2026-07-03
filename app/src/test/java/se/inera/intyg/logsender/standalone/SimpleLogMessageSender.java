@@ -20,7 +20,6 @@ package se.inera.intyg.logsender.standalone;
 
 import static se.inera.intyg.logsender.helper.TestDataHelper.OBJECT_MAPPER;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.jms.JMSException;
 import jakarta.jms.Session;
 import org.apache.activemq.ActiveMQConnection;
@@ -41,7 +40,7 @@ public class SimpleLogMessageSender {
 
   private static final String URL = ActiveMQConnection.DEFAULT_BROKER_URL;
 
-  public static void main(String[] args) throws JMSException, JsonProcessingException {
+  public static void main(String[] args) throws JMSException {
     final var connectionFactory = new ActiveMQConnectionFactory(URL);
     final var connection = connectionFactory.createConnection();
     connection.start();

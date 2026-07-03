@@ -18,7 +18,6 @@
  */
 package se.inera.intyg.logsender.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.xml.ws.WebServiceException;
 import java.io.IOException;
 import java.util.List;
@@ -35,6 +34,8 @@ import se.inera.intyg.logsender.logging.MdcHelper;
 import se.inera.intyg.logsender.logging.MdcLogConstants;
 import se.inera.intyg.logsender.model.PdlLogMessage;
 import se.riv.informationsecurity.auditing.log.v2.ResultType;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 @Component
 @RequiredArgsConstructor
@@ -102,7 +103,7 @@ public class LogMessageSendProcessor {
   private PdlLogMessage jsonToPdlLogMessage(String body) {
     try {
       return objectMapper.readValue(body, PdlLogMessage.class);
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       throw new IllegalArgumentException(
           "Could not parse PdlLogMessage from log message JSON: " + e);
     }

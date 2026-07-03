@@ -25,10 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static se.inera.intyg.logsender.integrationtest.helper.TestDataHelper.OBJECT_MAPPER;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import java.io.IOException;
 import java.time.Duration;
 import org.junit.jupiter.api.AfterAll;
@@ -49,6 +45,8 @@ import se.inera.intyg.logsender.integrationtest.util.Containers;
 import se.inera.intyg.logsender.integrationtest.util.JmsUtil;
 import se.inera.intyg.logsender.integrationtest.util.TestabilityUtil;
 import se.inera.intyg.logsender.model.ActivityType;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 @ActiveProfiles({"integration-test", "testability"})
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -234,7 +232,7 @@ class LogsenderIT {
     }
 
     @Test
-    void ensureMessageEndsUpInDlqWithOneInvalidSystemInBatch() throws JsonProcessingException {
+    void ensureMessageEndsUpInDlqWithOneInvalidSystemInBatch() {
       jmsUtil.publishMessage(ActivityType.READ);
       jmsUtil.publishMessage(ActivityType.READ);
 
@@ -334,9 +332,8 @@ class LogsenderIT {
     final var jsonNode = (ObjectNode) OBJECT_MAPPER.readTree(bodyOfSix);
     final var pdlResourceList = (ArrayNode) jsonNode.get("pdlResourceList");
 
-    final var invalidJsonNode = new TextNode("Some text that doesn't belong here");
     final var resourceNode = (ObjectNode) pdlResourceList.get(2);
-    resourceNode.set("resourceOwner", invalidJsonNode);
+    resourceNode.put("resourceOwner", "Some text that doesn't belong here");
 
     return OBJECT_MAPPER.writeValueAsString(jsonNode);
   }

@@ -21,7 +21,9 @@ dependencies {
     testImplementation "org.apache.activemq:activemq-broker"
     testImplementation 'org.springframework.boot:spring-boot-starter-activemq'
 
-    testImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    testImplementation 'org.springframework.boot:spring-boot-resttestclient'
+    testImplementation 'org.springframework.boot:spring-boot-restclient'
+    testImplementation 'org.springframework.boot:spring-boot-http-client'
     testImplementation "org.mock-server:mockserver-client-java"
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-web'

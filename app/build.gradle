@@ -18,7 +18,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
     implementation "codes.rafael.jaxb2_commons:jaxb2-basics-runtime"
-    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
     implementation "org.apache.camel.springboot:camel-spring-boot-starter"
     implementation("org.apache.camel.springboot:camel-activemq-starter") {
         exclude group: "org.apache.activemq", module: "activemq-client-jakarta"

@@ -22,17 +22,17 @@ import static org.awaitility.Awaitility.await;
 import static se.inera.intyg.logsender.integrationtest.helper.TestDataHelper.OBJECT_MAPPER;
 
 import java.time.Duration;
+import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
 import se.riv.informationsecurity.auditing.log.v2.LogType;
 
 public class TestabilityUtil {
 
   private final int port;
-  private final RestTemplate restTemplate;
+  private final TestRestTemplate restTemplate;
 
   public TestabilityUtil(int port) {
-    this.restTemplate = new RestTemplate();
+    this.restTemplate = new TestRestTemplate();
     this.port = port;
   }
 
@@ -111,11 +111,7 @@ public class TestabilityUtil {
         restTemplate.getForEntity(
             "http://localhost:%s/api/loggtjanst-api/batch-count".formatted(port), String.class);
     if (resp.getStatusCode().is2xxSuccessful() && resp.getBody() != null) {
-      try {
-        return OBJECT_MAPPER.readTree(resp.getBody()).get("batchCount").asInt();
-      } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
-        throw new IllegalStateException("Could not parse batch-count response", e);
-      }
+      return OBJECT_MAPPER.readTree(resp.getBody()).get("batchCount").asInt();
     }
     return 0;
   }
