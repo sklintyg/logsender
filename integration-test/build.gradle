@@ -1,13 +1,17 @@
 dependencies {
     testImplementation project(':app')
 
+    testImplementation enforcedPlatform("org.testcontainers:testcontainers-bom:1.21.4")
+
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
-    testImplementation "codes.rafael.jaxb2_commons:jaxb2-basics"
+    testImplementation "codes.rafael.jaxb2_commons:jaxb2-basics-runtime"
 
     testImplementation "org.apache.camel.springboot:camel-spring-boot-starter"
-    testImplementation "org.apache.camel.springboot:camel-activemq-starter"
+    testImplementation("org.apache.camel.springboot:camel-activemq-starter") {
+        exclude group: "org.apache.activemq", module: "activemq-client-jakarta"
+    }
     testImplementation "org.apache.camel:camel-test-spring-junit5"
 
     testImplementation "se.riv.informationsecurity.auditing.log:informationsecurity-auditing-log-schemas:${rivtaStoreLogSchemasVersion}"
