@@ -18,9 +18,7 @@
  */
 package se.inera.intyg.logsender.loggtjanststub;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.annotation.PostConstruct;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +28,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.support.collections.DefaultRedisMap;
 import se.inera.intyg.logsender.loggtjanststub.json.LogStoreObjectMapper;
 import se.riv.informationsecurity.auditing.log.v2.LogType;
+import tools.jackson.core.JacksonException;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -60,7 +59,7 @@ public class LogStore {
   private LogType fromJson(String json) {
     try {
       return logStoreObjectMapper.readValue(json, LogType.class);
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       throw new IllegalArgumentException(e.getMessage());
     }
   }
@@ -94,7 +93,7 @@ public class LogStore {
   private String toJson(LogType lt) {
     try {
       return logStoreObjectMapper.writeValueAsString(lt);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw new IllegalArgumentException(e.getMessage());
     }
   }

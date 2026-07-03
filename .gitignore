@@ -28,3 +28,7 @@ out
 
 ### IntelliJ IDEA ###
 .idea/
+# BEGIN ai-resources synced (auto-generated, do not edit) ###
+/.github/copilot-instructions.md
+/.github/skills/caveman/
+# END ai-resources synced ###

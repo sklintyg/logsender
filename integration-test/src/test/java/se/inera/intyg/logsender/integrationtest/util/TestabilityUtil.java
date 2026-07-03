@@ -19,10 +19,10 @@
 package se.inera.intyg.logsender.integrationtest.util;
 
 import static org.awaitility.Awaitility.await;
+import static se.inera.intyg.logsender.integrationtest.helper.TestDataHelper.OBJECT_MAPPER;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import java.time.Duration;
-import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.http.ResponseEntity;
 import se.riv.informationsecurity.auditing.log.v2.LogType;
 
@@ -109,9 +109,9 @@ public class TestabilityUtil {
   public int getBatchCount() {
     final var resp =
         restTemplate.getForEntity(
-            "http://localhost:%s/api/loggtjanst-api/batch-count".formatted(port), JsonNode.class);
+            "http://localhost:%s/api/loggtjanst-api/batch-count".formatted(port), String.class);
     if (resp.getStatusCode().is2xxSuccessful() && resp.getBody() != null) {
-      return resp.getBody().get("batchCount").asInt();
+      return OBJECT_MAPPER.readTree(resp.getBody()).get("batchCount").asInt();
     }
     return 0;
   }
@@ -119,19 +119,18 @@ public class TestabilityUtil {
   /** Set stub error state (NONE, ERROR, VALIDATION). */
   public void setErrorState(String errorType) {
     restTemplate.getForEntity(
-        "http://localhost:%s/api/loggtjanst-api/error/%s".formatted(port, errorType),
-        JsonNode.class);
+        "http://localhost:%s/api/loggtjanst-api/error/%s".formatted(port, errorType), String.class);
   }
 
   /** Set stub offline (will reject all requests). */
   public void setStubOffline() {
     restTemplate.getForEntity(
-        "http://localhost:%s/api/loggtjanst-api/offline".formatted(port), JsonNode.class);
+        "http://localhost:%s/api/loggtjanst-api/offline".formatted(port), String.class);
   }
 
   /** Set stub online (will accept requests). */
   public void setStubOnline() {
     restTemplate.getForEntity(
-        "http://localhost:%s/api/loggtjanst-api/online".formatted(port), JsonNode.class);
+        "http://localhost:%s/api/loggtjanst-api/online".formatted(port), String.class);
   }
 }

@@ -19,40 +19,40 @@
 package se.inera.intyg.logsender.loggtjanststub.json;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.ext.javatime.deser.LocalDateDeserializer;
+import tools.jackson.databind.ext.javatime.deser.LocalDateTimeDeserializer;
+import tools.jackson.databind.ext.javatime.ser.LocalDateSerializer;
+import tools.jackson.databind.ext.javatime.ser.LocalDateTimeSerializer;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
 
 public class LogStoreObjectMapper extends ObjectMapper {
 
   public LogStoreObjectMapper() {
-    setSerializationInclusion(JsonInclude.Include.ALWAYS);
-
-    configure(SerializationFeature.INDENT_OUTPUT, true);
-    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-    configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
-    registerModule(new Module());
-
-    setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
+    super(
+        JsonMapper.builder()
+            .changeDefaultPropertyInclusion(
+                incl -> incl.withValueInclusion(JsonInclude.Include.ALWAYS))
+            .configure(SerializationFeature.INDENT_OUTPUT, true)
+            .configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .addModule(dateModule())
+            .defaultDateFormat(new SimpleDateFormat("yyyy-MM-dd")));
   }
 
-  private static final class Module extends SimpleModule {
-
-    private Module() {
-      addSerializer(LocalDate.class, LocalDateSerializer.INSTANCE);
-      addDeserializer(LocalDate.class, LocalDateDeserializer.INSTANCE);
-
-      addSerializer(LocalDateTime.class, LocalDateTimeSerializer.INSTANCE);
-      addDeserializer(LocalDateTime.class, LocalDateTimeDeserializer.INSTANCE);
-    }
+  private static SimpleModule dateModule() {
+    final var module = new SimpleModule();
+    module.addSerializer(LocalDate.class, LocalDateSerializer.INSTANCE);
+    module.addDeserializer(LocalDate.class, LocalDateDeserializer.INSTANCE);
+    module.addSerializer(LocalDateTime.class, LocalDateTimeSerializer.INSTANCE);
+    module.addDeserializer(LocalDateTime.class, LocalDateTimeDeserializer.INSTANCE);
+    return module;
   }
 }

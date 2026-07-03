@@ -18,8 +18,6 @@
  */
 package se.inera.intyg.logsender.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +27,7 @@ import se.inera.intyg.logsender.exception.PermanentException;
 import se.inera.intyg.logsender.logging.MdcCloseableMap;
 import se.inera.intyg.logsender.logging.MdcHelper;
 import se.inera.intyg.logsender.logging.MdcLogConstants;
+import tools.jackson.databind.ObjectMapper;
 
 @Component
 @RequiredArgsConstructor
@@ -37,7 +36,7 @@ public class LogMessageAggregationProcessor {
 
   private final ObjectMapper objectMapper;
 
-  public String process(Exchange exchange) throws PermanentException, JsonProcessingException {
+  public String process(Exchange exchange) throws PermanentException {
     try (MdcCloseableMap ignored =
         MdcCloseableMap.builder()
             .put(MdcLogConstants.TRACE_ID_KEY, MdcHelper.traceId())

@@ -10,17 +10,18 @@ tasks.named('bootJar') {
 def applicationDir = "${rootProject.projectDir}/devops/dev"
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation 'org.springframework.boot:spring-boot-starter-aspectj'
     implementation 'org.springframework.boot:spring-boot-starter-activemq'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
-    implementation "codes.rafael.jaxb2_commons:jaxb2-basics"
-    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+    implementation "codes.rafael.jaxb2_commons:jaxb2-basics-runtime"
     implementation "org.apache.camel.springboot:camel-spring-boot-starter"
-    implementation "org.apache.camel.springboot:camel-activemq-starter"
+    implementation("org.apache.camel.springboot:camel-activemq-starter") {
+        exclude group: "org.apache.activemq", module: "activemq-client-jakarta"
+    }
     implementation "org.apache.camel.springboot:camel-jms-starter"
     implementation "org.apache.cxf:cxf-rt-features-logging"
     implementation "org.apache.cxf:cxf-rt-frontend-jaxws"
