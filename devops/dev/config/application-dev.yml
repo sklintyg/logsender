@@ -4,7 +4,9 @@ app:
     bulk-timeout: 10000
   store-log:
     logical-address: SE000000000000-0000
-    ntjp-base-url: http://localhost:${dev.http.port}/stubs
+    # intyg-mock-service (port 18888), where the stored log messages can be seen; the StoreLog path
+    # of application.yml is appended to this base
+    ntjp-base-url: http://localhost:18888/services
     certificate:
       file: ${application.dir}/certifikat/localhost.p12
       key-manager-password: password

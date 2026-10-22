@@ -47,7 +47,7 @@ dependencies {
 
 bootRun {
     systemProperty("application.dir", "${applicationDir}")
-    systemProperty("spring.profiles.active", "dev, testability")
+    systemProperty("spring.profiles.active", "dev")
     systemProperty("spring.config.additional-location", "file:${applicationDir}/config/")
 }
 
